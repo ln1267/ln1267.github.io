@@ -1,0 +1,294 @@
+<!DOCTYPE HTML>
+<!--
+	Massively by HTML5 UP
+	html5up.net | @ajlkn
+  Jekyll integration by somiibo.com
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+--><html>
+	<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+<title>Anaconda and Jupyter notebook</title>
+<meta name="description" content="">
+
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/icon/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/icon/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/icon/favicon-16x16.png">
+<link rel="manifest" href="/assets/icon/manifest.json">
+<link rel="mask-icon" href="/assets/icon/safari-pinned-tab.svg" color="#5bbad5">
+<link rel="shortcut icon" href="/assets/icon/favicon.ico">
+<meta name="msapplication-config" content="/assets/icon/browserconfig.xml">
+<meta name="theme-color" content="#ffffff">
+
+
+  
+
+
+
+
+
+
+
+
+<!-- CSS -->
+<link rel="stylesheet" href="/assets/css/main.css">
+<noscript><link rel="stylesheet" href="/assets/css/noscript.css"></noscript>
+
+	</head>
+	<body class="is-loading">
+
+		<!-- Wrapper -->
+			<div id="wrapper" class="fade-in">
+
+				<!-- Header -->
+        <header id="header">
+          <a href="/" class="logo">Dr Ning Liu's Ecohydrology</a>
+        </header>
+
+				<!-- Nav -->
+					<nav id="nav">
+
+            <ul class="links">
+  <li class=""><a href="/">Home</a></li>
+  <li class=""><a href="/publication/">Publications</a></li>
+  <li class=" active "><a href="/blog/">Research Blogs</a></li>
+  <li class=""><a href="/notebook/">Notebooks</a></li>
+</ul>
+
+
+						<ul class="icons">
+              <li><a href="https://twitter.com/NingLiu_MU" class="icon fa-twitter" rel="nofollow"><span class="label">Twitter</span></a></li>
+              <li><a href="https://facebook.com/" class="icon fa-facebook" rel="nofollow"><span class="label">Facebook</span></a></li>
+              <li><a href="https://instagram.com/" class="icon fa-instagram" rel="nofollow"><span class="label">Instagram</span></a></li>
+              <li><a href="https://github.com/ln1267" class="icon fa-github" rel="nofollow"><span class="label">GitHub</span></a></li>
+						</ul>
+					</nav>
+
+				<!-- Main -->
+				<div id="main">
+          <section class="post">
+    				<header class="major">
+      				<h1>Anaconda and Jupyter notebook</h1>
+      				<span class="date">
+					30 Mar 2018
+
+      				[
+  
+    
+    <a href="/tag/Python"><code class="highligher-rouge"><nobr>Python</nobr></code> </a>
+  
+    
+    <a href="/tag/Programming"><code class="highligher-rouge"><nobr>Programming</nobr></code> </a>
+  
+    
+    <a href="/tag/Jupyter"><code class="highligher-rouge"><nobr>Jupyter</nobr></code> </a>
+  
+]
+</span>
+ <p>This is a guild for installing Ananconda and Jupyter notebook</p>
+     			</header>
+      			<div class="image main"><img src="" alt=""></div>
+      			<p></p>
+<h2 id="install-and-config-anaconda">Install and Config Anaconda</h2>
+
+<h3 id="install-anaconda">Install Anaconda</h3>
+<ul>
+  <li>Anaconda can be downloaded in <a href="https://www.continuum.io/downloads#_unix">Anaconda’s website</a>, it has both <a href="http://repo.continuum.io/archive/Anaconda3-4.0.0-Linux-x86_64.sh">Linux</a> and <a href="http://repo.continuum.io/archive/Anaconda3-4.0.0-Windows-x86_64.exe">Windows version</a>
+</li>
+  <li>install Anaconda
+    <div class="highlighter-rouge">
+<pre class="highlight"><code>bash *.sh
+</code></pre>
+    </div>
+  </li>
+  <li>set the default python3
+After install, restart the connection the default <strong><em>“.bashrc”</em></strong> will be changed for Anaconda
+    <div class="highlighter-rouge">
+<pre class="highlight"><code># added by Anaconda3 4.0.0 installer
+export PATH="/home/ubuntu/anaconda3/bin:$PATH"
+
+</code></pre>
+    </div>
+  </li>
+  <li>install modules
+    <div class="highlighter-rouge">
+<pre class="highlight"><code>conda list # check installed modules
+conda install netCDF4
+</code></pre>
+    </div>
+  </li>
+  <li>
+    <p>Update
+ <code class="highlighter-rouge">conda update anaconda</code></p>
+  </li>
+  <li>
+    <p>create an environment
+  <code class="highlighter-rouge">conda create -n py35 python=3.5 anaconda</code></p>
+  </li>
+  <li>
+    <p>To activate I use
+   <code class="highlighter-rouge">source activate py35</code></p>
+  </li>
+  <li>to deactivate
+<code class="highlighter-rouge">source deactivate</code>
+</li>
+</ul>
+
+<h2 id="jupyter-notebook">Jupyter notebook</h2>
+<h3 id="start-jupyter-notebook">start Jupyter notebook</h3>
+<div class="highlighter-rouge">
+<pre class="highlight"><code># general start 
+jupyter notebook
+
+# in background
+jupyter notebook &amp;&gt; /dev/null &amp;
+
+# check opened notebook
+jupyter notebook list
+
+# Close jupyter note book
+kill $(pgrep jupyter)
+</code></pre>
+</div>
+<h3 id="add-extension-to-jupyter">add extension to Jupyter</h3>
+<p>Jupyter nbextensions <a href="https://github.com/ipython-contrib/jupyter_contrib_nbextensions/">link</a></p>
+<div class="language-shell highlighter-rouge">
+<pre class="highlight"><code><span class="c"># install the nbextensions</span>
+pip install jupyter_contrib_nbextensions
+<span class="c"># install js</span>
+jupyter contrib nbextension install --user
+<span class="c"># enable nbextensions</span>
+jupyter nbextension <span class="nb">enable </span>codefolding/main
+
+</code></pre>
+</div>
+
+<h3 id="nbconvert-for-converting-ipython-to-pdf">nbconvert for converting ipython to pdf</h3>
+<div class="highlighter-rouge">
+<pre class="highlight"><code>sudo apt-get install pandoc
+git clone https://github.com/jupyter/nbconvert.git
+cd nbconvert
+pip install -e .
+# test nbconvert
+pip install nbconvert[test]
+py.test --pyargs nbconvert
+</code></pre>
+</div>
+
+
+      		</section>
+<!--
+          <div class="comments-wrapper">
+          <div id="disqus_thread"></div>
+          <script>
+              /**
+               *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+               *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+               */
+
+              var disqus_config = function () {
+                  this.page.url = '/blog/Install-python/';  /*Replace PAGE_URL with your page's canonical URL variable*/
+                  this.page.identifier = '/blog/Install-python/'; /*Replace PAGE_IDENTIFIER with your page's unique identifier variable*/
+              };
+
+              (function() {  /* dont endit below this line */
+                  var d = document, s = d.createElement('script');
+
+                  s.src = 'https://default.disqus.com/embed.js';
+
+                  s.setAttribute('data-timestamp', +new Date());
+                  (d.head || d.body).appendChild(s);
+              })();
+          </script>
+          <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+        </div>
+-->
+
+					<!-- Footer -->
+						<footer>
+              <ul class="actions">
+                <li><a href="/blog/" class="button">My Blog</a></li>
+              </ul>
+						</footer>
+					</div>
+
+				<!-- Footer -->
+        <footer id="footer">
+  <section>
+    <form method="POST" action="https://formspree.io/LN1267@gmail.com">
+      <div class="field">
+        <label for="name">Name</label>
+        <input type="text" name="name" id="name">
+      </div>
+      <div class="field">
+        <label for="email">Email</label>
+        <input type="text" name="email" id="email">
+      </div>
+      <div class="field">
+        <label for="message">Message</label>
+        <textarea name="message" id="message" rows="3"></textarea>
+      </div>
+      <ul class="actions">
+        <li><input type="submit" value="Send Message"></li>
+      </ul>
+    </form>
+  </section>
+  <section class="split contact">
+    <section class="alt">
+      <h3>Location</h3>
+      <p>ES. 2-057, school of VLS, Murdoch Unviersity, Perth, WA, Australia 6150</p>
+    </section>
+    <section>
+      <h3>Phone</h3>
+      <p><a href="tel:+61%208%209630%206484">+61 8 9630 6484</a></p>
+    </section>
+    <section>
+      <h3>Email</h3>
+      <p><a href="mailto:LN1267@gmail.com">LN1267@gmail.com</a></p>
+    </section>
+    <section>
+      <h3>Social</h3>
+      <ul class="icons alt">
+        <li><a href="https://twitter.com/NingLiu_MU" class="icon fa-twitter" rel="nofollow"><span class="label">Twitter</span></a></li>
+        <li><a href="https://facebook.com/" class="icon fa-facebook" rel="nofollow"><span class="label">Facebook</span></a></li>
+        <li><a href="https://instagram.com/" class="icon fa-instagram" rel="nofollow"><span class="label">Instagram</span></a></li>
+        <li><a href="https://github.com/ln1267" class="icon fa-github" rel="nofollow"><span class="label">GitHub</span></a></li>
+      </ul>
+    </section>
+  </section>
+</footer>
+<!-- Copyright -->
+<div id="copyright">
+  <ul>
+<li>© HTML5 UP</li>
+<li>Design by <a href="/">Dr Ning Liu</a>
+</li>
+</ul>
+</div>
+
+
+			</div>
+
+      <!-- Scripts -->
+  		<!-- DYN -->
+<script src="/assets/js/jquery.min.js"></script>
+<script src="/assets/js/jquery.scrollex.min.js"></script>
+<script src="/assets/js/jquery.scrolly.min.js"></script>
+<script src="/assets/js/skel.min.js"></script>
+<script src="/assets/js/util.js"></script>
+<script src="/assets/js/main.js"></script>
+
+			<script async src="https://www.googletagmanager.com/gtag/js?id=default"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments)};
+  gtag('js', new Date());
+
+  gtag('config', 'default');
+</script>
+
+
+	</body>
+</html>

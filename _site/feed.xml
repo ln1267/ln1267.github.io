@@ -1,26 +1,77 @@
-<?xml version="1.0" encoding="utf-8"?><?xml-stylesheet type="text/xml" href="/feed.xslt.xml"?><feed xmlns="http://www.w3.org/2005/Atom"><generator uri="http://jekyllrb.com" version="3.2.1">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2018-03-30T11:11:22+00:00</updated><id>/</id><title type="html">Dr Ning Liu’s Ecohydrology</title><subtitle>This is a personal website</subtitle><entry><title type="html">This is my third blog</title><link href="/blog/My-third-Blog/" rel="alternate" type="text/html" title="This is my third blog" /><published>2018-03-30T00:00:00+00:00</published><updated>2018-03-30T00:00:00+00:00</updated><id>/blog/My-third-Blog</id><content type="html" xml:base="/blog/My-third-Blog/">&lt;h2 id=&quot;my-first-blog&quot;&gt;my first blog&lt;/h2&gt;
+<?xml version="1.0" encoding="utf-8"?><?xml-stylesheet type="text/xml" href="/feed.xslt.xml"?><feed xmlns="http://www.w3.org/2005/Atom"><generator uri="http://jekyllrb.com" version="3.2.1">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2018-03-30T15:35:17+00:00</updated><id>/</id><title type="html">Dr Ning Liu’s Ecohydrology</title><subtitle>This is a personal website</subtitle><entry><title type="html">this si fr</title><link href="/blog/sec/" rel="alternate" type="text/html" title="this si fr" /><published>2018-03-30T00:00:00+00:00</published><updated>2018-03-30T00:00:00+00:00</updated><id>/blog/sec</id><content type="html" xml:base="/blog/sec/">&lt;h2 id=&quot;this-is-j&quot;&gt;this is j&lt;/h2&gt;</content><category term="Python" /><summary type="html">hhshs</summary></entry><entry><title type="html">Anaconda and Jupyter notebook</title><link href="/blog/Install-python/" rel="alternate" type="text/html" title="Anaconda and Jupyter notebook" /><published>2018-03-30T00:00:00+00:00</published><updated>2018-03-30T00:00:00+00:00</updated><id>/blog/Install-python</id><content type="html" xml:base="/blog/Install-python/">&lt;h2 id=&quot;install-and-config-anaconda&quot;&gt;Install and Config Anaconda&lt;/h2&gt;
 
-&lt;p&gt;haha, let’s test it&lt;/p&gt;</content><category term="blog" /><category term="general" /><summary type="html">Just some information</summary></entry><entry><title type="html">This is my second blog</title><link href="/blog/My-second-Blog/" rel="alternate" type="text/html" title="This is my second blog" /><published>2018-03-30T00:00:00+00:00</published><updated>2018-03-30T00:00:00+00:00</updated><id>/blog/My-second-Blog</id><content type="html" xml:base="/blog/My-second-Blog/">&lt;h2 id=&quot;my-first-blog&quot;&gt;my first blog&lt;/h2&gt;
+&lt;h3 id=&quot;install-anaconda&quot;&gt;Install Anaconda&lt;/h3&gt;
+&lt;ul&gt;
+  &lt;li&gt;Anaconda can be downloaded in &lt;a href=&quot;https://www.continuum.io/downloads#_unix&quot;&gt;Anaconda’s website&lt;/a&gt;, it has both &lt;a href=&quot;http://repo.continuum.io/archive/Anaconda3-4.0.0-Linux-x86_64.sh&quot;&gt;Linux&lt;/a&gt; and &lt;a href=&quot;http://repo.continuum.io/archive/Anaconda3-4.0.0-Windows-x86_64.exe&quot;&gt;Windows version&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;install Anaconda
+    &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;bash *.sh
+&lt;/code&gt;&lt;/pre&gt;
+    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;set the default python3
+After install, restart the connection the default &lt;strong&gt;&lt;em&gt;“.bashrc”&lt;/em&gt;&lt;/strong&gt; will be changed for Anaconda
+    &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;# added by Anaconda3 4.0.0 installer
+export PATH=&quot;/home/ubuntu/anaconda3/bin:$PATH&quot;
 
-&lt;p&gt;haha, let’s test it&lt;/p&gt;</content><category term="blog" /><category term="general" /><summary type="html">Just some information</summary></entry><entry><title type="html">This is my first blog</title><link href="/blog/My-First-Blog/" rel="alternate" type="text/html" title="This is my first blog" /><published>2018-03-30T00:00:00+00:00</published><updated>2018-03-30T00:00:00+00:00</updated><id>/blog/My-First-Blog</id><content type="html" xml:base="/blog/My-First-Blog/">&lt;h2 id=&quot;my-first-blog&quot;&gt;my first blog&lt;/h2&gt;
+&lt;/code&gt;&lt;/pre&gt;
+    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;install modules
+    &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;conda list # check installed modules
+conda install netCDF4
+&lt;/code&gt;&lt;/pre&gt;
+    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Update
+ &lt;code class=&quot;highlighter-rouge&quot;&gt;conda update anaconda&lt;/code&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;create an environment
+  &lt;code class=&quot;highlighter-rouge&quot;&gt;conda create -n py35 python=3.5 anaconda&lt;/code&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;To activate I use
+   &lt;code class=&quot;highlighter-rouge&quot;&gt;source activate py35&lt;/code&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;to deactivate
+&lt;code class=&quot;highlighter-rouge&quot;&gt;source deactivate&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
 
-&lt;p&gt;haha, let’s test it&lt;/p&gt;</content><category term="blog" /><category term="general" /><summary type="html">Just some information</summary></entry><entry><title type="html">This is my first paper</title><link href="/blog/first-paper/" rel="alternate" type="text/html" title="This is my first paper" /><published>2018-03-11T00:00:00+00:00</published><updated>2018-03-11T00:00:00+00:00</updated><id>/blog/first-paper</id><content type="html" xml:base="/blog/first-paper/">&lt;h2 id=&quot;this-is-first-paper&quot;&gt;this is first paper&lt;/h2&gt;</content><category term="paper" /><category term="publications" /><summary type="html">just a bit introduction</summary></entry><entry><title type="html">Welcome to Massively: The Jekyll Theme!</title><link href="/blog/welcome-to-massively-the-jekyll-theme/" rel="alternate" type="text/html" title="Welcome to Massively: The Jekyll Theme!" /><published>2017-10-31T00:00:00+00:00</published><updated>2017-10-31T00:00:00+00:00</updated><id>/blog/welcome-to-massively-the-jekyll-theme</id><content type="html" xml:base="/blog/welcome-to-massively-the-jekyll-theme/">&lt;h2 id=&quot;how-to-use-this-theme&quot;&gt;How to Use This Theme&lt;/h2&gt;
-&lt;p&gt;Just go ahead and read up on &lt;a href=&quot;https://jekyllrb.com/&quot;&gt;how to install Jekyll&lt;/a&gt;. It’s not too hard I promise!&lt;/p&gt;
+&lt;h2 id=&quot;jupyter-notebook&quot;&gt;Jupyter notebook&lt;/h2&gt;
+&lt;h3 id=&quot;start-jupyter-notebook&quot;&gt;start Jupyter notebook&lt;/h3&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;# general start 
+jupyter notebook
 
-&lt;p&gt;Download this repository &lt;a href=&quot;https://github.com/iwiedenm/jekyll-theme-massively&quot;&gt;here&lt;/a&gt; and save it to any folder you want.&lt;/p&gt;
+# in background
+jupyter notebook &amp;amp;&amp;gt; /dev/null &amp;amp;
 
-&lt;p&gt;Open a terminal window or a command line and &lt;code class=&quot;highlighter-rouge&quot;&gt;cd&lt;/code&gt; to that location.&lt;/p&gt;
+# check opened notebook
+jupyter notebook list
 
-&lt;p&gt;Then enter: &lt;code class=&quot;highlighter-rouge&quot;&gt;bundle exec jekyll serve&lt;/code&gt;. You can now access your new Jekyll site from &lt;a href=&quot;http://127.0.0.1:4000/&quot;&gt;http://127.0.0.1:4000/&lt;/a&gt;. Have fun exploring your new site!&lt;/p&gt;
-
-&lt;h2 id=&quot;features&quot;&gt;Features&lt;/h2&gt;
-&lt;h3 id=&quot;auto-generating-sitemap&quot;&gt;Auto-Generating Sitemap&lt;/h3&gt;
-&lt;p&gt;The sitemap is auto generated! Just simply change the front matter of each site. It looks like so…&lt;/p&gt;
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;sitemap:
-    priority: 0.7
-    lastmod: 2017-11-02
-    changefreq: weekly
+# Close jupyter note book
+kill $(pgrep jupyter)
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
-&lt;h3 id=&quot;formspring-integration&quot;&gt;Formspring integration&lt;/h3&gt;
-&lt;p&gt;The contact form below each page on the footer actually collects information! Just change your email address in the &lt;code class=&quot;highlighter-rouge&quot;&gt;_config.yml&lt;/code&gt; file!&lt;/p&gt;</content><summary type="html">Huge thanks to HTML5 UP for making this awesome template! Let's see what it can do</summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="/images/pic02.jpg" /></entry></feed>
+&lt;h3 id=&quot;add-extension-to-jupyter&quot;&gt;add extension to Jupyter&lt;/h3&gt;
+&lt;p&gt;Jupyter nbextensions &lt;a href=&quot;https://github.com/ipython-contrib/jupyter_contrib_nbextensions/&quot;&gt;link&lt;/a&gt;&lt;/p&gt;
+&lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# install the nbextensions&lt;/span&gt;
+pip install jupyter_contrib_nbextensions
+&lt;span class=&quot;c&quot;&gt;# install js&lt;/span&gt;
+jupyter contrib nbextension install --user
+&lt;span class=&quot;c&quot;&gt;# enable nbextensions&lt;/span&gt;
+jupyter nbextension &lt;span class=&quot;nb&quot;&gt;enable &lt;/span&gt;codefolding/main
+
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;nbconvert-for-converting-ipython-to-pdf&quot;&gt;nbconvert for converting ipython to pdf&lt;/h3&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;sudo apt-get install pandoc
+git clone https://github.com/jupyter/nbconvert.git
+cd nbconvert
+pip install -e .
+# test nbconvert
+pip install nbconvert[test]
+py.test --pyargs nbconvert
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;</content><category term="Python" /><category term="Programming" /><category term="Jupyter" /><summary type="html">This is a guild for installing Ananconda and Jupyter notebook</summary></entry></feed>

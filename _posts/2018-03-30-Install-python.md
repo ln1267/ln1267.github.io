@@ -3,6 +3,7 @@ layout: post
 title:  Anaconda and Jupyter notebook
 date: 2018-3-30
 excerpt: This is a guild for installing Ananconda and Jupyter notebook
+tags: Python Programming Jupyter
 ---
 
 ## Install and Config Anaconda

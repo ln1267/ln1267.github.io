@@ -2,7 +2,7 @@
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
     <url>
-      <loc>/blog/My-third-Blog/</loc>
+      <loc>/blog/sec/</loc>
       
         <lastmod>2018-03-30T00:00:00+00:00</lastmod>
       
@@ -11,7 +11,7 @@
     </url>
   
     <url>
-      <loc>/blog/My-second-Blog/</loc>
+      <loc>/blog/Install-python/</loc>
       
         <lastmod>2018-03-30T00:00:00+00:00</lastmod>
       
@@ -19,37 +19,40 @@
       <priority>0.7</priority>
     </url>
   
-    <url>
-      <loc>/blog/My-First-Blog/</loc>
-      
-        <lastmod>2018-03-30T00:00:00+00:00</lastmod>
-      
-      <changefreq>weekly</changefreq>
-      <priority>0.7</priority>
-    </url>
   
     <url>
-      <loc>/blog/first-paper/</loc>
+      <loc>/tag/Jupyter/</loc>
+       <lastmod>2017-11-10T00:20:35+00:00</lastmod>
       
-        <lastmod>2018-03-11T00:00:00+00:00</lastmod>
+       <changefreq>weekly</changefreq>
       
-      <changefreq>weekly</changefreq>
-      <priority>0.7</priority>
-    </url>
+       <priority>0.5</priority>
+      
+     </url>
   
     <url>
-      <loc>/blog/welcome-to-massively-the-jekyll-theme/</loc>
+      <loc>/tag/Programming/</loc>
+       <lastmod>2017-11-10T00:20:35+00:00</lastmod>
       
-        <lastmod>2017-10-31T00:00:00+00:00</lastmod>
+       <changefreq>weekly</changefreq>
       
-      <changefreq>weekly</changefreq>
-      <priority>0.7</priority>
-    </url>
+       <priority>0.5</priority>
+      
+     </url>
   
+    <url>
+      <loc>/tag/Python/</loc>
+       <lastmod>2017-11-10T00:20:35+00:00</lastmod>
+      
+       <changefreq>weekly</changefreq>
+      
+       <priority>0.5</priority>
+      
+     </url>
   
     <url>
       <loc>/blog/</loc>
-       <lastmod>2017-11-02T00:00:00+00:00</lastmod>
+       <lastmod>2017-03-02T00:00:00+00:00</lastmod>
       
        <changefreq>weekly</changefreq>
       
