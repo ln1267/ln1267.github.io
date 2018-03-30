@@ -1,8 +1,8 @@
 ---
-layout: blog
+layout: post
 title: Install jupyter notebook
+date: 2018-3-30
 excerpt: This is a guild for installing Jupyter notebook
-tag: [python,toturial]
 ---
 
 ## start Jupyter notebook
