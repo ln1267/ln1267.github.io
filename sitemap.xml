@@ -29,4 +29,17 @@ layout: null
       {% endif %}
      </url>
   {% endfor %}
+
+  {% for notebook in site.notebooks %}
+        <url>
+      <loc>{{ site.url }}{{ notebook.url }}</loc>
+      {% if notebook.lastmod == null %}
+        <lastmod>{{ notebook.date | date_to_xmlschema }}</lastmod>
+      {% else %}
+        <lastmod>{{ notebook.lastmod | date_to_xmlschema }}</lastmod>
+      {% endif %}
+      <changefreq>weekly</changefreq>
+      <priority>0.7</priority>
+    </url>
+  {% endfor %}
 </urlset>

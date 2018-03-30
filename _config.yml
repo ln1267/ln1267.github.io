@@ -1,5 +1,5 @@
 # Site
-title:              Ning Liu's Ecohydrology
+title:              Dr Ning Liu's Ecohydrology
 bio:                'School of VLS, Murdoch University'
 description:        "This is a personal website"
 locale:             en_US
@@ -35,14 +35,14 @@ disqus_shortname:   default
 
 # Social
 analytics-id:       "default"
-twitter:            default
-facebook:           default
-instagram:          default
-github:             default
+twitter:            NingLiu_MU
+facebook:           
+instagram:          
+github:             ln1267
 
 # personal
-location:           Murdoch University
-phone:     +61 8 9630 6484         
+location:           ES. 2-057, school of VLS, Murdoch Unviersity, Perth, WA, Australia 6150
+phone:              +61 8 9630 6484         
 email:              LN1267@gmail.com
 
 # Gems

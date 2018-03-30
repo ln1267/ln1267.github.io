@@ -1,6 +1,6 @@
 ---
 layout: null
-title: Jekyll Theme - Home Page - Massively
+title: Dr Liu's web site
 description: Every great website starts with a great homepage. The homepage tells your viewers what your site is all about and gives your viewers a place to come back to.
 sitemap:
     priority: 1.0
@@ -28,9 +28,9 @@ sitemap:
 				<!-- Intro -->
 					<div id="intro">
             <h1>{{site.title}}</h1>
-						<h2>The Jekyll Theme Version</h2>
-						<p>Massively is an HTML5 website theme designed by <a href="https://twitter.com/ajlkn">@ajlkn</a> for <a href="https://html5up.net">HTML5 UP</a><br />
-						and released for free under the <a href="https://html5up.net/license">Creative Commons license</a>. Jekyll integration by <a href="https://somiibo.com">Somiibo</a></p>
+						<h2>Post docotral research fellow at Murdoch University</h2>
+						<p> <a href="https://twitter.com/NingLiu_MU">@NingLiu_MU</a> <br />
+						</p>
 						<ul class="actions">
 							<li><a href="#header" class="button icon solo fa-arrow-down scrolly">Continue</a></li>
 						</ul>
@@ -59,49 +59,40 @@ sitemap:
 						<!-- Featured Post -->
 							<article class="post featured">
 								<header class="major">
-									<h2><a href="#">Massively is a versatile Jekyll theme</a></h2>
-									<p>With only a few edits, you can have a stunningly beautiful website <br />
-                    nearly out of the box. Of course... you can always take it further <br />
-                    and make it something even more amazing!</p>
+									<h2><a href="#">Dr Ning Liu</a></h2>
+									<p>Postdoctoral research fellow of Environmental Science with strong knowledge and experience in GIS & RS, modelling, climate change and carbon mitigation.</p>
+<a href="#" class="image"><img src="https://static.wixstatic.com/media/5c3eeb_5c81a7d75d354c2fae37d50a5aec225d~mv2.png/v1/fill/w_184,h_250,al_c,usm_0.66_1.00_0.01/5c3eeb_5c81a7d75d354c2fae37d50a5aec225d~mv2.png"  alt="" /></a>
 								</header>
-								<a href="#" class="image main"><img src="{{ "/images/pic01.jpg" | absolute_url }}" alt="" /></a>
-                <p>Regardless of your website's function, the homepage is what brings the user in.
-                  If it's anything short of intriguing, captivating, or just plain cool, you're out of luck and you might deter some visitors.</p>
-                <p>Your homepage must clearly describe what your site is about.
-									Having engaging content will in this manner enable you to offer and it will make your customers more inclined to purchase from you. Content is a way to position your organization in the correct place for your clients to discover you.
-								</p>
-								<p>
-									In this manner, content in itself is a standout amongst the best promoting apparatuses in your whole advertising toolbox! Rather than making your content around your promoting technique, it's limitlessly more productive to fabricate your showcasing around your content.
-								 </p>
+<!--
+<div class="row">
+-->
+  <div class="column" width=50% align=left>
+					<h3>Research experience</h3>					
+					<p>   <li>GIS and remote sensing</li> 
+						<li>Ecohydrology modelling</li> 
+						<li>Agricultural science</li> 
+						<li>Climate change and global biogeochemical cycle</li> 
+						<li>Machine learning and big data computing</li> 
+</p>
+<p></p>
 
-							</article>
+</div>
 
-						<!-- Posts -->
-							<section class="posts">
-                {% for post in site.posts limit:3 %}
-                {% assign mod3 = forloop.index | modulo: 3 %}
-  								<article>
-  									<header>
-  										<span class="date">{{ post.date | date_to_string }}</span>
-  										<h2><a href="{{ post.url | absolute_url }}">{{ post.title }}</h2>
-  									</header>
-  									<a href="{{ post.url | absolute_url }}" class="image fit"><img src="{{ post.image | absolute_url }}" alt="" /></a>
-  									<p>{{ post.excerpt }}</p>
-  									<ul class="actions">
-  										<li><a href="{{ post.url | absolute_url }}" class="button">Full Story</a></li>
-  									</ul>
-  								</article>
-                  {% if mod3 == 0 %}
-                  <article>
-  									<header>
-  										<h2><a href="#">Sponsored</h2>
-  									</header>
+<div class="column" width=50% align =left>					
+						<h3>Research interests</h3>					
+					<p>   <li>2018--Present, PostDoctoral research fellow,         Murdoch University, Western Australia,           Australia</li> 
+						<li>2014--2017, PhD, Environmental Science,         Murdoch University, Western Australia,           Australia</li> 
+						<li>2010--2013, MSc, Ecology,       Chinese Academy of Forestry, Beijing,            China</li> 
+						<li>2006--2010, BSc, Forestry,      Shandong Agriculture University, Tai'an,         China</li> 
+</p> 
 
-  								</article>
-                  {% endif %}
-                {% endfor %}
 
-							</section>
+</div>
+<!--
+</div>
+-->
+                			</article>
+
 
 						<!-- Footer -->
 							<footer>

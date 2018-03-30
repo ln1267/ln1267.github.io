@@ -2,6 +2,24 @@
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
     <url>
+      <loc>/blog/My-First-Blog/</loc>
+      
+        <lastmod>2018-03-30T00:00:00+00:00</lastmod>
+      
+      <changefreq>weekly</changefreq>
+      <priority>0.7</priority>
+    </url>
+  
+    <url>
+      <loc>/blog/first-paper/</loc>
+      
+        <lastmod>2018-03-11T00:00:00+00:00</lastmod>
+      
+      <changefreq>weekly</changefreq>
+      <priority>0.7</priority>
+    </url>
+  
+    <url>
       <loc>/blog/welcome-to-massively-the-jekyll-theme/</loc>
       
         <lastmod>2017-10-31T00:00:00+00:00</lastmod>
@@ -10,16 +28,6 @@
       <priority>0.7</priority>
     </url>
   
-  
-    <url>
-      <loc>/about/</loc>
-       <lastmod>2017-11-02T00:00:00+00:00</lastmod>
-      
-       <changefreq>weekly</changefreq>
-      
-       <priority>0.7</priority>
-      
-     </url>
   
     <url>
       <loc>/blog/</loc>
@@ -32,22 +40,32 @@
      </url>
   
     <url>
-      <loc>/elements/</loc>
-       <lastmod>2017-11-02T00:00:00+00:00</lastmod>
-      
-       <changefreq>weekly</changefreq>
-      
-       <priority>0.7</priority>
-      
-     </url>
-  
-    <url>
       <loc>/</loc>
        <lastmod>2017-11-02T00:00:00+00:00</lastmod>
       
        <changefreq>weekly</changefreq>
       
        <priority>1.0</priority>
+      
+     </url>
+  
+    <url>
+      <loc>/notebook/</loc>
+       <lastmod>2017-11-02T00:00:00+00:00</lastmod>
+      
+       <changefreq>weekly</changefreq>
+      
+       <priority>1.0</priority>
+      
+     </url>
+  
+    <url>
+      <loc>/publication/</loc>
+       <lastmod>2018-03-30T00:00:00+00:00</lastmod>
+      
+       <changefreq>weekly</changefreq>
+      
+       <priority>0.7</priority>
       
      </url>
   
@@ -80,5 +98,7 @@
        <priority>0.5</priority>
       
      </url>
+  
+
   
 </urlset>
