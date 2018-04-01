@@ -3,6 +3,7 @@ layout: post
 date: 2018-03-31  
 title: How to creat 3D maps using your phone  
 excerpt: This is an attempt using an iphone to take photos of an item and creat a 3D model of it using Pix4D  
+comments: true
 tags: UAV Pix4D 3D  
 ---
 

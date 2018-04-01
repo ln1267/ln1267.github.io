@@ -53,7 +53,7 @@
       			<p>{{content}}</p>
 	{% include share-bar.html %}
       		</section>
-<!--
+{% if page.comments %} 
           <div class="comments-wrapper">
           <div id="disqus_thread"></div>
           <script>
@@ -70,7 +70,7 @@
               (function() {  /* dont endit below this line */
                   var d = document, s = d.createElement('script');
 
-                  s.src = 'https://{{ site.disqus_shortname }}.disqus.com/embed.js';
+                  s.src = 'https://ningliu.disqus.com/embed.js';
 
                   s.setAttribute('data-timestamp', +new Date());
                   (d.head || d.body).appendChild(s);
@@ -78,7 +78,7 @@
           </script>
           <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
         </div>
--->
+{% endif %}
 
 					<!-- Footer -->
 						<footer>
