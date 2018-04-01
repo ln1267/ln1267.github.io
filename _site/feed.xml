@@ -1,4 +1,110 @@
-<?xml version="1.0" encoding="utf-8"?><?xml-stylesheet type="text/xml" href="/feed.xslt.xml"?><feed xmlns="http://www.w3.org/2005/Atom"><generator uri="http://jekyllrb.com" version="3.2.1">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2018-04-01T06:39:55+00:00</updated><id>/</id><title type="html">Dr Ning Liu’s Ecohydrology</title><subtitle>This is a personal website</subtitle><entry><title type="html">How to creat 3D maps using your phone</title><link href="/blog/Make-3D-of-a-cup-using-iphone/" rel="alternate" type="text/html" title="How to creat 3D maps using your phone" /><published>2018-03-31T00:00:00+00:00</published><updated>2018-03-31T00:00:00+00:00</updated><id>/blog/Make-3D-of-a-cup-using-iphone</id><content type="html" xml:base="/blog/Make-3D-of-a-cup-using-iphone/">&lt;h2 id=&quot;requirement&quot;&gt;Requirement&lt;/h2&gt;
+<?xml version="1.0" encoding="utf-8"?><?xml-stylesheet type="text/xml" href="/feed.xslt.xml"?><feed xmlns="http://www.w3.org/2005/Atom"><generator uri="http://jekyllrb.com" version="3.2.1">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2018-04-01T13:42:08+00:00</updated><id>/</id><title type="html">Dr Ning Liu’s Ecohydrology</title><subtitle>This is a personal website</subtitle><entry><title type="html">Website collection</title><link href="/blog/Useful-websites/" rel="alternate" type="text/html" title="Website collection" /><published>2018-04-01T00:00:00+00:00</published><updated>2018-04-01T00:00:00+00:00</updated><id>/blog/Useful-websites</id><content type="html" xml:base="/blog/Useful-websites/">&lt;h2 id=&quot;some-websites-for-research&quot;&gt;Some websites for research&lt;/h2&gt;
+&lt;ol&gt;
+  &lt;li&gt;MODIS dataset
+    &lt;ul&gt;
+      &lt;li&gt;World
+        &lt;ul&gt;
+          &lt;li&gt;&lt;a href=&quot;https://modis.gsfc.nasa.gov/data/dataprod/index.php&quot;&gt;MODIS product&lt;/a&gt;&lt;/li&gt;
+          &lt;li&gt;&lt;a href=&quot;http://files.ntsg.umt.edu/&quot;&gt;NTSG-Data-Repository&lt;/a&gt;&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+      &lt;li&gt;CN
+        &lt;ul&gt;
+          &lt;li&gt;&lt;a href=&quot;http://www.rscloudmart.com/&quot;&gt;遥感集市&lt;/a&gt;&lt;/li&gt;
+          &lt;li&gt;&lt;a href=&quot;http://www.gscloud.cn/&quot;&gt;地理空间数据云&lt;/a&gt;&lt;/li&gt;
+          &lt;li&gt;&lt;a href=&quot;http://ids.ceode.ac.cn/&quot;&gt;中国科学院遥感与数字地球研究所&lt;/a&gt;&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+      &lt;li&gt;AU - &lt;a href=&quot;&quot;&gt;&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Landsat data
+    &lt;ul&gt;
+      &lt;li&gt;World
+        &lt;ul&gt;
+          &lt;li&gt;&lt;a href=&quot;https://earthexplorer.usgs.gov/&quot;&gt;USGS earth explorer&lt;/a&gt;&lt;/li&gt;
+          &lt;li&gt;&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+      &lt;li&gt;CN - &lt;a href=&quot;http://www.space.csdb.cn/&quot;&gt;空间科学数据中心&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;AU - Auscover&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;High resolution
+    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;https://www.intelligence-airbusds.com/en/11-products-services&quot;&gt;Airbus&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Eddy flux
+    &lt;ul&gt;
+      &lt;li&gt;World
+        &lt;ul&gt;
+          &lt;li&gt;&lt;a href=&quot;&quot;&gt;Fluxnet&lt;/a&gt;&lt;/li&gt;
+          &lt;li&gt;&lt;a href=&quot;http://technical-release.fluxdata.org&quot;&gt;FLUXNET SYNTHESIS DATASET&lt;/a&gt;&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+      &lt;li&gt;AU - &lt;a href=&quot;http://www.ozflux.org.au/&quot;&gt;OzFlux&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;CN
+        &lt;ul&gt;
+          &lt;li&gt;&lt;a href=&quot;http://www.chinaflux.org/&quot;&gt;ChinaFlux&lt;/a&gt;
+  &lt;a href=&quot;http://159.226.111.42/pingtai/LoginRe/opendata.jsp&quot;&gt;- Download data&lt;/a&gt;&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+      &lt;li&gt;USA - &lt;a href=&quot;http://ameriflux.lbl.gov/&quot;&gt;AmeriFlux&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Climate data
+    &lt;ul&gt;
+      &lt;li&gt;World
+        &lt;ul&gt;
+          &lt;li&gt;&lt;a href=&quot;http://prism.oregonstate.edu/&quot;&gt;PRISM Climate Data&lt;/a&gt;&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+      &lt;li&gt;CN - &lt;a href=&quot;http://data.cma.cn/&quot;&gt;国家气象信息中心&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Supercomputing
+    &lt;ul&gt;
+      &lt;li&gt;AU
+        &lt;ul&gt;
+          &lt;li&gt;&lt;a href=&quot;https://www.pawsey.org.au/&quot;&gt;WA-Pawsey&lt;/a&gt;&lt;/li&gt;
+          &lt;li&gt;&lt;a href=&quot;https://nci.org.au/&quot;&gt;NCI&lt;/a&gt;&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+      &lt;li&gt;CN
+        &lt;ul&gt;
+          &lt;li&gt;&lt;a href=&quot;http://cscgrid.cas.cn/&quot;&gt;中国科学院计算机网络信息中心&lt;/a&gt;
+ -&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Some other datasets
+    &lt;ul&gt;
+      &lt;li&gt;CMIP5
+        &lt;ul&gt;
+          &lt;li&gt;&lt;a href=&quot;http://coadc.ouc.edu.cn/index.php/Index&quot;&gt;中国海洋大学数据中心&lt;/a&gt;&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;https://daac.ornl.gov/about/&quot;&gt;ORNL DAAC biogeochemical dynamics&lt;/a&gt;
+        &lt;blockquote&gt;
+          &lt;p&gt;The Oak Ridge National Laboratory Distributed Active Archive Center&lt;/p&gt;
+        &lt;/blockquote&gt;
+      &lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;http://www.973geodata.cn/&quot;&gt;科技部973计划资源环境领域项目数据汇交中心&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;http://www.csdb.cn/&quot;&gt;中国科学院数据云&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;http://www.soilinfo.cn/map/index.aspx&quot;&gt;国家土壤信息服务平台&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;http://www.geodata.cn/&quot;&gt;国家地球系统科学数据共享服务平台&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Models
+    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;http://www.hydro.washington.edu/Lettenmaier/Models/VIC/SourceCode/Download.shtml&quot;&gt;VIC model&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;https://swat.tamu.edu/&quot;&gt;SWAT model&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;</content><category term="Website" /><category term="Data" /><category term="Programming" /><category term="Research" /><summary type="html">This is collection of useful websites both for research and programming</summary></entry><entry><title type="html">How to creat 3D maps using your phone</title><link href="/blog/Make-3D-of-a-cup-using-iphone/" rel="alternate" type="text/html" title="How to creat 3D maps using your phone" /><published>2018-03-31T00:00:00+00:00</published><updated>2018-03-31T00:00:00+00:00</updated><id>/blog/Make-3D-of-a-cup-using-iphone</id><content type="html" xml:base="/blog/Make-3D-of-a-cup-using-iphone/">&lt;h2 id=&quot;requirement&quot;&gt;Requirement&lt;/h2&gt;
 &lt;ul&gt;
   &lt;li&gt;A phone (definitely you have at least one)&lt;/li&gt;
   &lt;li&gt;A software which can process photos. I used Pix4D here (with a license).&lt;/li&gt;
