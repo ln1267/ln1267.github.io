@@ -4,7 +4,7 @@ bio:                'School of VLS, Murdoch University'
 description:        "This is a personal website"
 locale:             en_US
 baseurl: "" # the subpath of your site, e.g. /blog
-url: "" # the base hostname & protocol for your site
+url: "https://ln1267.github.io" # ethe base hostname & protocol for your site
 
 defaults:
 - scope:
