@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><?xml-stylesheet type="text/xml" href="/feed.xslt.xml"?><feed xmlns="http://www.w3.org/2005/Atom"><generator uri="http://jekyllrb.com" version="3.2.1">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2018-04-01T15:15:31+00:00</updated><id>/</id><title type="html">Dr Ning Liu’s Ecohydrology</title><subtitle>This is a personal website</subtitle><entry><title type="html">Website collection</title><link href="/blog/Useful-websites/" rel="alternate" type="text/html" title="Website collection" /><published>2018-04-01T00:00:00+00:00</published><updated>2018-04-01T00:00:00+00:00</updated><id>/blog/Useful-websites</id><content type="html" xml:base="/blog/Useful-websites/">&lt;h2 id=&quot;some-websites-for-research&quot;&gt;Some websites for research&lt;/h2&gt;
+<?xml version="1.0" encoding="utf-8"?><?xml-stylesheet type="text/xml" href="/feed.xslt.xml"?><feed xmlns="http://www.w3.org/2005/Atom"><generator uri="http://jekyllrb.com" version="3.2.1">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2018-04-03T13:12:44+00:00</updated><id>/</id><title type="html">Dr Ning Liu’s Ecohydrology</title><subtitle>This is a personal website</subtitle><entry><title type="html">A collection of useful websites</title><link href="/blog/Useful-websites/" rel="alternate" type="text/html" title="A collection of useful websites" /><published>2018-04-01T00:00:00+00:00</published><updated>2018-04-01T00:00:00+00:00</updated><id>/blog/Useful-websites</id><content type="html" xml:base="/blog/Useful-websites/">&lt;h2 id=&quot;remote-sensing&quot;&gt;Remote sensing&lt;/h2&gt;
 &lt;ol&gt;
   &lt;li&gt;MODIS dataset
     &lt;ul&gt;
@@ -22,89 +22,229 @@
     &lt;ul&gt;
       &lt;li&gt;World
         &lt;ul&gt;
+          &lt;li&gt;&lt;a href=&quot;https://landsat.usgs.gov/landsat-science-data-products-news-archive&quot;&gt;Landsat Science Products News Archive&lt;/a&gt;&lt;/li&gt;
           &lt;li&gt;&lt;a href=&quot;https://earthexplorer.usgs.gov/&quot;&gt;USGS earth explorer&lt;/a&gt;&lt;/li&gt;
-          &lt;li&gt;&lt;/li&gt;
+          &lt;li&gt;&lt;a href=&quot;https://glovis.usgs.gov/&quot;&gt;USGS Global Visualization Viewer (GloVis)&lt;/a&gt;&lt;/li&gt;
         &lt;/ul&gt;
       &lt;/li&gt;
-      &lt;li&gt;CN - &lt;a href=&quot;http://www.space.csdb.cn/&quot;&gt;空间科学数据中心&lt;/a&gt;&lt;/li&gt;
-      &lt;li&gt;AU - Auscover&lt;/li&gt;
+      &lt;li&gt;CN - &lt;a href=&quot;http://www.space.csdb.cn/&quot;&gt;空间科学数据中心&lt;/a&gt;
+        &lt;ul&gt;
+          &lt;li&gt;&lt;a href=&quot;http://www.geodata.cn/data/datadetails.html?dataguid=8603006&amp;amp;docId=6&quot;&gt;四川省1:10万土地覆被数据（2015年）&lt;/a&gt;&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+      &lt;li&gt;AU - Auscover
+        &lt;ul&gt;
+          &lt;li&gt;&lt;a href=&quot;https://www0.landgate.wa.gov.au/maps-and-imagery/imagery/aerial-photography/aerial&quot;&gt;AU - Landgate Online aerial photography&lt;/a&gt;&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
     &lt;/ul&gt;
   &lt;/li&gt;
   &lt;li&gt;High resolution
     &lt;ul&gt;
       &lt;li&gt;&lt;a href=&quot;https://www.intelligence-airbusds.com/en/11-products-services&quot;&gt;Airbus&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;http://search.landinfo.com/&quot;&gt;Landinfo&lt;/a&gt;&lt;/li&gt;
     &lt;/ul&gt;
   &lt;/li&gt;
-  &lt;li&gt;Eddy flux
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;climate-data&quot;&gt;Climate data&lt;/h2&gt;
+
+&lt;h3 id=&quot;historical&quot;&gt;Historical&lt;/h3&gt;
+&lt;ul&gt;
+  &lt;li&gt;World
     &lt;ul&gt;
-      &lt;li&gt;World
-        &lt;ul&gt;
-          &lt;li&gt;&lt;a href=&quot;&quot;&gt;Fluxnet&lt;/a&gt;&lt;/li&gt;
-          &lt;li&gt;&lt;a href=&quot;http://technical-release.fluxdata.org&quot;&gt;FLUXNET SYNTHESIS DATASET&lt;/a&gt;&lt;/li&gt;
-        &lt;/ul&gt;
-      &lt;/li&gt;
-      &lt;li&gt;AU - &lt;a href=&quot;http://www.ozflux.org.au/&quot;&gt;OzFlux&lt;/a&gt;&lt;/li&gt;
-      &lt;li&gt;CN
-        &lt;ul&gt;
-          &lt;li&gt;&lt;a href=&quot;http://www.chinaflux.org/&quot;&gt;ChinaFlux&lt;/a&gt;
-  &lt;a href=&quot;http://159.226.111.42/pingtai/LoginRe/opendata.jsp&quot;&gt;- Download data&lt;/a&gt;&lt;/li&gt;
-        &lt;/ul&gt;
-      &lt;/li&gt;
-      &lt;li&gt;USA - &lt;a href=&quot;http://ameriflux.lbl.gov/&quot;&gt;AmeriFlux&lt;/a&gt;&lt;/li&gt;
-      &lt;li&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;http://prism.oregonstate.edu/&quot;&gt;PRISM Climate Data&lt;/a&gt;&lt;/li&gt;
     &lt;/ul&gt;
   &lt;/li&gt;
-  &lt;li&gt;Climate data
+  &lt;li&gt;
+    &lt;p&gt;CN - &lt;a href=&quot;http://data.cma.cn/&quot;&gt;国家气象信息中心&lt;/a&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;AU
     &lt;ul&gt;
-      &lt;li&gt;World
-        &lt;ul&gt;
-          &lt;li&gt;&lt;a href=&quot;http://prism.oregonstate.edu/&quot;&gt;PRISM Climate Data&lt;/a&gt;&lt;/li&gt;
-        &lt;/ul&gt;
-      &lt;/li&gt;
-      &lt;li&gt;CN - &lt;a href=&quot;http://data.cma.cn/&quot;&gt;国家气象信息中心&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;https://legacy.longpaddock.qld.gov.au/silo/&quot;&gt;SILO climate data&lt;/a&gt;&lt;/li&gt;
     &lt;/ul&gt;
   &lt;/li&gt;
-  &lt;li&gt;Supercomputing
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;future&quot;&gt;Future&lt;/h3&gt;
+&lt;ul&gt;
+  &lt;li&gt;CMIP5
     &lt;ul&gt;
-      &lt;li&gt;AU
-        &lt;ul&gt;
-          &lt;li&gt;&lt;a href=&quot;https://www.pawsey.org.au/&quot;&gt;WA-Pawsey&lt;/a&gt;&lt;/li&gt;
-          &lt;li&gt;&lt;a href=&quot;https://nci.org.au/&quot;&gt;NCI&lt;/a&gt;&lt;/li&gt;
-        &lt;/ul&gt;
-      &lt;/li&gt;
-      &lt;li&gt;CN
-        &lt;ul&gt;
-          &lt;li&gt;&lt;a href=&quot;http://cscgrid.cas.cn/&quot;&gt;中国科学院计算机网络信息中心&lt;/a&gt;
- -&lt;/li&gt;
-        &lt;/ul&gt;
-      &lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;http://coadc.ouc.edu.cn/index.php/Index&quot;&gt;中国海洋大学数据中心&lt;/a&gt;&lt;/li&gt;
     &lt;/ul&gt;
   &lt;/li&gt;
-  &lt;li&gt;Some other datasets
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;hydrology-data&quot;&gt;Hydrology data&lt;/h2&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;http://www.bom.gov.au/water/groundwater/explorer/map.shtml&quot;&gt;Australian Groundwater Explorer&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://www.bom.gov.au/waterdata/&quot;&gt;Water Data Online&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://www.bom.gov.au/water/hrs/#panel=data-download&quot;&gt;Hydrologic Reference Stations&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://geoid.colorado.edu/grace/dataportal.html&quot;&gt;GRACE&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://kumina.water.wa.gov.au/waterinformation/WIR/Reports/Publish/612032/g01.htm&quot;&gt;WA - Water Information Reporting&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;
+    &lt;h2 id=&quot;eddy-flux&quot;&gt;Eddy flux&lt;/h2&gt;
+  &lt;/li&gt;
+  &lt;li&gt;World
     &lt;ul&gt;
-      &lt;li&gt;CMIP5
+      &lt;li&gt;&lt;a href=&quot;http://fluxnet.fluxdata.org/&quot;&gt;Fluxnet&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;http://technical-release.fluxdata.org&quot;&gt;FLUXNET SYNTHESIS DATASET&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;AU - &lt;a href=&quot;http://www.ozflux.org.au/&quot;&gt;OzFlux&lt;/a&gt;
+    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;https://www.biogeosciences.net/special_issue618.html&quot;&gt;Biogeosciences SI - OzFlux&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;https://supersites.tern.org.au/index.php&quot;&gt;TERN Australian SuperSite Network&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;CN
+    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;http://www.chinaflux.org/&quot;&gt;ChinaFlux&lt;/a&gt; &lt;a href=&quot;http://159.226.111.42/pingtai/LoginRe/opendata.jsp&quot;&gt;- Download data&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;USA - &lt;a href=&quot;http://ameriflux.lbl.gov/&quot;&gt;AmeriFlux&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;fire&quot;&gt;Fire&lt;/h2&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;http://www.globalfiredata.org/data.html&quot;&gt;GFED4&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://srss.landgate.wa.gov.au/fire.php&quot;&gt;Landgate Fire&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://daac.ornl.gov/VEGETATION/guides/global_fire_emissions_v3.1.html&quot;&gt;Global Fire Emissions Database, Version 3 (GFEDv3.1)&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://www.auscover.org.au/dataset_categories/fire-dynamics-impact/&quot;&gt;TERN Fire data&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;vegetation&quot;&gt;Vegetation&lt;/h2&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;http://www.anbg.gov.au/photo/vegetation-search.html&quot;&gt;Australian plant images&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://www.aekos.org.au/index.html#/search-results/list/search-results/sites/site-details/obs?datasetId=aekos.org.au%2Fcollection%2Fadelaide.edu.au%2FTAF&amp;amp;datasetTitle=TERN%20AusPlots%20Forests%20Monitoring%20Network&amp;amp;siteId=au.org.aekos.transform.generated.subgraph.impl.entities.STUDYLOCATIONSUBGRAPH:T1510618342918&amp;amp;storageSet=77&amp;amp;siteTitle=%20%20TERN%20AusPlots%20Forests%20Monitoring%20Network%20%20%20ID:%20WAFWAR0001%20%20&quot;&gt;TERN AusPlots Forests Monitoring Network&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://webmap.ornl.gov/wcsdown/dataset.jsp?ds_id=1096&quot;&gt;NACP Forest Age Maps at 1-km Resolution for Canada (2004) and the U.S.A. (2006)&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;models&quot;&gt;Models&lt;/h2&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;http://www.hydro.washington.edu/Lettenmaier/Models/VIC/SourceCode/Download.shtml&quot;&gt;VIC model&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://swat.tamu.edu/&quot;&gt;SWAT model&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://trac.nci.org.au/svn/cable/&quot;&gt;CABLE&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://www.bom.gov.au/water/landscape&quot;&gt;Australian Landscape Water Balance&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;others-dataset&quot;&gt;Others Dataset&lt;/h2&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://daac.ornl.gov/about/&quot;&gt;ORNL DAAC biogeochemical dynamics&lt;/a&gt;
+    &lt;blockquote&gt;
+      &lt;p&gt;The Oak Ridge National Laboratory Distributed Active Archive Center&lt;/p&gt;
+    &lt;/blockquote&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://nex.nasa.gov/nex&quot;&gt;NASA Earth Exchange&lt;/a&gt;
+    &lt;blockquote&gt;
+      &lt;p&gt;NEX is a platform for scientific collaboration, knowledge sharing and research for the Earth science community.&lt;/p&gt;
+    &lt;/blockquote&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://nex.nasa.gov/nex/static/htdocs/site/extra/opennex/#about&quot;&gt;NASA - OpenNEX&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://docs.google.com/forms/d/e/1FAIpQLScBiJFHnGFlsphRxblkXh6TPdOn4_sZZzPDLU950_WsD89zZA/viewform&quot;&gt;Research data links&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://www.973geodata.cn/&quot;&gt;科技部973计划资源环境领域项目数据汇交中心&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://www.csdb.cn/&quot;&gt;中国科学院数据云&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://www.soilinfo.cn/map/index.aspx&quot;&gt;国家土壤信息服务平台&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://www.geodata.cn/&quot;&gt;国家地球系统科学数据共享服务平台&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://csw-nerc.ceda.ac.uk/geonetwork/srv/eng/catalog.search#/home&quot;&gt;NERC&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://researchdata.ands.org.au/&quot;&gt;Ands&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;references&quot;&gt;References&lt;/h2&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;http://www.docin.com/p-513914948.html&quot;&gt;水文学原理&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.nccarf.edu.au/content/assessment-vulnerability-australian-forests-impacts-climate-change&quot;&gt;An Assessment of the Vulnerability of Australian Forests to the Impacts of Climate Change&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://www.letpub.com.cn/index.php?page=grant&quot;&gt;2017年最新国家自然基金项目查询&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://refworks.proquest.com/library/recent/&quot;&gt;RefWorks&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://blog.sina.com.cn/s/blog_764b1e9d0102v59e.html&quot;&gt;ENVI入门系列&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://www.vosviewer.com/&quot;&gt;VOSviewer&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://ozewex.org/&quot;&gt;OzEWEX&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.iufro.org/events/calendar/current/&quot;&gt;IUFRO&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://murdoch-atmos.wikidot.com/&quot;&gt;Murdoch Atmospheric Science Information&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://globalecology.unh.edu/&quot;&gt;Dr Xiao JF - Global Ecology Group&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.scopus.com/authid/detail.uri?authorId=55807480400&quot;&gt;Dr YU GR - Scopus&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://www.globalcarbonproject.org/&quot;&gt;The Global Carbon Project&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://soe.environment.gov.au/download/reports&quot;&gt;AU ES reports&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://globalchange.bnu.edu.cn/research&quot;&gt;Land-Atmosphere Interaction Research Group at Sun Yat-sen University&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://earth.esa.int/web/guest/eoli&quot;&gt;ESA&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://globalecology.creaf.cat/&quot;&gt;Global Ecology Unit CREAF-CSIC-UAB&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://ora.ox.ac.uk/objects/uuid:896bf37f-a56b-4bc0-9595-8c9201161973&quot;&gt;Sensitivity of global terrestrial ecosystems to climate variability: data and R code&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://www.oldforests.com.au/&quot;&gt;Old Forests, New Management&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://www.ccrc.unsw.edu.au/publications&quot;&gt;Climate Change Research Centre (CCRC) - UNSW&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.pik-potsdam.de/research/projects/pik-research-structure&quot;&gt;PIK research structure&lt;/a&gt;
+    &lt;blockquote&gt;
+      &lt;p&gt;PIK’s research programme is carried out by its four research domains. Each research domain organizes its work in two or three research areas, within which flagship projects address key medium-term research questions and challenges. These flagship projects provide a thematic container for relevant externally funded and internal projects. In addition, cross-cutting activities (for example, on models or methods) take place within each research domain.&lt;/p&gt;
+    &lt;/blockquote&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;supercomputing&quot;&gt;Supercomputing&lt;/h2&gt;
+&lt;ul&gt;
+  &lt;li&gt;AU
+    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;https://www.pawsey.org.au/&quot;&gt;WA-Pawsey&lt;/a&gt;
         &lt;ul&gt;
-          &lt;li&gt;&lt;a href=&quot;http://coadc.ouc.edu.cn/index.php/Index&quot;&gt;中国海洋大学数据中心&lt;/a&gt;&lt;/li&gt;
+          &lt;li&gt;&lt;a href=&quot;https://support.pawsey.org.au/&quot;&gt;Support&lt;/a&gt;&lt;/li&gt;
+          &lt;li&gt;&lt;a href=&quot;https://data.pawsey.org.au/&quot;&gt;Data&lt;/a&gt;&lt;/li&gt;
+          &lt;li&gt;&lt;a href=&quot;https://apply.pawsey.org.au/home&quot;&gt;Application Portal&lt;/a&gt;&lt;/li&gt;
+          &lt;li&gt;&lt;a href=&quot;https://support.pawsey.org.au/documentation/display/US/Getting+started%3A+Remote+visualisation+with+Strudel&quot;&gt;Remote visualisation with Strudel&lt;/a&gt;&lt;/li&gt;
         &lt;/ul&gt;
       &lt;/li&gt;
-      &lt;li&gt;&lt;a href=&quot;https://daac.ornl.gov/about/&quot;&gt;ORNL DAAC biogeochemical dynamics&lt;/a&gt;
-        &lt;blockquote&gt;
-          &lt;p&gt;The Oak Ridge National Laboratory Distributed Active Archive Center&lt;/p&gt;
-        &lt;/blockquote&gt;
+      &lt;li&gt;&lt;a href=&quot;https://nci.org.au/&quot;&gt;NCI&lt;/a&gt;
+        &lt;ul&gt;
+          &lt;li&gt;&lt;a href=&quot;https://datacatalogue.nci.org.au/&quot;&gt;DATA CATALOGUE&lt;/a&gt;&lt;/li&gt;
+        &lt;/ul&gt;
       &lt;/li&gt;
-      &lt;li&gt;&lt;a href=&quot;http://www.973geodata.cn/&quot;&gt;科技部973计划资源环境领域项目数据汇交中心&lt;/a&gt;&lt;/li&gt;
-      &lt;li&gt;&lt;a href=&quot;http://www.csdb.cn/&quot;&gt;中国科学院数据云&lt;/a&gt;&lt;/li&gt;
-      &lt;li&gt;&lt;a href=&quot;http://www.soilinfo.cn/map/index.aspx&quot;&gt;国家土壤信息服务平台&lt;/a&gt;&lt;/li&gt;
-      &lt;li&gt;&lt;a href=&quot;http://www.geodata.cn/&quot;&gt;国家地球系统科学数据共享服务平台&lt;/a&gt;&lt;/li&gt;
     &lt;/ul&gt;
   &lt;/li&gt;
-  &lt;li&gt;Models
+  &lt;li&gt;CN
     &lt;ul&gt;
-      &lt;li&gt;&lt;a href=&quot;http://www.hydro.washington.edu/Lettenmaier/Models/VIC/SourceCode/Download.shtml&quot;&gt;VIC model&lt;/a&gt;&lt;/li&gt;
-      &lt;li&gt;&lt;a href=&quot;https://swat.tamu.edu/&quot;&gt;SWAT model&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;http://cscgrid.cas.cn/&quot;&gt;中国科学院计算机网络信息中心&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;http://scc.ustc.edu.cn/zlsc/&quot;&gt;中国科学技术大学超级计算中心&lt;/a&gt;&lt;/li&gt;
     &lt;/ul&gt;
   &lt;/li&gt;
-&lt;/ol&gt;</content><category term="Website" /><category term="Data" /><category term="Programming" /><category term="Research" /><summary type="html">This is collection of useful websites both for research and programming</summary></entry><entry><title type="html">How to creat 3D maps using your phone</title><link href="/blog/Make-3D-of-a-cup-using-iphone/" rel="alternate" type="text/html" title="How to creat 3D maps using your phone" /><published>2018-03-31T00:00:00+00:00</published><updated>2018-03-31T00:00:00+00:00</updated><id>/blog/Make-3D-of-a-cup-using-iphone</id><content type="html" xml:base="/blog/Make-3D-of-a-cup-using-iphone/">&lt;h2 id=&quot;requirement&quot;&gt;Requirement&lt;/h2&gt;
+  &lt;li&gt;&lt;a href=&quot;https://code.earthengine.google.com/&quot;&gt;GEE&lt;/a&gt;
+    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;https://developers.google.com/earth-engine/tutorials&quot;&gt;Official Tutorial&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://training.nectar.org.au/&quot;&gt;Nectar Cloud&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://aws.amazon.com/&quot;&gt;Amazon&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://nimbus.pawsey.org.au&quot;&gt;Nimbus&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://cloudstor.aarnet.edu.au/&quot;&gt;Cloudstor&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;programming&quot;&gt;Programming&lt;/h2&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://software-carpentry.org/&quot;&gt;Software-carpentry&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;R
+    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;http://www.cookbook-r.com/&quot;&gt;Cookbook R&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;http://r4ds.had.co.nz/&quot;&gt;R for Data Science&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;http://geog.uoregon.edu/bartlein/courses/geog490/index.html&quot;&gt;R for Earth-System Science&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;https://cran.r-project.org/web/views/Spatial.html&quot;&gt;Analysis of Spatial Data&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;https://pakillo.github.io/R-GIS-tutorial/&quot;&gt;Spatial data in R: Using R as a GIS&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;https://cran.r-project.org/web/views/TimeSeries.html&quot;&gt;Time Series Analysis&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;http://a-little-book-of-r-for-time-series.readthedocs.io/en/latest/index.html&quot;&gt;Little Book of R for Time Series!&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;https://blog.csdn.net/u014801157/article/details/24372499&quot;&gt;ggolot 做图详解&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;http://datasciencespecialization.github.io/&quot;&gt;Data Science Specialization&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Python
+    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;https://gis.stackexchange.com/questions/119503/getting-arcpy-to-work-with-anaconda&quot;&gt;Getting ArcPy to work with Anaconda?&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;https://developers.arcgis.com/python/guide/install-and-set-up/#Install-using-ArcGIS-Pro&quot;&gt;ArcGIS API for Python&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;https://notebooks.esri.com/user/pGSnVgNau6fdnatB5XGp3HXWz/tree&quot;&gt;Esri notebook&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;QGIS
+    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;http://www.qgistutorials.com/en/index.html&quot;&gt;Tutorial&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://www.ncl.ucar.edu/Applications/hdf5.shtml&quot;&gt;NCL - Reading and writing HDF5&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.cl.cam.ac.uk/teaching/1516/NLP/materials.html&quot;&gt;Natural Language Processing&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</content><category term="Website" /><category term="Data" /><category term="Programming" /><category term="Research" /><summary type="html">This is a collection of useful websites both for research and programming</summary></entry><entry><title type="html">How to creat 3D maps using your phone</title><link href="/blog/Make-3D-of-a-cup-using-iphone/" rel="alternate" type="text/html" title="How to creat 3D maps using your phone" /><published>2018-03-31T00:00:00+00:00</published><updated>2018-03-31T00:00:00+00:00</updated><id>/blog/Make-3D-of-a-cup-using-iphone</id><content type="html" xml:base="/blog/Make-3D-of-a-cup-using-iphone/">&lt;h2 id=&quot;requirement&quot;&gt;Requirement&lt;/h2&gt;
 &lt;ul&gt;
   &lt;li&gt;A phone (definitely you have at least one)&lt;/li&gt;
   &lt;li&gt;A software which can process photos. I used Pix4D here (with a license).&lt;/li&gt;
