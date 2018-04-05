@@ -1,21 +1,20 @@
 ---
-layout: post
-title:  Anaconda and Jupyter notebook
-date: 2018-3-30
-excerpt: This is a guild for installing Ananconda and Jupyter notebook
+layout: post  
+title:  Anaconda and Jupyter Notebook  
+date: 2018-3-30  
+excerpt: This is a guide for installing Ananconda and Jupyter Notebook  
 tags: Python Programming Jupyter
 ---
 
-## Install and Config Anaconda
+## Install and Configure Anaconda
 
 ### Install Anaconda
--   Anaconda can be downloaded in [Anaconda's website](https://www.continuum.io/downloads#_unix), it has both [Linux](http://repo.continuum.io/archive/Anaconda3-4.0.0-Linux-x86_64.sh) and [Windows version](http://repo.continuum.io/archive/Anaconda3-4.0.0-Windows-x86_64.exe)
+-   Anaconda can be downloaded from [Anaconda's website](https://www.continuum.io/downloads#_unix). It has both [Linux](http://repo.continuum.io/archive/Anaconda3-4.0.0-Linux-x86_64.sh) and [Windows versions](http://repo.continuum.io/archive/Anaconda3-4.0.0-Windows-x86_64.exe)
 -   install Anaconda
     ``` 
     bash *.sh
     ```
--   set the default python3
-    After install, restart the connection the default ***".bashrc"*** will be changed for Anaconda
+-   After installation, set the default python3 version by adding the following code to ***".bashrc"***. Then restart the connection. The default ***".bashrc"*** will be changed for Anaconda
     ```
     # added by Anaconda3 4.0.0 installer
     export PATH="/home/ubuntu/anaconda3/bin:$PATH"
@@ -26,20 +25,20 @@ tags: Python Programming Jupyter
     conda list # check installed modules
     conda install netCDF4
     ```
--  Update  
+-  update  
     ```conda update anaconda```
     
 - create an environment  
     ```conda create -n py35 python=3.5 anaconda```
     
--   To activate I use  
+- activate and use the created environment  
    ``` source activate py35```
     
--   to deactivate  
-    ```source deactivate```  
+-  deactivate an environment    
+    ```source deactivate py35```  
 
-## Jupyter notebook
-### start Jupyter notebook
+## Jupyter Notebook
+### start Jupyter Notebook
 ```
 # general start 
 jupyter notebook
@@ -50,11 +49,11 @@ jupyter notebook &> /dev/null &
 # check opened notebook
 jupyter notebook list
 
-# Close jupyter note book
+# close jupyter notebook
 kill $(pgrep jupyter)
 ```
-### add extension to Jupyter
-Jupyter nbextensions [link](https://github.com/ipython-contrib/jupyter_contrib_nbextensions/)
+### add extensions to Jupyter Notebook
+Jupyter [**nbextensions**](https://github.com/ipython-contrib/jupyter_contrib_nbextensions/)
 ```shell
 # install the nbextensions
 pip install jupyter_contrib_nbextensions
@@ -65,7 +64,7 @@ jupyter nbextension enable codefolding/main
 
 ```
 
-### nbconvert for converting ipython to pdf
+### ***nbconvert*** for converting "ipython" to "pdf"
 ```
 sudo apt-get install pandoc
 git clone https://github.com/jupyter/nbconvert.git
@@ -75,5 +74,3 @@ pip install -e .
 pip install nbconvert[test]
 py.test --pyargs nbconvert
 ```
-
-

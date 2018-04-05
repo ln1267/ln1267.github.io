@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><?xml-stylesheet type="text/xml" href="/feed.xslt.xml"?><feed xmlns="http://www.w3.org/2005/Atom"><generator uri="http://jekyllrb.com" version="3.2.1">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2018-04-03T13:12:44+00:00</updated><id>/</id><title type="html">Dr Ning Liu’s Ecohydrology</title><subtitle>This is a personal website</subtitle><entry><title type="html">A collection of useful websites</title><link href="/blog/Useful-websites/" rel="alternate" type="text/html" title="A collection of useful websites" /><published>2018-04-01T00:00:00+00:00</published><updated>2018-04-01T00:00:00+00:00</updated><id>/blog/Useful-websites</id><content type="html" xml:base="/blog/Useful-websites/">&lt;h2 id=&quot;remote-sensing&quot;&gt;Remote sensing&lt;/h2&gt;
+<?xml version="1.0" encoding="utf-8"?><?xml-stylesheet type="text/xml" href="/feed.xslt.xml"?><feed xmlns="http://www.w3.org/2005/Atom"><generator uri="http://jekyllrb.com" version="3.2.1">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2018-04-03T13:14:10+00:00</updated><id>/</id><title type="html">Dr Ning Liu’s Ecohydrology</title><subtitle>This is a personal website</subtitle><entry><title type="html">A collection of useful websites</title><link href="/blog/Useful-websites/" rel="alternate" type="text/html" title="A collection of useful websites" /><published>2018-04-01T00:00:00+00:00</published><updated>2018-04-01T00:00:00+00:00</updated><id>/blog/Useful-websites</id><content type="html" xml:base="/blog/Useful-websites/">&lt;h2 id=&quot;remote-sensing&quot;&gt;Remote sensing&lt;/h2&gt;
 &lt;ol&gt;
   &lt;li&gt;MODIS dataset
     &lt;ul&gt;
@@ -261,18 +261,17 @@
 
 &lt;h2 id=&quot;import-all-photos-to-pix4d-and-select-pix4d-3d-models&quot;&gt;Import all photos to Pix4D and select “Pix4D 3D models”&lt;/h2&gt;
 &lt;p&gt;&lt;img src=&quot;/images/posts/Cup_3d.png&quot; alt=&quot;A 3D model of a cup&quot; /&gt;&lt;br /&gt;
-This 3D map is not very good, but it captured most of the important features of the table and the cup in this image.&lt;/p&gt;</content><category term="UAV" /><category term="Pix4D" /><category term="3D" /><summary type="html">This is an attempt using an iphone to take photos of an item and creat a 3D model of it using Pix4D</summary></entry><entry><title type="html">Anaconda and Jupyter notebook</title><link href="/blog/Install-python/" rel="alternate" type="text/html" title="Anaconda and Jupyter notebook" /><published>2018-03-30T00:00:00+00:00</published><updated>2018-03-30T00:00:00+00:00</updated><id>/blog/Install-python</id><content type="html" xml:base="/blog/Install-python/">&lt;h2 id=&quot;install-and-config-anaconda&quot;&gt;Install and Config Anaconda&lt;/h2&gt;
+This 3D map is not very good, but it captured most of the important features of the table and the cup in this image.&lt;/p&gt;</content><category term="UAV" /><category term="Pix4D" /><category term="3D" /><summary type="html">This is an attempt using an iphone to take photos of an item and creat a 3D model of it using Pix4D</summary></entry><entry><title type="html">Anaconda and Jupyter Notebook</title><link href="/blog/Install-python/" rel="alternate" type="text/html" title="Anaconda and Jupyter Notebook" /><published>2018-03-30T00:00:00+00:00</published><updated>2018-03-30T00:00:00+00:00</updated><id>/blog/Install-python</id><content type="html" xml:base="/blog/Install-python/">&lt;h2 id=&quot;install-and-configure-anaconda&quot;&gt;Install and Configure Anaconda&lt;/h2&gt;
 
 &lt;h3 id=&quot;install-anaconda&quot;&gt;Install Anaconda&lt;/h3&gt;
 &lt;ul&gt;
-  &lt;li&gt;Anaconda can be downloaded in &lt;a href=&quot;https://www.continuum.io/downloads#_unix&quot;&gt;Anaconda’s website&lt;/a&gt;, it has both &lt;a href=&quot;http://repo.continuum.io/archive/Anaconda3-4.0.0-Linux-x86_64.sh&quot;&gt;Linux&lt;/a&gt; and &lt;a href=&quot;http://repo.continuum.io/archive/Anaconda3-4.0.0-Windows-x86_64.exe&quot;&gt;Windows version&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;Anaconda can be downloaded from &lt;a href=&quot;https://www.continuum.io/downloads#_unix&quot;&gt;Anaconda’s website&lt;/a&gt;. It has both &lt;a href=&quot;http://repo.continuum.io/archive/Anaconda3-4.0.0-Linux-x86_64.sh&quot;&gt;Linux&lt;/a&gt; and &lt;a href=&quot;http://repo.continuum.io/archive/Anaconda3-4.0.0-Windows-x86_64.exe&quot;&gt;Windows versions&lt;/a&gt;&lt;/li&gt;
   &lt;li&gt;install Anaconda
     &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;bash *.sh
 &lt;/code&gt;&lt;/pre&gt;
     &lt;/div&gt;
   &lt;/li&gt;
-  &lt;li&gt;set the default python3
-After install, restart the connection the default &lt;strong&gt;&lt;em&gt;“.bashrc”&lt;/em&gt;&lt;/strong&gt; will be changed for Anaconda
+  &lt;li&gt;After installation, set the default python3 version by adding the following code to &lt;strong&gt;&lt;em&gt;“.bashrc”&lt;/em&gt;&lt;/strong&gt;. Then restart the connection. The default &lt;strong&gt;&lt;em&gt;“.bashrc”&lt;/em&gt;&lt;/strong&gt; will be changed for Anaconda
     &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;# added by Anaconda3 4.0.0 installer
 export PATH=&quot;/home/ubuntu/anaconda3/bin:$PATH&quot;
 
@@ -286,7 +285,7 @@ conda install netCDF4
     &lt;/div&gt;
   &lt;/li&gt;
   &lt;li&gt;
-    &lt;p&gt;Update
+    &lt;p&gt;update
  &lt;code class=&quot;highlighter-rouge&quot;&gt;conda update anaconda&lt;/code&gt;&lt;/p&gt;
   &lt;/li&gt;
   &lt;li&gt;
@@ -294,15 +293,15 @@ conda install netCDF4
   &lt;code class=&quot;highlighter-rouge&quot;&gt;conda create -n py35 python=3.5 anaconda&lt;/code&gt;&lt;/p&gt;
   &lt;/li&gt;
   &lt;li&gt;
-    &lt;p&gt;To activate I use
-   &lt;code class=&quot;highlighter-rouge&quot;&gt;source activate py35&lt;/code&gt;&lt;/p&gt;
+    &lt;p&gt;activate and use the created environment
+ &lt;code class=&quot;highlighter-rouge&quot;&gt;source activate py35&lt;/code&gt;&lt;/p&gt;
   &lt;/li&gt;
-  &lt;li&gt;to deactivate
-&lt;code class=&quot;highlighter-rouge&quot;&gt;source deactivate&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;deactivate an environment
+ &lt;code class=&quot;highlighter-rouge&quot;&gt;source deactivate py35&lt;/code&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&quot;jupyter-notebook&quot;&gt;Jupyter notebook&lt;/h2&gt;
-&lt;h3 id=&quot;start-jupyter-notebook&quot;&gt;start Jupyter notebook&lt;/h3&gt;
+&lt;h2 id=&quot;jupyter-notebook&quot;&gt;Jupyter Notebook&lt;/h2&gt;
+&lt;h3 id=&quot;start-jupyter-notebook&quot;&gt;start Jupyter Notebook&lt;/h3&gt;
 &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;# general start 
 jupyter notebook
 
@@ -312,12 +311,12 @@ jupyter notebook &amp;amp;&amp;gt; /dev/null &amp;amp;
 # check opened notebook
 jupyter notebook list
 
-# Close jupyter note book
+# close jupyter notebook
 kill $(pgrep jupyter)
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
-&lt;h3 id=&quot;add-extension-to-jupyter&quot;&gt;add extension to Jupyter&lt;/h3&gt;
-&lt;p&gt;Jupyter nbextensions &lt;a href=&quot;https://github.com/ipython-contrib/jupyter_contrib_nbextensions/&quot;&gt;link&lt;/a&gt;&lt;/p&gt;
+&lt;h3 id=&quot;add-extensions-to-jupyter-notebook&quot;&gt;add extensions to Jupyter Notebook&lt;/h3&gt;
+&lt;p&gt;Jupyter &lt;a href=&quot;https://github.com/ipython-contrib/jupyter_contrib_nbextensions/&quot;&gt;&lt;strong&gt;nbextensions&lt;/strong&gt;&lt;/a&gt;&lt;/p&gt;
 &lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# install the nbextensions&lt;/span&gt;
 pip install jupyter_contrib_nbextensions
 &lt;span class=&quot;c&quot;&gt;# install js&lt;/span&gt;
@@ -328,7 +327,7 @@ jupyter nbextension &lt;span class=&quot;nb&quot;&gt;enable &lt;/span&gt;codefol
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 
-&lt;h3 id=&quot;nbconvert-for-converting-ipython-to-pdf&quot;&gt;nbconvert for converting ipython to pdf&lt;/h3&gt;
+&lt;h3 id=&quot;nbconvert-for-converting-ipython-to-pdf&quot;&gt;&lt;strong&gt;&lt;em&gt;nbconvert&lt;/em&gt;&lt;/strong&gt; for converting “ipython” to “pdf”&lt;/h3&gt;
 &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;sudo apt-get install pandoc
 git clone https://github.com/jupyter/nbconvert.git
 cd nbconvert
@@ -337,4 +336,4 @@ pip install -e .
 pip install nbconvert[test]
 py.test --pyargs nbconvert
 &lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;</content><category term="Python" /><category term="Programming" /><category term="Jupyter" /><summary type="html">This is a guild for installing Ananconda and Jupyter notebook</summary></entry></feed>
+&lt;/div&gt;</content><category term="Python" /><category term="Programming" /><category term="Jupyter" /><summary type="html">This is a guide for installing Ananconda and Jupyter Notebook</summary></entry></feed>

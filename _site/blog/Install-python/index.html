@@ -10,7 +10,7 @@
     <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
-<title>Anaconda and Jupyter notebook</title>
+<title>Anaconda and Jupyter Notebook</title>
 <meta name="description" content="">
 
 <!-- Global site tag (gtag.js) - Google Analytics -->
@@ -81,7 +81,7 @@
 				<div id="main">
           <section class="post">
     				<header class="major">
-      				<h1>Anaconda and Jupyter notebook</h1>
+      				<h1>Anaconda and Jupyter Notebook</h1>
       				<span class="date">
 					30 Mar 2018
 
@@ -98,15 +98,15 @@
   
 ]
 </span>
- <p>This is a guild for installing Ananconda and Jupyter notebook</p>
+ <p>This is a guide for installing Ananconda and Jupyter Notebook</p>
      			</header>
       			<div class="image main"><img src="" alt=""></div>
       			<p></p>
-<h2 id="install-and-config-anaconda">Install and Config Anaconda</h2>
+<h2 id="install-and-configure-anaconda">Install and Configure Anaconda</h2>
 
 <h3 id="install-anaconda">Install Anaconda</h3>
 <ul>
-  <li>Anaconda can be downloaded in <a href="https://www.continuum.io/downloads#_unix">Anaconda’s website</a>, it has both <a href="http://repo.continuum.io/archive/Anaconda3-4.0.0-Linux-x86_64.sh">Linux</a> and <a href="http://repo.continuum.io/archive/Anaconda3-4.0.0-Windows-x86_64.exe">Windows version</a>
+  <li>Anaconda can be downloaded from <a href="https://www.continuum.io/downloads#_unix">Anaconda’s website</a>. It has both <a href="http://repo.continuum.io/archive/Anaconda3-4.0.0-Linux-x86_64.sh">Linux</a> and <a href="http://repo.continuum.io/archive/Anaconda3-4.0.0-Windows-x86_64.exe">Windows versions</a>
 </li>
   <li>install Anaconda
     <div class="highlighter-rouge">
@@ -114,8 +114,7 @@
 </code></pre>
     </div>
   </li>
-  <li>set the default python3
-After install, restart the connection the default <strong><em>“.bashrc”</em></strong> will be changed for Anaconda
+  <li>After installation, set the default python3 version by adding the following code to <strong><em>“.bashrc”</em></strong>. Then restart the connection. The default <strong><em>“.bashrc”</em></strong> will be changed for Anaconda
     <div class="highlighter-rouge">
 <pre class="highlight"><code># added by Anaconda3 4.0.0 installer
 export PATH="/home/ubuntu/anaconda3/bin:$PATH"
@@ -131,7 +130,7 @@ conda install netCDF4
     </div>
   </li>
   <li>
-    <p>Update
+    <p>update
  <code class="highlighter-rouge">conda update anaconda</code></p>
   </li>
   <li>
@@ -139,16 +138,16 @@ conda install netCDF4
   <code class="highlighter-rouge">conda create -n py35 python=3.5 anaconda</code></p>
   </li>
   <li>
-    <p>To activate I use
-   <code class="highlighter-rouge">source activate py35</code></p>
+    <p>activate and use the created environment
+ <code class="highlighter-rouge">source activate py35</code></p>
   </li>
-  <li>to deactivate
-<code class="highlighter-rouge">source deactivate</code>
+  <li>deactivate an environment
+ <code class="highlighter-rouge">source deactivate py35</code>
 </li>
 </ul>
 
-<h2 id="jupyter-notebook">Jupyter notebook</h2>
-<h3 id="start-jupyter-notebook">start Jupyter notebook</h3>
+<h2 id="jupyter-notebook">Jupyter Notebook</h2>
+<h3 id="start-jupyter-notebook">start Jupyter Notebook</h3>
 <div class="highlighter-rouge">
 <pre class="highlight"><code># general start 
 jupyter notebook
@@ -159,12 +158,12 @@ jupyter notebook &amp;&gt; /dev/null &amp;
 # check opened notebook
 jupyter notebook list
 
-# Close jupyter note book
+# close jupyter notebook
 kill $(pgrep jupyter)
 </code></pre>
 </div>
-<h3 id="add-extension-to-jupyter">add extension to Jupyter</h3>
-<p>Jupyter nbextensions <a href="https://github.com/ipython-contrib/jupyter_contrib_nbextensions/">link</a></p>
+<h3 id="add-extensions-to-jupyter-notebook">add extensions to Jupyter Notebook</h3>
+<p>Jupyter <a href="https://github.com/ipython-contrib/jupyter_contrib_nbextensions/"><strong>nbextensions</strong></a></p>
 <div class="language-shell highlighter-rouge">
 <pre class="highlight"><code><span class="c"># install the nbextensions</span>
 pip install jupyter_contrib_nbextensions
@@ -176,7 +175,8 @@ jupyter nbextension <span class="nb">enable </span>codefolding/main
 </code></pre>
 </div>
 
-<h3 id="nbconvert-for-converting-ipython-to-pdf">nbconvert for converting ipython to pdf</h3>
+<h3 id="nbconvert-for-converting-ipython-to-pdf">
+<strong><em>nbconvert</em></strong> for converting “ipython” to “pdf”</h3>
 <div class="highlighter-rouge">
 <pre class="highlight"><code>sudo apt-get install pandoc
 git clone https://github.com/jupyter/nbconvert.git
@@ -188,7 +188,6 @@ py.test --pyargs nbconvert
 </code></pre>
 </div>
 
-
 	<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
 <div id="share-bar">
 
@@ -199,7 +198,7 @@ py.test --pyargs nbconvert
             <i class="fa fa-facebook-official share-button"> facebook</i>
         </a>
 
-        <a href="https://twitter.com/intent/tweet?text=Anaconda%20and%20Jupyter%20notebook&amp;url=/blog/Install-python/" onclick="window.open(this.href, 'pop-up', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter">
+        <a href="https://twitter.com/intent/tweet?text=Anaconda%20and%20Jupyter%20Notebook&amp;url=/blog/Install-python/" onclick="window.open(this.href, 'pop-up', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter">
             <i class="fa fa-twitter share-button"> twitter</i>
         </a>
 
@@ -219,11 +218,11 @@ py.test --pyargs nbconvert
             <i class="fa fa-reddit-alien share-button"> reddit</i>
         </a>
 
-        <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=/blog/Install-python/&amp;title=Anaconda%20and%20Jupyter%20notebook&amp;summary=&amp;source=Dr%20Ning%20Liu's%20Ecohydrology" onclick="window.open(this.href, 'pop-up', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn">
+        <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=/blog/Install-python/&amp;title=Anaconda%20and%20Jupyter%20Notebook&amp;summary=&amp;source=Dr%20Ning%20Liu's%20Ecohydrology" onclick="window.open(this.href, 'pop-up', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn">
             <i class="fa fa-linkedin share-button"> linkedin</i>
         </a>
 
-        <a href="mailto:?subject=Anaconda%20and%20Jupyter%20notebook&amp;body=Check%20out%20this%20site%20/blog/Install-python/" title="Share via Email">
+        <a href="mailto:?subject=Anaconda%20and%20Jupyter%20Notebook&amp;body=Check%20out%20this%20site%20/blog/Install-python/" title="Share via Email">
             <i class="fa fa-envelope share-button"> email</i>
         </a>
     </div>
