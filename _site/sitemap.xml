@@ -2,7 +2,7 @@
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
     <url>
-      <loc>/blog/Useful-websites/</loc>
+      <loc>https://ln1267.github.io/blog/Useful-websites/</loc>
       
         <lastmod>2018-04-01T00:00:00+00:00</lastmod>
       
@@ -11,7 +11,7 @@
     </url>
   
     <url>
-      <loc>/blog/Make-3D-of-a-cup-using-iphone/</loc>
+      <loc>https://ln1267.github.io/blog/Make-3D-of-a-cup-using-iphone/</loc>
       
         <lastmod>2018-03-31T00:00:00+00:00</lastmod>
       
@@ -20,7 +20,7 @@
     </url>
   
     <url>
-      <loc>/blog/Install-python/</loc>
+      <loc>https://ln1267.github.io/blog/Install-python/</loc>
       
         <lastmod>2018-03-30T00:00:00+00:00</lastmod>
       
@@ -30,7 +30,7 @@
   
   
     <url>
-      <loc>/tag/3D/</loc>
+      <loc>https://ln1267.github.io/tag/3D/</loc>
        <lastmod>2017-11-10T00:20:35+00:00</lastmod>
       
        <changefreq>weekly</changefreq>
@@ -40,7 +40,7 @@
      </url>
   
     <url>
-      <loc>/tag/Data/</loc>
+      <loc>https://ln1267.github.io/tag/Data/</loc>
        <lastmod>2017-11-10T00:20:35+00:00</lastmod>
       
        <changefreq>weekly</changefreq>
@@ -50,7 +50,7 @@
      </url>
   
     <url>
-      <loc>/tag/Jupyter/</loc>
+      <loc>https://ln1267.github.io/tag/Jupyter/</loc>
        <lastmod>2017-11-10T00:20:35+00:00</lastmod>
       
        <changefreq>weekly</changefreq>
@@ -60,7 +60,7 @@
      </url>
   
     <url>
-      <loc>/tag/Pix4D/</loc>
+      <loc>https://ln1267.github.io/tag/Pix4D/</loc>
        <lastmod>2017-11-10T00:20:35+00:00</lastmod>
       
        <changefreq>weekly</changefreq>
@@ -70,7 +70,7 @@
      </url>
   
     <url>
-      <loc>/tag/Programming/</loc>
+      <loc>https://ln1267.github.io/tag/Programming/</loc>
        <lastmod>2017-11-10T00:20:35+00:00</lastmod>
       
        <changefreq>weekly</changefreq>
@@ -80,7 +80,7 @@
      </url>
   
     <url>
-      <loc>/tag/Python/</loc>
+      <loc>https://ln1267.github.io/tag/Python/</loc>
        <lastmod>2017-11-10T00:20:35+00:00</lastmod>
       
        <changefreq>weekly</changefreq>
@@ -90,7 +90,7 @@
      </url>
   
     <url>
-      <loc>/tag/Research/</loc>
+      <loc>https://ln1267.github.io/tag/Research/</loc>
        <lastmod>2017-11-10T00:20:35+00:00</lastmod>
       
        <changefreq>weekly</changefreq>
@@ -100,7 +100,7 @@
      </url>
   
     <url>
-      <loc>/tag/UAV/</loc>
+      <loc>https://ln1267.github.io/tag/UAV/</loc>
        <lastmod>2017-11-10T00:20:35+00:00</lastmod>
       
        <changefreq>weekly</changefreq>
@@ -110,7 +110,7 @@
      </url>
   
     <url>
-      <loc>/tag/Website/</loc>
+      <loc>https://ln1267.github.io/tag/Website/</loc>
        <lastmod>2017-11-10T00:20:35+00:00</lastmod>
       
        <changefreq>weekly</changefreq>
@@ -120,7 +120,7 @@
      </url>
   
     <url>
-      <loc>/blog/</loc>
+      <loc>https://ln1267.github.io/blog/</loc>
        <lastmod>2017-03-02T00:00:00+00:00</lastmod>
       
        <changefreq>weekly</changefreq>
@@ -130,7 +130,7 @@
      </url>
   
     <url>
-      <loc>/</loc>
+      <loc>https://ln1267.github.io/</loc>
        <lastmod>2017-11-02T00:00:00+00:00</lastmod>
       
        <changefreq>weekly</changefreq>
@@ -140,7 +140,7 @@
      </url>
   
     <url>
-      <loc>/notebook/</loc>
+      <loc>https://ln1267.github.io/notebook/</loc>
        <lastmod>2018-03-30T00:00:00+00:00</lastmod>
       
        <changefreq>weekly</changefreq>
@@ -150,7 +150,7 @@
      </url>
   
     <url>
-      <loc>/publication/</loc>
+      <loc>https://ln1267.github.io/publication/</loc>
        <lastmod>2018-03-30T00:00:00+00:00</lastmod>
       
        <changefreq>weekly</changefreq>
@@ -160,7 +160,7 @@
      </url>
   
     <url>
-      <loc>/sitemap.xml</loc>
+      <loc>https://ln1267.github.io/sitemap.xml</loc>
        <lastmod>2017-11-10T00:20:35+00:00</lastmod>
       
        <changefreq>weekly</changefreq>
@@ -170,7 +170,7 @@
      </url>
   
     <url>
-      <loc>/feed.xml</loc>
+      <loc>https://ln1267.github.io/feed.xml</loc>
        <lastmod>2017-11-10T00:20:35+00:00</lastmod>
       
        <changefreq>weekly</changefreq>
@@ -180,7 +180,7 @@
      </url>
   
     <url>
-      <loc>/feed.xslt.xml</loc>
+      <loc>https://ln1267.github.io/feed.xslt.xml</loc>
        <lastmod>2017-11-10T00:20:35+00:00</lastmod>
       
        <changefreq>weekly</changefreq>
