@@ -1,6 +1,6 @@
 # Site
 title:              Ecohydrological research <br /> by Dr Ning Liu
-bio:                'School of VLS, Murdoch University'
+bio:                'Department of Forest Resources, University of Minnesota; School of VLS, Murdoch University'
 description:        "This is a personal website"
 locale:             en_US
 baseurl: "" # the subpath of your site, e.g. /blog
@@ -41,9 +41,9 @@ instagram:
 github:             ln1267
 
 # personal
-location:           ES. 2-057, School of VLS, Murdoch University, Perth, WA, Australia 6150
-phone:              +61 8 9630 6484         
-email:              N.LIU@murdoch.edu.au
+location:           3160 Coweeta Lab Road, Otto, NC 28763
+phone:              Tel: +1 828 524 2128 x119; +61 8 9630 6484         
+email:              LIUN@UMN.EDU; N.LIU@murdoch.edu.au
 
 # Gems
 gems:
