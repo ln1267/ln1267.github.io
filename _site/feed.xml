@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><?xml-stylesheet type="text/xml" href="https://ln1267.github.io/feed.xslt.xml"?><feed xmlns="http://www.w3.org/2005/Atom"><generator uri="http://jekyllrb.com" version="3.2.1">Jekyll</generator><link href="https://ln1267.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://ln1267.github.io/" rel="alternate" type="text/html" /><updated>2018-04-19T02:58:02+00:00</updated><id>https://ln1267.github.io/</id><title type="html">Ecohydrological research &lt;br /&gt; by Dr Ning Liu</title><subtitle>This is a personal website</subtitle><entry><title type="html">A collection of useful websites</title><link href="https://ln1267.github.io/blog/Useful-websites/" rel="alternate" type="text/html" title="A collection of useful websites" /><published>2018-04-01T00:00:00+00:00</published><updated>2018-04-01T00:00:00+00:00</updated><id>https://ln1267.github.io/blog/Useful-websites</id><content type="html" xml:base="https://ln1267.github.io/blog/Useful-websites/">&lt;h2 id=&quot;remote-sensing&quot;&gt;Remote sensing&lt;/h2&gt;
+<?xml version="1.0" encoding="utf-8"?><?xml-stylesheet type="text/xml" href="https://ln1267.github.io/feed.xslt.xml"?><feed xmlns="http://www.w3.org/2005/Atom"><generator uri="http://jekyllrb.com" version="3.2.1">Jekyll</generator><link href="https://ln1267.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://ln1267.github.io/" rel="alternate" type="text/html" /><updated>2019-01-17T21:39:35-05:00</updated><id>https://ln1267.github.io/</id><title type="html">Ecohydrological research &lt;br /&gt; by Dr Ning Liu</title><subtitle>This is a personal website</subtitle><entry><title type="html">A collection of useful websites</title><link href="https://ln1267.github.io/blog/Useful-websites/" rel="alternate" type="text/html" title="A collection of useful websites" /><published>2018-04-01T00:00:00-04:00</published><updated>2018-04-01T00:00:00-04:00</updated><id>https://ln1267.github.io/blog/Useful-websites</id><content type="html" xml:base="https://ln1267.github.io/blog/Useful-websites/">&lt;h2 id=&quot;remote-sensing&quot;&gt;Remote sensing&lt;/h2&gt;
 &lt;ol&gt;
   &lt;li&gt;MODIS dataset
     &lt;ul&gt;
@@ -244,7 +244,7 @@
   &lt;/li&gt;
   &lt;li&gt;&lt;a href=&quot;http://www.ncl.ucar.edu/Applications/hdf5.shtml&quot;&gt;NCL - Reading and writing HDF5&lt;/a&gt;&lt;/li&gt;
   &lt;li&gt;&lt;a href=&quot;https://www.cl.cam.ac.uk/teaching/1516/NLP/materials.html&quot;&gt;Natural Language Processing&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;</content><category term="Website" /><category term="Data" /><category term="Programming" /><category term="Research" /><summary type="html">This is a collection of useful websites both for research and programming</summary></entry><entry><title type="html">How to creat 3D maps using your phone</title><link href="https://ln1267.github.io/blog/Make-3D-of-a-cup-using-iphone/" rel="alternate" type="text/html" title="How to creat 3D maps using your phone" /><published>2018-03-31T00:00:00+00:00</published><updated>2018-03-31T00:00:00+00:00</updated><id>https://ln1267.github.io/blog/Make-3D-of-a-cup-using-iphone</id><content type="html" xml:base="https://ln1267.github.io/blog/Make-3D-of-a-cup-using-iphone/">&lt;h2 id=&quot;prerequisites&quot;&gt;Prerequisites&lt;/h2&gt;
+&lt;/ul&gt;</content><category term="Website" /><category term="Data" /><category term="Programming" /><category term="Research" /><summary type="html">This is a collection of useful websites both for research and programming</summary></entry><entry><title type="html">How to creat 3D maps using your phone</title><link href="https://ln1267.github.io/blog/Make-3D-of-a-cup-using-iphone/" rel="alternate" type="text/html" title="How to creat 3D maps using your phone" /><published>2018-03-31T00:00:00-04:00</published><updated>2018-03-31T00:00:00-04:00</updated><id>https://ln1267.github.io/blog/Make-3D-of-a-cup-using-iphone</id><content type="html" xml:base="https://ln1267.github.io/blog/Make-3D-of-a-cup-using-iphone/">&lt;h2 id=&quot;prerequisites&quot;&gt;Prerequisites&lt;/h2&gt;
 &lt;ul&gt;
   &lt;li&gt;A phone #  you definitely have at least one&lt;/li&gt;
   &lt;li&gt;A software which can process photos. I used Pix4D in this post (with a licence).&lt;/li&gt;
@@ -262,7 +262,7 @@
 &lt;h2 id=&quot;import-all-photos-to-pix4d-and-select-pix4d-3d-models&quot;&gt;Import all photos to Pix4D and select “Pix4D 3D models”&lt;/h2&gt;
 &lt;p&gt;&lt;img src=&quot;/images/posts/Cup_3d.png&quot; alt=&quot;A 3D model of a cup&quot; /&gt;&lt;/p&gt;
 
-&lt;p&gt;This 3D map is not very good but it captures most of the key features of the table and the cup.&lt;/p&gt;</content><category term="UAV" /><category term="Pix4D" /><category term="3D" /><summary type="html">This is an attempt about using iphone to take photos of an item and creat a 3D model of it using Pix4D</summary></entry><entry><title type="html">Anaconda and Jupyter Notebook</title><link href="https://ln1267.github.io/blog/Install-python/" rel="alternate" type="text/html" title="Anaconda and Jupyter Notebook" /><published>2018-03-30T00:00:00+00:00</published><updated>2018-03-30T00:00:00+00:00</updated><id>https://ln1267.github.io/blog/Install-python</id><content type="html" xml:base="https://ln1267.github.io/blog/Install-python/">&lt;h2 id=&quot;install-and-configure-anaconda&quot;&gt;Install and Configure Anaconda&lt;/h2&gt;
+&lt;p&gt;This 3D map is not very good but it captures most of the key features of the table and the cup.&lt;/p&gt;</content><category term="UAV" /><category term="Pix4D" /><category term="3D" /><summary type="html">This is an attempt about using iphone to take photos of an item and creat a 3D model of it using Pix4D</summary></entry><entry><title type="html">Anaconda and Jupyter Notebook</title><link href="https://ln1267.github.io/blog/Install-python/" rel="alternate" type="text/html" title="Anaconda and Jupyter Notebook" /><published>2018-03-30T00:00:00-04:00</published><updated>2018-03-30T00:00:00-04:00</updated><id>https://ln1267.github.io/blog/Install-python</id><content type="html" xml:base="https://ln1267.github.io/blog/Install-python/">&lt;h2 id=&quot;install-and-configure-anaconda&quot;&gt;Install and Configure Anaconda&lt;/h2&gt;
 
 &lt;h3 id=&quot;install-anaconda&quot;&gt;Install Anaconda&lt;/h3&gt;
 &lt;ul&gt;
@@ -286,18 +286,18 @@ conda install netCDF4
     &lt;/div&gt;
   &lt;/li&gt;
   &lt;li&gt;
-    &lt;p&gt;update
+    &lt;p&gt;update&lt;br /&gt;
  &lt;code class=&quot;highlighter-rouge&quot;&gt;conda update anaconda&lt;/code&gt;&lt;/p&gt;
   &lt;/li&gt;
   &lt;li&gt;
-    &lt;p&gt;create an environment
+    &lt;p&gt;create an environment&lt;br /&gt;
   &lt;code class=&quot;highlighter-rouge&quot;&gt;conda create -n py35 python=3.5 anaconda&lt;/code&gt;&lt;/p&gt;
   &lt;/li&gt;
   &lt;li&gt;
-    &lt;p&gt;activate and use the created environment
+    &lt;p&gt;activate and use the created environment&lt;br /&gt;
  &lt;code class=&quot;highlighter-rouge&quot;&gt;source activate py35&lt;/code&gt;&lt;/p&gt;
   &lt;/li&gt;
-  &lt;li&gt;deactivate an environment
+  &lt;li&gt;deactivate an environment&lt;br /&gt;
  &lt;code class=&quot;highlighter-rouge&quot;&gt;source deactivate py35&lt;/code&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
