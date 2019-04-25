@@ -8,6 +8,7 @@ sitemap:
     changefreq: weekly
 ---
 ## Publications
+1. **Liu, N.**, Harper, R. J., Smettem, K. R. J., Dell, B., & Liu, S. (2019). Responses of streamflow to vegetation and climate change in southwestern Australia. ***Journal of Hydrology***, 572, 761–770. https://doi.org/10.1016/j.jhydrol.2019.03.005
 
 1. **Liu, N.**, Shaikh, M. A., Kala, J., Harper, R. J., Dell, B., Liu, S., & Sun, G. (2018). Parallelization of a distributed ecohydrological model. ***Environmental Modelling & Software***, 101, 51-63. https://doi.org/10.1016/j.envsoft.2017.11.033 [(pdf)](/images/Zhang2017JoH.pdf)
 
