@@ -31,6 +31,21 @@ f_lib_check<-function(libs){
   a<-lapply(libs, require, character.only = TRUE)
 }
 
+# Commonly defined theme for ggplot
+theme_ning<-function(size.axis=8,size.title=10,base_family="sans"){
+  theme_bw(base_family = base_family) %+replace% 
+  theme(axis.title = element_text(face="bold", colour="black", size=size.title),
+        axis.text= element_text(angle=0, vjust=0.3, size=size.axis),
+        legend.title = element_text(colour="black", size=size.axis, face="bold"),
+        legend.text = element_text(colour="black", size = size.axis),
+        strip.text.x = element_text(size = size.axis,margin=margin(4, 2, 6, 2), face="bold"),
+        strip.text.y = element_text(size = size.axis,margin=margin(4, 2, 4, 6), face="bold",angle=-90),
+        legend.key.size=unit(1.2, "lines"),
+        legend.box.spacing=unit(1, "mm"),
+        strip.background = element_blank(),
+        plot.title = element_text(vjust = 2.5,hjust = 0.5,face="bold")
+  )
+}
 
 # get the number of days for each month----
 
