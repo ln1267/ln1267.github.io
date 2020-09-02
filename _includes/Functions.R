@@ -31,7 +31,7 @@ f_lib_check<-function(libs){
   a<-lapply(libs, require, character.only = TRUE)
 }
 
-# Commonly defined theme for ggplot
+# Theme for ggplot ----
 theme_ning<-function(size.axis=8,size.title=10,base_family="sans"){
   theme_bw(base_family = base_family) %+replace% 
   theme(axis.title = element_text(face="bold", colour="black", size=size.title),
@@ -46,6 +46,17 @@ theme_ning<-function(size.axis=8,size.title=10,base_family="sans"){
         plot.title = element_text(vjust = 2.5,hjust = 0.5,face="bold")
   )
 }
+
+
+# Function for validation
+
+## RMSE
+f_RMSE=function(obs,sim){
+
+	sqrt(mean((obs-sim)^2))
+
+}
+
 
 # get the number of days for each month----
 
