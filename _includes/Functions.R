@@ -51,10 +51,20 @@ theme_ning<-function(size.axis=8,size.title=10,base_family="sans"){
 # Function for validation
 
 ## RMSE
-f_RMSE=function(obs,sim){
+f_RMSE<-function(obs,sim){
+	sqrt(mean((obs-sim)^2,na.rm=T))
 
-	sqrt(mean((obs-sim)^2))
+}
+## NSE
+f_NSE<-function(obs,sim){
 
+	1 - sum( (obs - sim)^2 ,na.rm=T) / sum( (obs - mean(obs,na.rm=T))^2,na.rm=T )
+}
+
+## Pbias
+f_Pbias<-function(obs,sim){
+
+	100 * ( sum( sim - obs,na.rm=T ) / sum( obs,na.rm=T ) )
 }
 
 
