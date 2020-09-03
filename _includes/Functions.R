@@ -980,11 +980,11 @@ f_2raster<-function(data,infonc=NA){
 #' sta_shp<-f_sta_shp_nc(ncfilename="/Dataset/backup/CABLE/ET_ann_82_14.nc",
 #' basin,fun="mean",varname="ET",zonal_field="Station",start=1982,scale="annual")
 #'
-f_sta_shp_nc<-function(ncfilename,basin,fun="mean",varname,zonal_field,start,scale="month",weight=T,plot=T){
+f_sta_shp_nc<-function(ncfilename=NULL,da=NULL,basin,fun="mean",varname,zonal_field,start,scale="month",weight=T,plot=T){
   require(dplyr)
   require(raster)
   require(tidyr)
-  da<-brick(ncfilename)
+ if(is.null(da) da<-brick(ncfilename)
   da<-crop(da,basin)
   #NAvalue(da)<- 0
   if(plot) {
