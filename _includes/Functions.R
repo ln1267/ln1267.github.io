@@ -1186,9 +1186,10 @@ f_plot_sp<-function(da,filename,colstyle="RdYlGn",pretty=T,margin=list(),shpname
 #' scale = "1 month")
 
 f_2nc<-function(filename=NULL,da=NULL,ncfname,varname,start_date=NULL,scale="1 year",attrs=NULL,fillvalue=NULL,dlname=NULL,varunit=NULL,plot=T){
-  library(ncdf4)
+  require(ncdf4)
+  require(raster)
 
-  # read original data from a filename or a raster
+  # read original data from a filename or a raster object
   if(!is.null(filename)){
     a<-brick(filename)
     print(paste0("read data from ",filename))
