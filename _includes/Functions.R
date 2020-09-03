@@ -984,7 +984,7 @@ f_sta_shp_nc<-function(ncfilename=NULL,da=NULL,basin,fun="mean",varname,zonal_fi
   require(dplyr)
   require(raster)
   require(tidyr)
- if(is.null(da) da<-brick(ncfilename)
+ if(is.null(da)) da<-brick(ncfilename)
   da<-crop(da,basin)
   #NAvalue(da)<- 0
   if(plot) {
