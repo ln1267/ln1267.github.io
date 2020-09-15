@@ -147,6 +147,85 @@ f_hrurouting<-function(datain,byfield,varname,routpar,mc_cores=1){
 }
 
 
+## Get the upstream HUCs of a HUC ----
+#' return HUCIDs of this HUC
+#' @param HUCID The unique ID of this HUC, which should be the same as the flow direction file.
+#' @param routpar The stream level that caculated from f_stream_level. 
+#' @keywords upstream detection
+#' @export
+#' @examples
+#' routpar<-f_stream_level('flowdir.txt')
+#' f_upstreamHUCs(HUCID=HUCID,routpar=routpar)
+f_upstreamHUCs<-function(HUCID,routpar){
+  
+  # Get the Stream LEVEL of this HUC
+  level_to<-routpar$LEVEL[routpar$TO==HUCID]
+  
+  upHUCs<-NULL
+  To<-HUCID
+  if(length(level_to)>0){
+	
+	# look for upstream HUCs 
+    while (length(level_to)>0){
+      FROM_HUCs<-routpar$FROM[routpar$TO %in% To]
+
+      upHUCs<-c(upHUCs,FROM_HUCs)
+
+      To<-routpar$FROM[routpar$TO %in% To]
+	
+	# Update the list of upstream HUCs
+      level_to<-routpar$LEVEL[routpar$TO %in% To]
+
+    }
+
+    return(upHUCs)
+  }else{
+    return(NULL)
+  }
+
+}
+
+## Get the downstream HUCs of a HUC ----
+#' return HUCIDs of this HUC
+#' @param HUCID The unique ID of this HUC, which should be the same as the flow direction file.
+#' @param routpar The stream level that caculated from f_stream_level. 
+#' @keywords upstream detection
+#' @export
+#' @examples
+#' routpar<-f_stream_level('flowdir.txt')
+#' f_downstreamHUCs(HUCID=HUCID,routpar=routpar)
+f_downstreamHUCs<-function(HUCID,routpar){
+  
+  # Get the Stream LEVEL of this HUC
+  level_from<-routpar$LEVEL[routpar$FROM==HUCID]
+  donwhucids<-NULL
+  
+  if (length(level_from)>0){
+    
+    FROM_HUC<-HUCID
+    level_from_from<-level_from
+	
+	# look for upstreams HUCs
+    while (length(level_from_from)>0) {
+      #print(level_to)
+      TO_HUC<-routpar$TO[routpar$FROM==FROM_HUC]
+      
+	  donwhucids<-c(donwhucids,TO_HUC)
+      
+	  FROM_HUC<-routpar$TO[routpar$FROM==FROM_HUC]
+	  
+	  # Update the list of downstream HUCs
+	  
+      level_from_from<-routpar$LEVEL[routpar$FROM==FROM_HUC]
+    }
+	
+    return(donwhucids)
+  }else{
+    return(NULL)
+  }
+  
+}
+
 # get the number of days for each month----
 
 # This is an example function named 'hello'
