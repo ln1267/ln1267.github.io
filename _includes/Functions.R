@@ -102,7 +102,49 @@ f_stream_level<-function(FlowDir=NA){
   return(stream_level)
 }
 
+## Routing flow based on stream direction ----
+#' return the accumulated flow
+#' @param datain The dataframe for calculation. It should has the unique ID and the variable to be accumulated.
+#' @param byfield The unique ID, which should be the same as the flow direction file.
+#' @param varname The variable to be accumulated
+#' @param routpar The stream level that caculated from f_stream_level. 
+#' @keywords flow accumulation
+#' @export
+#' @examples
+#' routpar<-f_stream_level('flowdir.txt')
+#' hrurouting(datain=Flwdata,byfield="HUC8",varname="flow",routpar=routpar)
+hrurouting<-function(datain,byfield,varname,routpar,mc_cores=1){
+  library(parallel)
+  
+  # get the input variables
+  datain["flow"]<-datain[varname]
+  datain["HUC"]<-datain[byfield]
+  
+# function for sum the upstream HUCs
+	hru_accm<-function(hru,water,routpar){
+		hru<-as.numeric(hru)
+		water$flow[water$HUC==hru] +sum(water$flow[water$HUC %in% routpar$FROM[which(routpar$TO==hru)]])
+	}
 
+	# Get the maximum LEVEL
+	max_level<-max(routpar$LEVEL)
+	
+	# calculate accumulated flow by Level
+	for (level in c(max_level:1)){
+		
+		# Get the HUC IDs in this Level
+		hrus<-unique(routpar$TO[routpar$LEVEL==level])
+		
+		# calculate accumulated flow for each HUC in this Level
+		flowaccu<-lapply(hrus,hru_accm,water=datain,routpar=routpar)
+		
+		# update the accumulated flow for each HUC in this level
+		for (i in c(1:length(hrus))) datain$flow[datain$HUC==hrus[i]]<- flowaccu[[i]]
+	}
+
+	# return the accumulated flow only
+	return(datain$flow)
+}
 
 
 # get the number of days for each month----
