@@ -251,8 +251,6 @@ f_WaterDemand<-function(datain,byfield,varname,routpar,mc_cores=1){
 	# Setup water demand variable
     datain$WD<-0
 	
-
-	
 	# update the headstream HUCs
 		# get the headstream HUCs in flow direction file
 		hucs_all<-unique(c(routpar$FROM,routpar$TO))
@@ -272,7 +270,7 @@ f_WaterDemand<-function(datain,byfield,varname,routpar,mc_cores=1){
 			datain$flow[datain$HUC==hru]<-0
 			
 			## update all Downstreams HUCs + WD
-			downhurids_from<-f_downstreamHUCs(hru)
+			downhurids_from<-f_downstreamHUCs(hru,routpar)
 			datain$flow[datain$HUC %in% downhurids_from]<-datain$flow[datain$HUC %in% downhurids_from]+datain$WD[datain$HUC==hru]
 	  
 		  }
@@ -292,7 +290,7 @@ f_WaterDemand<-function(datain,byfield,varname,routpar,mc_cores=1){
 			  datain$flow[datain$HUC==hru]<-0
 			  
 			  ## Downstreams
-					downhurids_from<-f_downstreamHUCs(hru)
+					downhurids_from<-f_downstreamHUCs(hru,routpar)
 					datain$flow[datain$HUC %in% downhurids_from]<-datain$flow[datain$HUC %in% downhurids_from]+datain$WD[datain$HUC==hru]
 
 			}
