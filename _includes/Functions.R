@@ -112,8 +112,8 @@ f_stream_level<-function(FlowDir=NA){
 #' @export
 #' @examples
 #' routpar<-f_stream_level('flowdir.txt')
-#' hrurouting(datain=Flwdata,byfield="HUC8",varname="flow",routpar=routpar)
-hrurouting<-function(datain,byfield,varname,routpar,mc_cores=1){
+#' f_hrurouting(datain=Flwdata,byfield="HUC8",varname="flow",routpar=routpar)
+f_hrurouting<-function(datain,byfield,varname,routpar,mc_cores=1){
   library(parallel)
   
   # get the input variables
