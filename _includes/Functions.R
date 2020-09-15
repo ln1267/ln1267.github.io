@@ -68,6 +68,43 @@ f_Pbias<-function(obs,sim){
 }
 
 
+## Calculate stream level ----
+#' https://usgs-mrs.cr.usgs.gov/NHDHelp/WebHelp/NHD_Help/Introduction_to_the_NHD/Feature_Attribution/Stream_Levels.htm
+#' stream level increase from outlet (1) to the top
+#' @param FlowDir The file includes flow direction from a unique ID to the other ID. 
+#' @keywords stream_level
+#' @export
+#' @examples
+#' f_stream_level('flowdir.txt')
+f_stream_level<-function(FlowDir=NA){
+
+  stream<-read.csv(FlowDir)
+  if(sum(c("FROM","TO")%in% names(stream))<2) return ("It should has 'FROM' and 'TO' fields")
+  stream_level<-stream[c("FROM","TO")]
+
+  stream_level$LEVEL<-NA
+
+  lev<-1
+  for (i in c(1:500)){
+
+    if(lev==1){
+      index_lev_down<-which(!stream_level$TO %in% stream_level$FROM)
+      stream_level$LEVEL[index_lev_down]<-lev
+      lev<-lev+1
+    }
+
+    index_lev_up<-which(stream_level$TO %in% stream_level$FROM[index_lev_down])
+    stream_level$LEVEL[index_lev_up]<-lev
+    index_lev_down<-index_lev_up
+    lev<-lev+1
+  }
+
+  return(stream_level)
+}
+
+
+
+
 # get the number of days for each month----
 
 # This is an example function named 'hello'
