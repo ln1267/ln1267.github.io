@@ -226,6 +226,81 @@ f_downstreamHUCs<-function(HUCID,routpar){
   
 }
 
+
+## Calculate the water demand for each HUC ----
+#' This water demand means that the accumulated flow is less than water use.
+#' @param datain The dataframe for calculation. It should has the unique ID and the variable to be accumulated.
+#' @param byfield The unique ID, which should be the same as the flow direction file.
+#' @param varname The variable to be accumulated
+#' @param routpar The stream level that caculated from f_stream_level. 
+#' @keywords flow accumulation
+#' @export
+#' @examples
+#' routpar<-f_stream_level('flowdir.txt')
+#' f_WaterDemand(datain=Flwdata,byfield="HUC8",varname="flow",routpar=routpar)
+f_WaterDemand<-function(datain,byfield,varname,routpar,mc_cores=1){
+  library(parallel)
+  
+    # get the input variables
+	datain["flow"]<-datain[varname]
+	datain["HUC"]<-datain[byfield]
+	
+	# Get the maximum LEVEL
+	max_level<-max(routpar$LEVEL)
+	
+	# Setup water demand variable
+    datain$WD<-0
+	
+
+	
+	# update the headstream HUCs
+		# get the headstream HUCs in flow direction file
+		hucs_all<-unique(c(routpar$FROM,routpar$TO))
+		
+		# Get all HUCs in the headstream (no getting water from other HUCs)(there could be some inland HUCs)
+		# The inland HUCs are generally not listed in the flow direction file
+		hrus<-c(datain$HUC[!datain$HUC %in% hucs_all],routpar$FROM[which(!routpar$FROM %in% routpar$TO)])
+		
+		# Get the negative flow HUCs
+		hrus<-hrus[hrus %in% datain$HUC[datain$flow<0]]
+		
+		# update WD by giving this extra water back to all affected HUCs
+		if(length(hrus)>0){
+		  for(hru in hrus){
+		  # update WD based on the water shortage
+			datain$WD[datain$HUC==hru]<-abs(datain$flow[datain$HUC==hru])
+			datain$flow[datain$HUC==hru]<-0
+			
+			## update all Downstreams HUCs + WD
+			downhurids_from<-f_downstreamHUCs(hru)
+			datain$flow[datain$HUC %in% downhurids_from]<-datain$flow[datain$HUC %in% downhurids_from]+datain$WD[datain$HUC==hru]
+	  
+		  }
+		}
+
+	# update all other HUCs downstream of headstream
+		# Update WD by each stream level from upstream to the downstream
+		  for (level in c(max_level:1)){
+			
+			hrus<-unique(routpar$TO[routpar$LEVEL==level])
+			hrus<-hrus[hrus %in% datain$HUC[datain$flow<0]]
+			
+			#print(paste0("There are ",length(hrus)," hrus in level ",level))
+			if(length(hrus)==0) next()
+			for(hru in hrus){
+			  datain$WD[datain$HUC==hru]<-abs(datain$flow[datain$HUC==hru])
+			  datain$flow[datain$HUC==hru]<-0
+			  
+			  ## Downstreams
+					downhurids_from<-f_downstreamHUCs(hru)
+					datain$flow[datain$HUC %in% downhurids_from]<-datain$flow[datain$HUC %in% downhurids_from]+datain$WD[datain$HUC==hru]
+
+			}
+		  }
+	  return(datain)
+	}
+
+
 # get the number of days for each month----
 
 # This is an example function named 'hello'
