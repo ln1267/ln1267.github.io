@@ -48,6 +48,25 @@ theme_ning<-function(size.axis=8,size.title=10,base_family="sans"){
 }
 
 
+#
+## Function for clipping raster file by shapefile----
+#' @param daRaster A raster object.
+#' @param ROI The shapefile.
+#' @keywords clipping
+#' @export
+#' @examples
+#' daRaster<-brick("datafilename.tif")
+#' ROI<-readOGR("shpfilename.shp")
+#' f_crop_roi(daRaster,ROI=ROI)
+f_crop_roi<-function(daRaster,ROI,.mask=FALSE,.plot=FALSE){
+  if (!compareCRS(ROI,daRaster))  ROI<-spTransform(ROI,crs(daRaster))
+  daRaster<-crop(daRaster,ROI)
+  if (.mask) daRaster<-mask(daRaster,ROI)
+  if(.plot) {plot(daRaster[[1]]);plot(ROI,add=T)}
+  return(daRaster)
+}
+
+
 # Function for validation
 
 ## RMSE
