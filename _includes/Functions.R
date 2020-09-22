@@ -116,7 +116,16 @@ f_hamon_PET <- function(tavg, mon, lat) {
   return(29.8 * daylighthr * (esat/(tavg + 273.2))*ndays)
 
 }
+f_hamon_PET_daily <- function(tavg, day, lat) {
+  var_theta <- 0.2163108 + 2 * atan(0.9671396 * tan(0.0086 * (day - 186)))
+  var_pi <- asin(0.39795 * cos(var_theta))
+  daylighthr <- 24 - 24/pi * acos((sin(0.8333 * pi/180) + sin(lat * pi/180) * sin(var_pi))/(cos(lat *pi/180) * cos(var_pi)))
 
+  esat <- 0.611 * exp(17.27 * tavg/(237.3 + tavg))
+
+  return(29.8 * daylighthr * (esat/(tavg + 273.2)))
+
+}
 
 ## Calculate stream level ----
 #' https://usgs-mrs.cr.usgs.gov/NHDHelp/WebHelp/NHD_Help/Introduction_to_the_NHD/Feature_Attribution/Stream_Levels.htm
