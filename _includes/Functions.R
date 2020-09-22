@@ -70,9 +70,17 @@ f_crop_roi<-function(daRaster,ROI,.mask=FALSE,.plot=FALSE){
 # Function for validation
 
 ## RMSE
-f_RMSE<-function(obs,sim){
-	sqrt(mean((obs-sim)^2,na.rm=T))
+f_RMSD<-function(obs,sim){
+	da<-data.frame(obs=obs,sim=sim)
+	da<-na.rm(da)
+	sqrt(sum((da$obs-da$sim)^2)/(length(da$obs)-1))
 
+}
+
+f_RMSE<-function(obs,sim){
+
+  sqrt(mean((obs-sim)^2,na.rm=T))
+  
 }
 ## NSE
 f_NSE<-function(obs,sim){
@@ -84,6 +92,29 @@ f_NSE<-function(obs,sim){
 f_Pbias<-function(obs,sim){
 
 	100 * ( sum( sim - obs,na.rm=T ) / sum( obs,na.rm=T ) )
+}
+
+
+#
+## Function for calculating Hamon PET----
+#' @param tavg Mean temperature.
+#' @param mon The value of month.
+#' @param lat The Latitude of the location.
+#' @keywords PET, Hamon
+#' @export
+#' @examples
+#' f_hamon_PET(tavg=10.5,mon=1,lat=34.334)
+f_hamon_PET <- function(tavg, mon, lat) {
+  jdate<-c(1,32,61,92,122,153,183,214,245,275,306,336)[mon]
+  ndays<-c(31,28,31,30,31,30,31,31,30,31,30,31)[mon]
+  var_theta <- 0.2163108 + 2 * atan(0.9671396 * tan(0.0086 * (jdate - 186)))
+  var_pi <- asin(0.39795 * cos(var_theta))
+  daylighthr <- 24 - 24/pi * acos((sin(0.8333 * pi/180) + sin(lat * pi/180) * sin(var_pi))/(cos(lat *pi/180) * cos(var_pi)))
+
+  esat <- 0.611 * exp(17.27 * tavg/(237.3 + tavg))
+
+  return(29.8 * daylighthr * (esat/(tavg + 273.2))*ndays)
+
 }
 
 
