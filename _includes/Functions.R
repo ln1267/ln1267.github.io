@@ -139,7 +139,7 @@ f_stream_level<-function(FlowDir=NA){
 
   stream<-read.csv(FlowDir)
   if(sum(c("FROM","TO")%in% names(stream))<2) return ("It should has 'FROM' and 'TO' fields")
-  stream_level<-stream[c("FROM","TO")]
+  #stream_level<-stream[c("FROM","TO")]
 
   stream_level$LEVEL<-NA
 
