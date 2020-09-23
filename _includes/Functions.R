@@ -141,24 +141,24 @@ f_stream_level<-function(FlowDir=NA){
   if(sum(c("FROM","TO")%in% names(stream))<2) return ("It should has 'FROM' and 'TO' fields")
   #stream_level<-stream[c("FROM","TO")]
 
-  stream_level$LEVEL<-NA
+  stream$LEVEL<-NA
 
   lev<-1
   for (i in c(1:500)){
 
     if(lev==1){
-      index_lev_down<-which(!stream_level$TO %in% stream_level$FROM)
-      stream_level$LEVEL[index_lev_down]<-lev
+      index_lev_down<-which(!stream$TO %in% stream$FROM)
+      stream$LEVEL[index_lev_down]<-lev
       lev<-lev+1
     }
 
-    index_lev_up<-which(stream_level$TO %in% stream_level$FROM[index_lev_down])
-    stream_level$LEVEL[index_lev_up]<-lev
+    index_lev_up<-which(stream$TO %in% stream$FROM[index_lev_down])
+    stream$LEVEL[index_lev_up]<-lev
     index_lev_down<-index_lev_up
     lev<-lev+1
   }
 
-  return(stream_level)
+  return(stream)
 }
 
 ## Routing flow based on stream direction ----
