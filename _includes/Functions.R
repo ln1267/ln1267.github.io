@@ -142,20 +142,38 @@ f_stream_level<-function(FlowDir=NA){
   #stream_level<-stream[c("FROM","TO")]
 
   stream$LEVEL<-NA
-
+  
+  # store assigned hucs
+  index_assigned<-NULL
+  
   lev<-1
   for (i in c(1:500)){
 
+	# The first level is defined as no upstream hucs
     if(lev==1){
       index_lev_down<-which(!stream$TO %in% stream$FROM)
       stream$LEVEL[index_lev_down]<-lev
       lev<-lev+1
+    
+      #Get the assigned index
+      index_assigned<-union(index_assigned,index_lev_down)
     }
-
+	
+	# get the downstream of these hus
     index_lev_up<-which(stream$TO %in% stream$FROM[index_lev_down])
+    
+    # Check the loop, which is defined as water flows from a huc to a lower level huc
+    loops_index<-intersect(index_lev_up,index_assigned)
+    
+	if(length(loops_index)) return (paste0("There are loops",stream$FROM[loops_index]))
+    
+    # assign level to next level
     stream$LEVEL[index_lev_up]<-lev
     index_lev_down<-index_lev_up
     lev<-lev+1
+	
+    #Get the assigned index
+    index_assigned<-union(index_assigned,index_lev_down)
   }
 
   return(stream)
