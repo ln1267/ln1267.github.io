@@ -140,7 +140,7 @@ f_stream_level<-function(FlowDir=NA){
   stream<-read.csv(FlowDir)
   if(sum(c("FROM","TO")%in% names(stream))<2) return ("It should has 'FROM' and 'TO' fields")
   #stream_level<-stream[c("FROM","TO")]
-
+  
   stream$LEVEL<-NA
   
   # store assigned hucs
@@ -159,7 +159,7 @@ f_stream_level<-function(FlowDir=NA){
       index_assigned<-union(index_assigned,index_lev_down)
     }
 	
-	# get the downstream of these hus
+	# get the upstream of these hus
     index_lev_up<-which(stream$TO %in% stream$FROM[index_lev_down])
     
     # Check the loop, which is defined as water flows from a huc to a lower level huc
@@ -1308,24 +1308,24 @@ f_sta_shp_nc<-function(ncfilename=NULL,da=NULL,basin,fun="mean",varname,zonal_fi
   if(scale=="month" | scale=="Month" | scale=="MONTH"){
     dates<-seq(as.Date(paste0(start,"-01-01")),by="1 month",length.out = dim(da)[3])
     sta_catchment<-t(ex)%>%
-      round(digits = 3)%>%
+      round(digits = 5)%>%
       as.data.frame()%>%
       mutate(Year=as.integer(format(dates,"%Y")),
              Month=as.integer(format(dates,"%m")))%>%
-      gather(BasinID,values,1:length(basin))%>%
+      melt(id=c("Year","Month"))%>%
       mutate(BasinID=rep(basin[[zonal_field]],each=length(dates)))%>%
-      dplyr::select(BasinID,Year,Month,values)
+      dplyr::select(BasinID,Year,Month,value)
     names(sta_catchment)<-c(zonal_field,"Year","Month",varname)
 
   }else if(scale=="annual" | scale=="Annual" | scale=="ANNUAL"){
     dates<-seq(as.Date(paste0(start,"-01-01")),by="1 year",length.out = dim(da)[3])
     sta_catchment<-t(ex)%>%
-      round(digits = 3)%>%
+      round(digits = 5)%>%
       as.data.frame()%>%
       mutate(Year=as.integer(format(dates,"%Y")))%>%
-      gather(BasinID,values,1:length(basin))%>%
+      melt(id=c("Year","Month"))%>%
       mutate(BasinID=rep(basin[[zonal_field]],each=length(dates)))%>%
-      dplyr::select(BasinID,Year,values)
+      dplyr::select(BasinID,Year,value)
 
     names(sta_catchment)<-c(zonal_field,"Year",varname)
 
@@ -1333,14 +1333,14 @@ f_sta_shp_nc<-function(ncfilename=NULL,da=NULL,basin,fun="mean",varname,zonal_fi
     dates<-seq(as.Date(paste0(start,"-01-01")),by="1 day",length.out = dim(da)[3])
 
     sta_catchment<-t(ex)%>%
-      round(digits = 3)%>%
+      round(digits = 5)%>%
       as.data.frame()%>%
       mutate(Year=as.integer(format(dates,"%Y")),
              Month=as.integer(format(dates,"%m")),
              Day=as.integer(format(dates,"%d")))%>%
-      gather(BasinID,values,1:length(basin))%>%
+      melt(id=c("Year","Month"))%>%
       mutate(BasinID=rep(basin[[zonal_field]],each=length(dates)))%>%
-      dplyr::select(BasinID,Year,Month,Day,values)
+      dplyr::select(BasinID,Year,Month,Day,value)
     names(sta_catchment)<-c(zonal_field,"Year","Month","Day",varname)
 
   }
