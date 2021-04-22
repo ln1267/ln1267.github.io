@@ -1550,3 +1550,43 @@ f_2nc<-function(filename=NULL,da=NULL,ncfname,varname,start_date=NULL,scale="1 y
     print(plot(a[[1]]))
   }
 }
+
+
+## Covert 8days brick to monthly brick----
+#' @param year The calender year for this 8days brick file.
+#' @param r The brick.
+#' @keywords 8days2monthly
+#' @export
+#' @examples
+#' da_brick<-brick("/Dataset/backup/CABLE/ET_ann_82_14.nc")
+#' f_8days2month(2001,da_brick)
+
+f_8days2month<-function(year,r){
+  
+  # number of days in that year (leap year or not?)
+  ndays <- ifelse(((year %% 100 != 0) & (year %%4 ==0)) | (year %% 400==0), 366 , 365)
+  
+  # how many layers?
+  n <- ceiling(ndays/8) 
+  # day of year for each layer
+  nn <- rep(1:n, each=8)[1:ndays] 
+  
+  # day of year for each month
+  m <- as.integer(format(as.Date(1:ndays, origin=paste0(year-1, "-12-31")), "%m"))
+  
+  x <- cbind(layer=nn, month=m)
+  weights <- table(x[,1], x[,2])
+
+  #apply weight
+  s <- list()
+  for (i in 1:12) {
+    w <- weights[,i]
+    x <- r[[which(w > 0)]]
+    ww <- w[w > 0] / 8
+    s[[i]] <- weighted.mean(x, ww)
+  }
+  
+  s <- stack(s)
+  names(s) <- month.abb
+  s
+}
