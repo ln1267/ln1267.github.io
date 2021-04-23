@@ -1624,7 +1624,7 @@ f_readGEEClimate<-function(filename,dataSource="Terra",dataScale="Monthly"){
         mutate(Year=year(Date),Month=month(Date),Day=day(Date))%>%
 		mutate(Tavg_C=(tmax+tmin)/2)%>%
         dplyr::rename(Ppt_mm=ppt,Tmin_C=tmin,Tmax_C=tmax,swe_kgm2=swe,vp_Pa=vp,dayl_s=dayl,srad_Wm2=srad)
-	if(dataScale="Monthly"){
+	if(dataScale=="Monthly"){
 	da<-da%>%
 	      group_by(WS_ID,Year,Month)%>%
 			summarise(Ppt_mm=sum(Ppt_mm),swe_kgm2=sum(swe_kgm2),dayl_s=sum(dayl_s),Tavg_C=mean(Tavg_C),Tmax_C=mean(Tmax_C),Tmin_C=mean(Tmin_C),vp_Pa=mean(vp_Pa),srad_Wm2=mean(srad_Wm2))
@@ -1635,7 +1635,7 @@ f_readGEEClimate<-function(filename,dataSource="Terra",dataScale="Monthly"){
           mutate(Year=year(Date),Month=month(Date),Day=day(Date))%>%
 		  dplyr::rename(Tavg_C=tmean,Ppt_mm=ppt,Tmin_C=tmin,Tmax_C=tmax,Tdavg_C=tdmean,vpdmin_hPa=vpdmin,vpdmax_hPa=vpdmax)
 	   
-	if(dataScale="Monthly"){
+	if(dataScale=="Monthly"){
 		da<-da%>%
 	      group_by(WS_ID,Year,Month)%>%
 			summarise(Ppt_mm=sum(Ppt_mm),Tavg_C=mean(Tavg_C),Tmax_C=mean(Tmax_C),Tmin_C=mean(Tmin_C),Tdavg_C=mean(Tdavg_C),vpdmin_hPa=mean(vpdmin_hPa),vpdmax_hPa=mean(vpdmax_hPa))
