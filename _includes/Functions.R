@@ -1624,6 +1624,7 @@ f_readGEEClimate<-function(filename,dataSource="Terra",dataScale="Monthly"){
         mutate(Year=year(Date),Month=month(Date),Day=day(Date))%>%
 		mutate(Tavg_C=(tmax+tmin)/2)%>%
         dplyr::rename(Ppt_mm=ppt,Tmin_C=tmin,Tmax_C=tmax,swe_kgm2=swe,vp_Pa=vp,dayl_s=dayl,srad_Wm2=srad)
+		
 	if(dataScale=="Monthly"){
 	da<-da%>%
 	      group_by(WS_ID,Year,Month)%>%
