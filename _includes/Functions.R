@@ -1583,7 +1583,9 @@ f_8days2month<-function(year,r){
     w <- weights[,i]
     x <- r[[which(w > 0)]]
     ww <- w[w > 0] / 8
-    s[[i]] <- weighted.mean(x, ww)
+	for(n in 1:length(ww))  values(x[[n]])<-values(x[[n]])*ww[[n]]
+
+    s[[i]] <- calc(x, mean,na.rm=T)
   }
   
   s <- stack(s)
