@@ -8,7 +8,14 @@ sitemap:
     changefreq: weekly
 ---
 ## Publications
-1. **Liu, N.**, Harper, R. J., Smettem, K. R. J., Dell, B., & Liu, S. (2019). Responses of streamflow to vegetation and climate change in southwestern Australia. ***Journal of Hydrology***, 572, 761–770. <https://doi.org/10.1016/j.jhydrol.2019.03.005>
+
+1. **Liu, N.**, Dobbs, G. R., Caldwell, P. V, Miniat, C. F., Bolstad, P. V, Nelson, S., & Sun, G. (2020). Quantifying the role of State and private forest lands in providing surface drinking water supply for the Southern United States. General Technical Report GTR-SRS-248. <https://doi.org/10.2737/SRS-GTR-248>
+ 
+3. **Liu, N.**, Sun, P., Caldwell, P. V, Harper, R., Liu, S., & Sun, G. (2020). Trade-off between watershed water yield and ecosystem productivity along elevation gradients on a complex terrain in southwestern China. Journal of Hydrology, 590(April), 125449. <https://doi.org/10.1016/j.jhydrol.2020.125449>
+
+3. Ruprecht J., Sparks T., **Liu N.**, Dell B., and Harper R. (2019).  Using reforestation to reverse salinisation in a large watershed, Journal of Hydrology, 577, 123976. <https://doi.org/10.1016/j.jhydrol.2019.123976>
+
+5. **Liu, N.**, Harper, R. J., Smettem, K. R. J., Dell, B., & Liu, S. (2019). Responses of streamflow to vegetation and climate change in southwestern Australia. ***Journal of Hydrology***, 572, 761–770. <https://doi.org/10.1016/j.jhydrol.2019.03.005>
 
 1. **Liu, N.**, Shaikh, M. A., Kala, J., Harper, R. J., Dell, B., Liu, S., & Sun, G. (2018). Parallelization of a distributed ecohydrological model. ***Environmental Modelling & Software***, 101, 51-63. <https://doi.org/10.1016/j.envsoft.2017.11.033> 
 
