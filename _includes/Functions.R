@@ -1301,6 +1301,8 @@ f_sta_shp_nc<-function(ncfilename=NULL,da=NULL,basin,fun="mean",varname,zonal_fi
   }
   if(fun=="mean" | fun=="Mean" | fun=="MEAN"){
     ex <- raster::extract(da, basin, fun=mean, na.rm=TRUE, weights=weight)
+  }else if (fun=="sd" ){
+    ex <- raster::extract(da, basin, fun=sd, na.rm=TRUE)
   }else{
     ex <- raster::extract(da, basin, fun=sum, na.rm=TRUE)
   }
