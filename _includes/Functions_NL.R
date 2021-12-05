@@ -112,7 +112,7 @@ f_Pbias=function(obs,sim){
 #' @export
 #' @examples
 #' f_hamon_PET(tavg=10.5,mon=1,lat=34.334)
-f_hamon_PET <- function(tavg, mon, lat) {
+f_hamon_PET = function(tavg, mon, lat) {
   jdate<-c(1,32,61,92,122,153,183,214,245,275,306,336)[mon]
   ndays<-c(31,28,31,30,31,30,31,31,30,31,30,31)[mon]
   var_theta <- 0.2163108 + 2 * atan(0.9671396 * tan(0.0086 * (jdate - 186)))
@@ -125,7 +125,7 @@ f_hamon_PET <- function(tavg, mon, lat) {
 
 },
 
-f_hamon_PET_daily <- function(tavg, day, lat) {
+f_hamon_PET_daily = function(tavg, day, lat) {
   var_theta <- 0.2163108 + 2 * atan(0.9671396 * tan(0.0086 * (day - 186)))
   var_pi <- asin(0.39795 * cos(var_theta))
   daylighthr <- 24 - 24/pi * acos((sin(0.8333 * pi/180) + sin(lat * pi/180) * sin(var_pi))/(cos(lat *pi/180) * cos(var_pi)))
@@ -407,7 +407,7 @@ f_WaterDemand=function(datain,byfield,varname,routpar,mc_cores=1){
 #' @examples
 #' date<-as.Date("2001-01-01")
 #' numberOfDays(date)
-numberOfDays <- function(date) {
+numberOfDays = function(date) {
   m <- format(date, format="%m")
 
   while (format(date, format="%m") == m) {
@@ -547,7 +547,7 @@ hru_lc_ratio=function(classname,shp,field=NULL,mcores=1){
 
 ## Trim the anomaly for a variable----
 ### treat +0.5% and -0.5% value as anomaly
-cutAnomalies <- function(x){
+cutAnomalies = function(x){
   # Cut the anomolies
   toPlot <- c(x)
   toPlot1<- toPlot[!is.na(toPlot)]
@@ -597,7 +597,7 @@ f_Parallel_set=function(name="zeus",ncores=NA){
 },
 
 ## Plot theme is for ggplot----
-theme_grid <- function(base_size = 12, base_family = "Times"){
+theme_grid = function(base_size = 12, base_family = "Times"){
   theme_bw(base_size = base_size, base_family = base_family) %+replace%
     theme(
       #line = element_line(colour="black"),
@@ -1132,7 +1132,7 @@ f_line_plot=function(name1){
 #' multiplot(p1,p2,p3,p4,cols=2)
 #'
 
-multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
+multiplot = function(..., plotlist=NULL, file, cols=1, layout=NULL) {
   require(grid)
 
   plots <- c(list(...), plotlist)
