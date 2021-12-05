@@ -31,7 +31,7 @@ f_lib_check=function(libs){
   }
 
   a<-lapply(libs, require, character.only = TRUE)
-}
+},
 
 # Theme for ggplot ----
 theme_ning=function(size.axis=8,size.title=10,base_family="sans"){
@@ -47,7 +47,7 @@ theme_ning=function(size.axis=8,size.title=10,base_family="sans"){
         strip.background = element_blank(),
         plot.title = element_text(vjust = 2.5,hjust = 0.5,face="bold")
   )
-}
+},
 
 
 #
@@ -66,7 +66,7 @@ f_crop_roi=function(daRaster,ROI,.mask=FALSE,.plot=FALSE){
   if (.mask) daRaster<-mask(daRaster,ROI)
   if(.plot) {plot(daRaster[[1]]);plot(ROI,add=T)}
   return(daRaster)
-}
+},
 
 
 # Function for validation
@@ -83,24 +83,24 @@ f_RMSD=function(obs,sim){
 	da<-na.rm(da)
 	sqrt(sum((da$obs-da$sim)^2)/(length(da$obs)-1))
 
-}
+},
 
 f_RMSE=function(obs,sim){
 
   sqrt(mean((obs-sim)^2,na.rm=T))
   
-}
+},
 ## NSE
 f_NSE=function(obs,sim){
 
 	1 - sum( (obs - sim)^2 ,na.rm=T) / sum( (obs - mean(obs,na.rm=T))^2,na.rm=T )
-}
+},
 
 ## Pbias
 f_Pbias=function(obs,sim){
 
 	100 * ( sum( sim - obs,na.rm=T ) / sum( obs,na.rm=T ) )
-}
+},
 
 
 #
@@ -123,7 +123,8 @@ f_hamon_PET <- function(tavg, mon, lat) {
 
   return(29.8 * daylighthr * (esat/(tavg + 273.2))*ndays)
 
-}
+},
+
 f_hamon_PET_daily <- function(tavg, day, lat) {
   var_theta <- 0.2163108 + 2 * atan(0.9671396 * tan(0.0086 * (day - 186)))
   var_pi <- asin(0.39795 * cos(var_theta))
@@ -133,7 +134,7 @@ f_hamon_PET_daily <- function(tavg, day, lat) {
 
   return(29.8 * daylighthr * (esat/(tavg + 273.2)))
 
-}
+},
 
 ## Calculate stream level ----
 #' https://usgs-mrs.cr.usgs.gov/NHDHelp/WebHelp/NHD_Help/Introduction_to_the_NHD/Feature_Attribution/Stream_Levels.htm
@@ -185,7 +186,7 @@ f_stream_level=function(FlowDir=NA){
   }
 
   return(stream)
-}
+},
 
 ## Routing flow based on stream direction ----
 #' return the accumulated flow
@@ -229,7 +230,7 @@ f_hrurouting=function(datain,byfield,varname,routpar,mc_cores=1){
 
 	# return the accumulated flow only
 	return(datain$flow)
-}
+},
 
 
 ## Get the upstream HUCs of a HUC ----
@@ -268,7 +269,7 @@ f_upstreamHUCs=function(HUCID,routpar){
     return(NULL)
   }
 
-}
+},
 
 ## Get the downstream HUCs of a HUC ----
 #' return HUCIDs of this HUC
@@ -309,7 +310,7 @@ f_downstreamHUCs=function(HUCID,routpar){
     return(NULL)
   }
   
-}
+},
 
 
 ## Calculate the water demand for each HUC ----
@@ -381,7 +382,7 @@ f_WaterDemand=function(datain,byfield,varname,routpar,mc_cores=1){
 			}
 		  }
 	  return(datain)
-	}
+	},
 
 
 # get the number of days for each month----
@@ -414,7 +415,7 @@ numberOfDays <- function(date) {
   }
 
   return(as.integer(format(date - 1, format="%d")))
-}
+},
 
 # Zonal a variable for each Hru in dWaSSI-C----
 #' @title Zonal a variable for each Hru in dWaSSI-C
@@ -488,7 +489,7 @@ hru_lc_zonal=function(classname,daname,shp,fun='mean',field=NULL,plot=T){
   }
 
   return(da_zonal)
-}
+},
 
 # Zonal vegetation coverage for each Hru in dWaSSI-C----
 #' @title Zonal vegetation coverage for each Hru in dWaSSI-C
@@ -541,7 +542,7 @@ hru_lc_ratio=function(classname,shp,field=NULL,mcores=1){
   }
 
   return(lc_ratio)
-}
+},
 
 
 ## Trim the anomaly for a variable----
@@ -558,7 +559,7 @@ cutAnomalies <- function(x){
   x[which(x>highCut)]<-NA
   x[which(x<lowCut)]<-NA
   x
-}
+},
 
 f_cut=function(x){
 
@@ -567,7 +568,7 @@ f_cut=function(x){
   x[x>high]<-NA
   x[x<low]<-NA
   x
-}
+},
 
 ## Setup parallel with multiple cors----
 #' Setup up parallel using FORK
@@ -593,7 +594,7 @@ f_Parallel_set=function(name="zeus",ncores=NA){
     print(mem_used())#
     print(detectCores())
   }
-}
+},
 
 ## Plot theme is for ggplot----
 theme_grid <- function(base_size = 12, base_family = "Times"){
@@ -613,7 +614,7 @@ theme_grid <- function(base_size = 12, base_family = "Times"){
       legend.background = element_blank()
 
     )
-}
+},
 
 # function for MK trend analysis and change points detection ("trend" and "changepoint" packages)
 ## ts_in is the input time serie; name is the output pdf name; seasonal is wether for seasonal data; plot is whether plot result; main is the title for plot; Y_name is the title for y_axiel; sig is the sig threhold
@@ -675,7 +676,7 @@ f_MK_CP=function(ts_in,name="",seasonal=F,plot=F,main="",Y_name="Streamflow (mm)
     print(mk.t)
 
   }
-}
+},
 
 
 ## Calculate annual mean and anomaly (SAI or pecentage change) of a dataset (in array) in parallel (return a list with ("MEAN", "ANOM"))
@@ -745,7 +746,7 @@ f_SAI=function(data=data,method="SAI",mask=NA,plot=F,anom_ab=5){
   }
   # return result
   return(list(MEAN=data_mean,ANOM=anom))
-}
+},
 
 ## Correlationship between two vectors----
 #' Calculate the correlation coefficient between two vectors
@@ -775,7 +776,7 @@ f_cor=function(da,method="spearman") {
     res<-unlist(.res)
   }
   res
-}
+},
 
 ## Trend using lm (f_trend)----
 #' Trend analysis using linear regression
@@ -794,7 +795,7 @@ f_trend=function(data){
     #a$coefficients
     c(a$r.squared,a$coefficients[2,4],a$coefficients[2,1])
   }
-}
+},
 
 
 ## Monthly Array to annual (f_mon2annual_array)----
@@ -836,7 +837,7 @@ f_mon2annual_array=function(da,fun="mean"){
   }
   print(range(da_ann,na.rm=T))
   return(da_ann)
-}
+},
 
 
 ##Transfer monthly frame data to annual data by fun="sum" ot "mean"
@@ -846,7 +847,7 @@ f_m2y=function(data, fun="mean"){
   .out<-dcast(.linshi, ID+YEAR~variable, get(fun), na.rm=TRUE)
   return(.out)
 
-}
+},
 
 ##Transfer grid frame data to basin data by fun="mean"
 f_grid2basin=function(data,type="annual",fun="mean"){
@@ -867,7 +868,8 @@ f_grid2basin=function(data,type="annual",fun="mean"){
     .out<-dcast(.linshi, BASIN+YEAR+MONTH~variable, get(fun), na.rm=TRUE)
     return(.out)
   }
-}
+},
+
 ## summary funtion which can output summary information for all data frame objects in memory
 f_summary=function(){
   print("print info for all dataframe objects")
@@ -881,7 +883,7 @@ f_summary=function(){
     }
   }
 
-}
+},
 
 ## Summary funtion for lists----
 ### which can output summary information for all list objects in memory
@@ -902,7 +904,7 @@ f_list_summary=function(){
       }
     }
   }
-}
+},
 
 ####################################################################
 ## changepoint detection using "bfast" package and MK test using "trend" package
@@ -988,7 +990,7 @@ f_dp=function(data,seasonal=TRUE,year_start,year_end){
     }
     return(list(CP_trend=.trend_change,TAU=.outmk$tautot,PMK=.outmk$pvalue,SLOPE=.outslope$b.sen))
   }
-}
+},
 
 ####################################################################
 ## this function is used for plot Brick result
@@ -1066,7 +1068,7 @@ f_grid_plot=function(data,info,annual=FALSE,monthly=FALSE,plot=FALSE){
     }
   }
 
-}
+},
 
 ####################################################################
 ## this function is used for plot scatter valid result
@@ -1093,7 +1095,7 @@ f_scatter_plot=function(data,info,annual=FALSE,monthly=FALSE){
   #qplot(1,1) + ylab(expression(Temp^2))
 
   ####-------plot veg water balance box
-}
+},
 
 f_box_plot=function(name1){
   g_plot<-ggplot(data = ann_mean_main_veg, aes(x = VEG, y = ann_mean_main_veg[[a]])) +
@@ -1102,7 +1104,7 @@ f_box_plot=function(name1){
     ylab(name1) + theme_bw(base_size = 16, base_family = "Times")
   ggsave(g_plot,file =paste("box/",names(ann_mean_MJ),".pdf",sep="")[a],dpi = 300)
   #print(g_plot)
-}
+},
 
 ## Plot annual mean line----
 #' Plot annual mean line
@@ -1120,7 +1122,7 @@ f_line_plot=function(name1){
     geom_abline(intercept = r[1], slope = r[2])
   ggsave(l_plot,file =paste("line/",names(mean_ann_MJ_Y),".pdf",sep="")[a],dpi = 300)
   print(names(mean_ann_MJ_Y)[a])
-}
+},
 
 ## Function for ggplot multiple plot----
 #' multiplot for ploting multi row and cols ggplot function
@@ -1156,7 +1158,7 @@ multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
                                       layout.pos.col = matchidx$col))
     }
   }
-}
+},
 
 ## convert daily data to annual (zoo)----
 #' Convert daily data to annual (zoo)----
@@ -1207,7 +1209,7 @@ daily2annual=function (x, FUN, na.rm = TRUE, out.fmt = "%Y-%m-%d")
   if (NCOL(tmp) == 1)
     tmp <- zoo(as.numeric(tmp), time(tmp))
   return(tmp)
-}
+},
 
 # Convert daily data to monthly (zoo)----
 #' Convert daily data to monthly (zoo)----
@@ -1251,7 +1253,7 @@ daily2monthly=function (x, FUN, na.rm = TRUE, ...)
   if (NCOL(tmp) == 1)
     tmp <- zoo(as.numeric(tmp), time(tmp))
   return(tmp)
-}
+},
 
 
 ## Convert array to raster----
@@ -1278,7 +1280,7 @@ f_2raster=function(data,infonc=NA){
     .grid<-brick(data,xmn=info@extent@xmin,xmx=info@extent@xmax,ymn=info@extent@ymin,ymx=info@extent@ymax,crs=crs(info))
   }
   return(.grid)
-}
+},
 
 ## Zonal raster or brick file----
 #' Zonal raster/brick based on a shapefile
@@ -1356,7 +1358,8 @@ f_sta_shp_nc=function(ncfilename=NULL,da=NULL,basin,fun="mean",varname,zonal_fie
   }
 
   sta_catchment
-}
+},
+
 ## Paste one to one for two vectors, matrixes or arrays----
 #' Paste by value one to one for two vectors, matrixes or arrays
 #' @param x The first object, which can be vector, matrix or array.
@@ -1380,7 +1383,7 @@ f_paste=function(x,y,sep=""){
       array(pas,dimx)
     }
   }
-}
+},
 
 ## Zonal catergory raster file based on shp----
 #' Zonal catergory raster file based on shp
@@ -1421,7 +1424,7 @@ f_zonal_shp_nc=function(ncfilename,shp,zonal_field,category=T,mcores=10){
   .ab$Ratio[is.na(.ab$Ratio)]<-0
   .ab$Freq[is.na(.ab$Freq)]<-0
   .ab
-}
+},
 
 
 ## Plot spatial data----
@@ -1472,7 +1475,7 @@ f_plot_sp=function(da,filename,colstyle="RdYlGn",pretty=T,margin=list(),shpname=
   print(p1)
   dev.off()
   if(plot) print(p1)
-}
+},
 
 ## Write a NetCDF file ----
 #' Write a file to netcdf file
@@ -1559,7 +1562,7 @@ f_2nc=function(filename=NULL,da=NULL,ncfname,varname,start_date=NULL,scale="1 ye
     a<-raster(ncfname)
     print(plot(a[[1]]))
   }
-}
+},
 
 
 ## Covert 8days brick to monthly brick----
@@ -1601,7 +1604,7 @@ f_8days2month=function(year,r){
   s <- stack(s)
   names(s) <- month.abb
   s
-}
+},
 
 ## Read the zonal climate from GEE ----
 #' @param filename The csv file from GEE.
