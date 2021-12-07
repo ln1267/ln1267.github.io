@@ -96,6 +96,15 @@ f_NSE=function(obs,sim){
 	1 - sum( (obs - sim)^2 ,na.rm=T) / sum( (obs - mean(obs,na.rm=T))^2,na.rm=T )
 },
 
+f_KGE = function(Q, X, ...) {
+  ok <- complete.cases(coredata(X), coredata(Q))
+  1 - sqrt(
+    (cor(X, Q, use = "complete") - 1)^2 +
+      (mean(X[ok]) / mean(Q[ok]) - 1)^2 +
+      (sd(X[ok]) / sd(Q[ok]) - 1)^2
+  )
+},
+
 ## Pbias
 f_Pbias=function(obs,sim){
 
