@@ -255,6 +255,49 @@ f_PT_JPL=function(da,TaOpt=25){
   PT_ET
 },
 
+#
+## Function for calculating INTERCEPTION based on LAI and rainfall----
+#' @param ts.prcp Rainfall time series
+#' @param ts.lai LAI time series
+#' @param lc_code Code of Land use,one of  c("Water","ENF","EBF","DNF","DBF","MF","CSH","OSH","WSA","SA","GRA","WET","CRO","Urban","CROPandNature","Snow","Barren","Unclass")
+#' @export
+#' @examples
+#' da_mothly<-da_daily%>%
+#' mutate(Ei_LT=f_Ei(ts.prcp = Rainfall,ts.lai = LAI_NC2))
+
+f_Ei=function(ts.prcp,ts.lai,lc_code="ENF") {
+
+    # Interception Precipitation Evaporation: prcp_real = prcp - Ei
+    # @references
+    # Van Dijk, A.I.J.M. and Warren, G., 2010. The Australian water resources assessment system. Version 0.5, 3(5). P39
+    # TWO INTERCEPTION PARAMETERS
+    # S_sls  : specific canopy rainfall storage capacity per unit leaf area (mm)
+    # fER0   :
+    #   set:
+    #   13 (Urban and Built-Up)           = 5  (mixed forest)
+    #   16 (Barren or Sparsely Vegetated) = 10 (grassland)
+   MODIS_LCs<-c("Water","ENF","EBF","DNF","DBF","MF","CSH","OSH","WSA","SA","GRA","WET","CRO","Urban","CROPandNature","Snow","Barren","Unclass")
+   S_sls <- c(0.000, 0.123, 0.098, 0.123, 0.069, 0.131,
+                                 0.014, 0.014, 0.174, 0.049, 0.114, 0.010,
+                                 0.010, 0.131, 0.010, 0.000, 0.114, 0.000)
+   fER0 <- c(0.000, 0.055, 0.085, 0.055, 0.010, 0.010,
+                              0.010, 0.010, 0.109, 0.055, 0.023, 0.010,
+                              0.158, 0.010, 0.158, 0.000, 0.023, 0.000)
+   LAIref<-7
+   LAI<-ts.lai;P<-ts.prcp
+   lc_id<-which(MODIS_LCs==lc_code)
+   
+   fveg <- 1 - exp(-LAI/LAIref)
+   Sveg <- S_sls[lc_id]*LAI
+
+    fER <- fveg*fER0[lc_id]
+    Pwet <- -log(1 - fER0[lc_id]) / fER0[lc_id] * Sveg / fveg
+    Ei <- (P < Pwet) * fveg * P + (P >= Pwet) * ( fveg*Pwet + fER*(P - Pwet) )
+
+    Ei
+},
+
+
 
 ## Calculate stream level ----
 #' https://usgs-mrs.cr.usgs.gov/NHDHelp/WebHelp/NHD_Help/Introduction_to_the_NHD/Feature_Attribution/Stream_Levels.htm
