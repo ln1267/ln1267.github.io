@@ -1823,6 +1823,25 @@ f_readGEEClimate=function(filename,dataSource="Terra",dataScale="Monthly"){
   
 },
 
+## Extract soil values for each watershed
+f_soilinfo=function(soilfname,Watersheds){
+    require(raster)
+	require(rgdal)
+    SOIL<-brick(soilfname)
+    Watersheds<-spTransform(Watersheds,crs(SOIL))
+    SOIL_catchment<-raster::extract(SOIL,Watersheds,fun=mean,na.rm=T,weights=T)
+    # fill NA values
+    SOIL_catchment[is.infinite(SOIL_catchment)]<-NA
+    SOIL_catchment[is.na(SOIL_catchment)]<-0
+    SOIL_catchment<-round(SOIL_catchment,4)
+    
+    colnames(SOIL_catchment)<-c("uztwm", "uzfwm" , "uzk", "zperc" , "rexp" , "lztwm" , "lzfsm",
+                                "lzfpm", "lzsk" , "lzpk" , "pfree")
+    
+    SOIL_catchment<-as.data.frame(cbind(WS_ID=Watersheds$WS_ID,SOIL_catchment))
+    return(SOIL_catchment)
+},
+
 #' @title Sacremento Soil Moisture Accounting Model SAC-SMA
 #' @description revised based on sacsmaR package
 #' @param par model parameters (11 soil parameters)
