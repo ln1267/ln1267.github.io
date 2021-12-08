@@ -162,6 +162,21 @@ f_hamon_PET_daily = function(tavg, day, lat) {
 },
 
 #
+## Function for calculating PT PET----
+#' @param da A dataframe, which has Rn and Ta
+#' @export
+#' @examples
+#' f_PT(da)
+f_PT=function(da,alpha=1.26){
+  df<-da%>%
+   mutate(esT=0.61121*exp(17.502*Ta/(Ta+240.97)),
+           s=17.502*240.97*esT/((Ta+240.97)^2),
+           ssy=s/(s+0.066),
+          PT=alpha*ssy*Rn*0.0346)
+  df$PT
+},
+
+#
 ## Function for calculating PT-JPL PET----
 #' @param da A dataframe, which has a least Year, NDVI or LAI, Rn, Ta, RH, VPD(optional)
 #' @export
