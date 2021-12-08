@@ -161,6 +161,86 @@ f_hamon_PET_daily = function(tavg, day, lat) {
 
 },
 
+#
+## Function for calculating PT-JPL PET----
+#' @param da A dataframe, which has a least Year, NDVI or LAI, Rn, Ta, RH, VPD(optional)
+#' @export
+#' @examples
+#' f_PT_JPL(da)
+
+f_PT_JPL=function(da,TaOpt=25){
+  require(dplyr)
+  
+  kPAR<-0.3; kRn<-0.6
+  #For mm/mo: x 0.0000004*60*60*12*30
+  #W/m2
+
+  # Check whether LAI is exist
+  if( "LAI" %in% names(da)){
+   
+    df<-da%>%
+    mutate(fiPAR=1-exp(-kPAR*LAI),
+           NDVI= fiPAR +0.05,
+           SAVI=0.45*NDVI+0.132,
+           fAPAR=1.16*NDVI-0.14)
+  
+  # Otherwise NDVI is used  
+  }else{
+     df<-da%>%
+    mutate(SAVI=0.45*NDVI+0.132,
+           fAPAR=1.16*NDVI-0.14,
+           fiPAR=1.0*NDVI-0.05,
+           LAI=-(1/kPAR)*log(1-fiPAR)) 
+    
+  }
+
+  df<-df%>%         
+        mutate(Rns=Rn*exp(-kRn*LAI),
+           Rnc=Rn-Rns,
+           ea=RH*(0.61121*exp(17.502*Ta/(Ta+240.97))), # unit is Kpa
+           esT=0.61121*exp(17.502*Ta/(Ta+240.97)),
+           #VPD=esT-ea,
+           s=17.502*240.97*esT/((Ta+240.97)^2),
+           ssy=s/(s+0.066),
+           phen=SAVI*Rn*Ta/VPD,
+           phen=ifelse(phen<0,0,phen))
+  
+  # get the optimum condition
+  df_max<-df%>%
+    dplyr::select(Year,SAVI,phen,fAPAR)%>%
+    group_by(Year)%>%
+    summarise(phenmax=max(phen,na.rm = T),SAVImax=max(SAVI,na.rm = T),fAPARmax=max(fAPAR,na.rm = T))%>%
+    mutate(Topt=TaOpt)
+
+  # Calculate Topt from Phenmax
+  if(0){
+    for(i in 1:length(df_max$Year)){
+      
+      df_max$Topt[i]<-max(df$Ta[df$Year==df_max$Year[i] & df$phen==df_max$phenmax[i]],na.rm = T)
+    
+    }
+  }
+  
+  PT_ET<-df%>%
+	left_join(df_max,by="Year")%>%
+    group_by(Year)%>%
+    mutate(fT=exp(-((Ta-Topt)/Topt)^2),
+           fT=ifelse(fT>1,1,fT),
+           fM=fAPAR/fAPARmax,
+           fM=ifelse(fM>1,1,fM),
+           fg=fAPAR/fiPAR,
+           fg=ifelse(fg>1,1,fg),
+           fSM=RH^VPD,
+           fwet=RH^4,
+           Ei=fwet*1.26*ssy*Rnc*0.0346,
+           Es=(fwet+fSM*(1-fwet))*1.26*ssy*Rns*0.0346,
+           Ec=(1-fwet)*fg*fT*fM*1.26*ssy*Rnc*0.0346,
+           ETpred=Ei+Es+Ec
+        )
+  PT_ET
+},
+
+
 ## Calculate stream level ----
 #' https://usgs-mrs.cr.usgs.gov/NHDHelp/WebHelp/NHD_Help/Introduction_to_the_NHD/Feature_Attribution/Stream_Levels.htm
 #' stream level increase from outlet (1) to the top
