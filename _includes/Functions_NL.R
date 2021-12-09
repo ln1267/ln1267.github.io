@@ -1842,6 +1842,27 @@ f_soilinfo=function(soilfname,Watersheds){
     return(SOIL_catchment)
 },
 
+#' @title convert flow from m3/s to mm per month using date or per day without date
+#' @param Q_m3s obeserved flow rate
+#' @param area_m2 Dranage area
+#' @param date date of the data
+f_m3stomm=function(Q_m3s,area_m2,date=NULL){
+  require(lubridate)
+  
+  if(is.null(date)){
+    
+    Q_m3s*1000*24*3600/area_m2
+    
+  }else{
+    
+    Days<-days_in_month(date)
+    Q_m3s*1000*24*Days*3600/area_m2
+    
+  }
+
+},
+
+
 #' @title Sacremento Soil Moisture Accounting Model SAC-SMA
 #' @description revised based on sacsmaR package
 #' @param par model parameters (11 soil parameters)
