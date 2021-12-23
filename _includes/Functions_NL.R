@@ -34,7 +34,8 @@ f_lib_check=function(libs){
 },
 
 # Theme for ggplot ----
-theme_ning=function(size.axis=8,size.title=10,base_family="sans"){
+theme_ning=function(p1,size.axis=8,size.title=10,base_family="sans"){
+p1+
   theme_bw(base_family = base_family) %+replace% 
   theme(axis.title = element_text(face="bold", colour="black", size=size.title),
         axis.text= element_text(angle=0, vjust=0.3, size=size.axis),
