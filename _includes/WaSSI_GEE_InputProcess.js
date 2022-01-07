@@ -4,8 +4,24 @@ Author: Ning Liu (ln1267@gmail.com)
 This code is used fro processing input data for WaSSI model using GEE and some default dataset. Currently, it works best for the USA.
 
 USE:
-
 	var WaSSI = require('users/ln1267/default:WaSSI_input_common')
+	
+	// Define functions
+	function zonalGroupLAI(value) { return WaSSI.zonalGroupLAI(value, huc_lc,Region) }
+	var bandToCollection=WaSSI.bandToCollection
+	var zonalImg=WaSSI.zonalImg
+	
+	// Define data
+	var LAI_8days=WaSSI.LAI_8days_2000_2020
+	var LAI_avg=WaSSI.LAI_avg
+	var SOIL=WaSSI.SOIL_SAC
+	var Impervious= WaSSI.Impervious
+
+Examples:
+	-By image
+		https://code.earthengine.google.com/924b74f98ca614e088c2f322ac6d1839
+	-By Group:
+		https://code.earthengine.google.com/8d1bcbc51045fa462859ab7e1ce131ae
 
 INPUTS:
         - LAI_USA_8days_*: <image>
@@ -220,3 +236,22 @@ var lai_avg_zonal=ee.ImageCollection(bandToCollection(LAI_avg))
 
 */
 
+// This is not used currently
+// zonal data by HUC
+var zonalHUC12=function(img,huc12,Region){
+  
+  var nlDiff = img.addBands(huc12);
+
+  // Grouped a mean reducer: change of nightlights by land cover category.
+  var means = nlDiff.reduceRegion({
+    reducer: ee.Reducer.mean().group({
+      groupField: 1,
+      groupName: 'code',
+    }),
+    geometry: Region,
+    scale: 100,
+    maxPixels: 1e13
+  });
+
+  return(ee.Feature(null,means).set('system:index', img.bandNames()));
+}
