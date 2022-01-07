@@ -3,6 +3,10 @@ Author: Ning Liu (ln1267@gmail.com)
 
 This code is used fro processing input data for WaSSI model using GEE and some default dataset. Currently, it works best for the USA.
 
+USE:
+
+	var WaSSI = require('users/ln1267/default:WaSSI_input_common')
+
 INPUTS:
         - LAI_USA_8days_*: <image>
 				this is the LAI data downloaded from BNU 8-day global LAI product fro 2001 to 2020
