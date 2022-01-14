@@ -75,7 +75,7 @@ f_crop_roi=function(daRaster,ROI,.mask=FALSE,.plot=FALSE){
 ## R2
   f_R2=function(obs,sim){
     
-    cor(obs, sim) ^ 2
+    cor(obs, sim,na.rm=T) ^ 2
     
   },
 ## RMSE
@@ -273,7 +273,7 @@ f_Ei=function(ts.prcp,ts.lai,lc_code="ENF") {
     # Van Dijk, A.I.J.M. and Warren, G., 2010. The Australian water resources assessment system. Version 0.5, 3(5). P39
     # TWO INTERCEPTION PARAMETERS
     # S_sls  : specific canopy rainfall storage capacity per unit leaf area (mm)
-    # fER0   :
+    # fER0   : Ratio of the mean evaporation rate and the mean rainfall intensity during storms (dimensionless)
     #   set:
     #   13 (Urban and Built-Up)           = 5  (mixed forest)
     #   16 (Barren or Sparsely Vegetated) = 10 (grassland)
