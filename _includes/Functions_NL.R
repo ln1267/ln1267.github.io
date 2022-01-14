@@ -75,13 +75,15 @@ f_crop_roi=function(daRaster,ROI,.mask=FALSE,.plot=FALSE){
 ## R2
   f_R2=function(obs,sim){
     
-    cor(obs, sim,na.rm=T) ^ 2
+	da<-data.frame(obs=obs,sim=sim)
+	da<-na.omit(da)
+    cor(da$obs,da$sim) ^ 2
     
   },
 ## RMSE
 f_RMSD=function(obs,sim){
 	da<-data.frame(obs=obs,sim=sim)
-	da<-na.rm(da)
+	da<-na.omit(da)
 	sqrt(sum((da$obs-da$sim)^2)/(length(da$obs)-1))
 
 },
