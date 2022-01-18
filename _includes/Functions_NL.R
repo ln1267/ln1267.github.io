@@ -186,10 +186,12 @@ f_PT=function(da,alpha=1.26){
 #' @examples
 #' f_PT_JPL(da)
 
-f_PT_JPL=function(da,TaOpt=25){
+f_PT_JPL=function(da,kPAR=0.5, kRn=0.6, TaOpt=25){
   require(dplyr)
   
-  kPAR<-0.3; kRn<-0.6
+  #kPAR is the light extinction coefficient (doi:10.1007/s11707-014-0446-7)
+  #kRn is extinction coefficient constant (doi:10.1007/BF02243377.)
+  
   #For mm/mo: x 0.0000004*60*60*12*30
   #W/m2
 
