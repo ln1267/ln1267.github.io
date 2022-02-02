@@ -2736,7 +2736,7 @@ out_Ec<-funs_nl$f_SacSma(pet =da_sac$PET_Ec,prcp = da_sac$P_Ei, par = soil_pars)
 out_Es<-funs_nl$f_SacSma(pet =da_sac$PET_Es,prcp = da_sac$P_s, par = soil_pars,SoilEvp = T)
 
 data_Ec<-cbind(da_sac,out_Ec)%>%
-  dplyr::select(Date,PT,PET_Ec,Ei,Fc,LAI,aetTot,aetUZT,aetUZF,uztwc,lztwc,WaYldTot)
+  dplyr::select(Date,Rainfall,PT,PET_Ec,Ei,Fc,LAI,aetTot,aetUZT,aetUZF,uztwc,lztwc,WaYldTot)
  
 data_Es<-cbind(da_sac,out_Es)%>%
   dplyr::select(Date,aetTot,aetUZT,aetUZF,uztwc,lztwc,WaYldTot)
@@ -2746,7 +2746,7 @@ result_SACSMA<-data_Ec%>%
   mutate(Year=year(Date),Month=month(Date))%>%
   mutate(Ec=aetTot.c,Es=aetTot.s)%>%
   mutate(AET=Ec+Es+Ei)%>%
-  dplyr::select(Date,Fc,PT,PET_Ec,Ei,Es,Ec,AET,WaYldTot.c,WaYldTot.s)%>%
+  dplyr::select(Date,Rainfall,Fc,PT,PET_Ec,Ei,Es,Ec,AET,WaYldTot.c,WaYldTot.s)%>%
   dplyr::rename(ET=AET)%>%
   mutate(WaYldTot=WaYldTot.s+WaYldTot.c,WaSSI_Tr=Ec/PET_Ec,WaSSI=ET/PT)%>%
   mutate(WaSSI_Tr=if_else(PET_Ec==0,1,WaSSI_Tr),WaSSI=if_else(PT==0,1,WaSSI))%>%
