@@ -303,6 +303,76 @@ f_Ei=function(ts.prcp,ts.lai,lc_code="ENF") {
 },
 
 #
+## Function for calculating INTERCEPTION based on the emperial equation from Throughfall and rainfall----
+#' @param da_daily Daily data with PET, Rainfall, LAI
+#' @param forest Code of forest types
+#' @export
+#' @examples
+#' @cites  Helvey, J.D., Patric, J.H., 1965. Canopy and litter interception of rainfall by hardwoods of eastern United States. Water Resour. Res. 1, 193–206. https://doi.org/10.1029/WR001i002p00193
+#' @cites  Biological effects in the hydrological cycle 1971
+#' 
+#'
+
+f_Ei_USA=function(da_daily,forest="ENF") {
+
+    # Interception Precipitation Evaporation: prcp_real = prcp - Ei
+    # @references
+    # Helvey, J.D., Patric, J.H., 1965. Canopy and litter interception of rainfall by hardwoods of eastern United States. Water Resour. Res. 1, 193–206. https://doi.org/10.1029/WR001i002p00193
+    # 1971, Biological effects in the hydrological cycle
+	# emperial Throughfall and Rainfall
+	#Table 7 . Summary of Throughfall Plus Stemflow Equations and Computed Throughfall and
+    # Slope  : specific canopy rainfall storage capacity per unit leaf area (mm)
+    # Interception   : 
+    #   set:
+    #   13 (Urban and Built-Up)           = 5  (mixed forest)
+    #   16 (Barren or Sparsely Vegetated) = 10 (grassland)
+	
+   	require(dplyr)
+
+	# Calculate the potential interception by forest type using the regression between throughfall and rainfall
+	  if(forest=="DBF"){
+	  	 da_Ei<-da_daily%>%
+				mutate(Ei_pot=ifelse(GW=="GW",P_c*0.06+0.04*25.4,P_c*0.03+0.02*25.4))
+	  
+	  }else{
+	  	da_Ei<-da_daily%>%
+				mutate(Ei_pot=P_c*0.12+0.03*25.4) # Loblolly pine
+  	  }
+
+	# Correct by rainfall
+	da_Ei<-da_Ei%>%
+	  mutate(Ei_pot=ifelse(Ei_pot>P_c,P_c,Ei_pot))%>% # Interception should less than Rainfall
+	  mutate(Ei_pot=ifelse(P_c==0,0,Ei_pot))%>% # If Rainfall ==0 , Interception ==0
+	  rowwise() %>%
+	  mutate(Ei=NA,P_Ei=P_c-Ei_pot)
+	  
+	da_Ei[is.na(da_Ei)]<-0
+
+	# Calculate Canopy evaporation with PET
+	for(i in 1:nrow(da_Ei)){
+	  if(i ==1){
+		Ei_left=0
+		ei_pot<-da_Ei$Ei_pot[i]
+		Ep<-da_Ei$PT[i]*da_Ei$Fc[i]
+		
+		da_Ei$Ei[i]=min(Ep,ei_pot)
+		Ei_left=max(0,ei_pot-da_Ei$Ei[i])
+
+	  }else{
+		ei_pot<-da_Ei$Ei_pot[i]+Ei_left
+		Ep<-da_Ei$PT[i]*da_Ei$Fc[i]
+		da_Ei$Ei[i]=min(Ep,ei_pot)
+		Ei_left=max(0,ei_pot-da_Ei$Ei[i])
+
+	  }
+	  
+	}
+	
+	da_Ei
+},
+
+
+#
 ## Function for calculating PT PET based on PRISM climate data----
 #' @param data climate time series
 #' @param constants PT constants
