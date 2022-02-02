@@ -2749,7 +2749,7 @@ result_SACSMA<-data_Ec%>%
   dplyr::select(Date,Fc,PT,PET_Ec,Ei,Es,Ec,AET,WaYldTot.c,WaYldTot.s)%>%
   dplyr::rename(ET=AET)%>%
   mutate(WaYldTot=WaYldTot.s+WaYldTot.c,WaSSI_Tr=Ec/PET_Ec,WaSSI=ET/PT)%>%
-  mutate(WaSSI_Tr=if_else(PET_Ec==0,0,WaSSI_Tr),WaSSI=if_else(PT==0,0,WaSSI))%>%
+  mutate(WaSSI_Tr=if_else(PET_Ec==0,1,WaSSI_Tr),WaSSI=if_else(PT==0,1,WaSSI))%>%
   mutate(Tr_ET=Ec/ET)%>%
   mutate(Method="dWaSSI")
 
