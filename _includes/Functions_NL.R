@@ -2734,7 +2734,7 @@ f_dailyWaSSI=function(da_daily,soil_pars,kc=0.6,GSjdays=c(128,280),forest="DBF",
 	mutate(P_c=Rainfall*Fc,P_s=Rainfall*(1-Fc))
 
 	# calculate potential Ei if it is not caculated before
-	if(!"Ei" %in% names(da_daily))da_daily<-funs_nl$f_Ei_USA(da_daily,forest)
+	if(!"Ei_pot" %in% names(da_daily))da_daily<-funs_nl$f_Ei_USA(da_daily,forest)
 
 	# Calculate the canopy Evaporation based on PET
 	da_daily<-funs_nl$f_Evap(da_daily)
