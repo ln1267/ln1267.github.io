@@ -2688,6 +2688,67 @@ f_SacSma = function(pet, prcp, par, SoilEvp=FALSE, DailyStep=FALSE,ini.states = 
                     "WaYldTot" = simflow, "WYSurface" = surf_tot,"WYInter" = interflow_tot, "WYBase" = base_tot,
                     "uztwc"=uztwc_ts,"uzfwc"=uzfwc_ts,
                     "lztwc"=lztwc_ts,"lzfpc"=lzfpc_ts,"lzfsc"=lzfsc_ts))
+},
+
+
+#' @title daily WaSSI based on SAC-SMA model
+#' @description daily WaSSI model
+#' @param da_daily daily input
+#' @param soil_pars soil initial parameters
+#' @param prcp daily precipitation data
+#' @param pet potential evapotranspiration, in mm
+#' @param monthly TRUE/FALSE, whether monthly input time series
+#' @return OUTPUT_DESCRIPTION
+#' @details DETAILS
+#' @examples
+#' \dontrun{
+#' sacSma_mon(pet, prcp,par)
+#' }
+#' @rdname sacSim_mon
+#' @export
+f_dailyWaSSI=function(da_daily,soil_pars,kc=0.6,GSjdays=c(128,280),forest="DBF",...){
+  
+  require(dplyr)
+  require(lubridate)
+  
+ da_daily<-da_daily%>%
+	mutate(Rainfall=if_else(is.na(Rainfall),0,Rainfall))%>%
+	mutate(j=yday(Date))%>%
+	mutate(Fc=1-exp(-kc*LAI))%>%
+	mutate(GW=ifelse(j>=GSjdays[1] & j<=GSjdays[2],"GW","NonGW"))%>%
+	mutate(P_c=Rainfall*Fc,P_s=Rainfall*(1-Fc))
+
+da_sac<-funs_nl$f_Ei_USA(da_daily,forest)%>%
+	rowwise() %>%
+	arrange(Date)%>%
+	mutate(PET_Ec=PT*Fc-Ei,PET_Es=PT*(1-Fc))
+
+#print(summary(da_sac))
+
+da_sac[is.na(da_sac)]<-0
+
+out_Ec<-funs_nl$f_SacSma(pet =da_sac$PET_Ec,prcp = da_sac$P_Ei, par = soil_pars)
+
+out_Es<-funs_nl$f_SacSma(pet =da_sac$PET_Es,prcp = da_sac$P_s, par = soil_pars,SoilEvp = T)
+
+data_Ec<-cbind(da_sac,out_Ec)%>%
+  dplyr::select(Date,PT,Ei,Fc,LAI,aetTot,aetUZT,aetUZF,uztwc,lztwc,WaYldTot)
+ 
+data_Es<-cbind(da_sac,out_Es)%>%
+  dplyr::select(Date,aetTot,aetUZT,aetUZF,uztwc,lztwc,WaYldTot)
+
+result_SACSMA<-data_Ec%>%
+  left_join(data_Es,by="Date",suffix=c(".c",".s"))%>%
+  mutate(Year=year(Date),Month=month(Date))%>%
+  mutate(Ec=aetTot.c,Es=aetTot.s)%>%
+  mutate(AET=Ec+Es+Ei)%>%
+  dplyr::select(Date,Fc,PT,PET_Ec,Ei,Es,Ec,AET,WaYldTot.c,WaYldTot.s)%>%
+  dplyr::rename(ET=AET)%>%
+  mutate(WaYldTot=WaYldTot.s+WaYldTot.c,WaSSI_Tr=Ec/PET_Ec,WaSSI=ET/PT)%>%
+  mutate(Tr_ET=Ec/ET)%>%
+  mutate(Method="dWaSSI")
+
+  return(result_SACSMA)
 }
 
 )
