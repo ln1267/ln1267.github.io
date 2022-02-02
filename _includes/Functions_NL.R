@@ -313,7 +313,7 @@ f_Ei=function(ts.prcp,ts.lai,lc_code="ENF") {
 #' 
 #'
 
-f_Ei_USA=function(da_daily,forest="ENF") {
+f_Ei_pot_USA=function(da_daily,forest="ENF") {
 
     # Interception Precipitation Evaporation: prcp_real = prcp - Ei
     # @references
@@ -338,9 +338,24 @@ f_Ei_USA=function(da_daily,forest="ENF") {
 	  	da_Ei<-da_daily%>%
 				mutate(Ei_pot=P_c*0.12+0.03*25.4) # Loblolly pine
   	  }
+	  return(da_Ei)
+},
 
+#
+## Function for calculating Canopy evaporation based on the PET and Interception----
+#' @param da_daily Daily data with PET, Rainfall, LAI
+#' @param forest Code of forest types
+#' @export
+#' @examples
+#' @cites  Helvey, J.D., Patric, J.H., 1965. Canopy and litter interception of rainfall by hardwoods of eastern United States. Water Resour. Res. 1, 193–206. https://doi.org/10.1029/WR001i002p00193
+#' @cites  Biological effects in the hydrological cycle 1971
+#' 
+#'
+
+f_Evap=function(da_daily) {
 	# Correct by rainfall
-	da_Ei<-da_Ei%>%
+	
+	da_Ei<-da_daily%>%
 	  mutate(Ei_pot=ifelse(Ei_pot>P_c,P_c,Ei_pot))%>% # Interception should less than Rainfall
 	  mutate(Ei_pot=ifelse(P_c==0,0,Ei_pot))%>% # If Rainfall ==0 , Interception ==0
 	  rowwise() %>%
