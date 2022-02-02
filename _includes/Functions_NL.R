@@ -2733,40 +2733,43 @@ f_dailyWaSSI=function(da_daily,soil_pars,kc=0.6,GSjdays=c(128,280),forest="DBF",
 	mutate(GW=ifelse(j>=GSjdays[1] & j<=GSjdays[2],"GW","NonGW"))%>%
 	mutate(P_c=Rainfall*Fc,P_s=Rainfall*(1-Fc))
 
-# calculate Ei if it is not caculated before
-if(!"Ei" %in% names(da_daily))da_daily<-funs_nl$f_Ei_USA(da_daily,forest)
+	# calculate potential Ei if it is not caculated before
+	if(!"Ei" %in% names(da_daily))da_daily<-funs_nl$f_Ei_USA(da_daily,forest)
 
-# partition PET to canopy PET and soil surface PET
-da_sac<-da_daily%>%
-	rowwise() %>%
-	arrange(Date)%>%
-	mutate(PET_Ec=PT*Fc-Ei,PET_Es=PT*(1-Fc))
+	# Calculate the canopy Evaporation based on PET
+	da_daily<-funs_nl$f_Evap(da_daily)
 
-#print(summary(da_sac))
+	# partition PET to canopy PET and soil surface PET
+	da_sac<-da_daily%>%
+		rowwise() %>%
+		arrange(Date)%>%
+		mutate(PET_Ec=PT*Fc-Ei,PET_Es=PT*(1-Fc))
 
-da_sac[is.na(da_sac)]<-0
+	#print(summary(da_sac))
 
-out_Ec<-funs_nl$f_SacSma(pet =da_sac$PET_Ec,prcp = da_sac$P_Ei, par = soil_pars)
+	da_sac[is.na(da_sac)]<-0
 
-out_Es<-funs_nl$f_SacSma(pet =da_sac$PET_Es,prcp = da_sac$P_s, par = soil_pars,SoilEvp = T)
+	out_Ec<-funs_nl$f_SacSma(pet =da_sac$PET_Ec,prcp = da_sac$P_Ei, par = soil_pars)
 
-data_Ec<-cbind(da_sac,out_Ec)%>%
-  dplyr::select(Date,Rainfall,PT,PET_Ec,Ei,Fc,LAI,aetTot,aetUZT,aetUZF,uztwc,lztwc,WaYldTot)
- 
-data_Es<-cbind(da_sac,out_Es)%>%
-  dplyr::select(Date,aetTot,aetUZT,aetUZF,uztwc,lztwc,WaYldTot)
+	out_Es<-funs_nl$f_SacSma(pet =da_sac$PET_Es,prcp = da_sac$P_s, par = soil_pars,SoilEvp = T)
 
-result_SACSMA<-data_Ec%>%
-  left_join(data_Es,by="Date",suffix=c(".c",".s"))%>%
-  mutate(Year=year(Date),Month=month(Date))%>%
-  mutate(Ec=aetTot.c,Es=aetTot.s)%>%
-  mutate(AET=Ec+Es+Ei)%>%
-  dplyr::select(Date,Rainfall,Fc,PT,PET_Ec,Ei,Es,Ec,AET,WaYldTot.c,WaYldTot.s)%>%
-  dplyr::rename(ET=AET)%>%
-  mutate(WaYldTot=WaYldTot.s+WaYldTot.c,WaSSI_Tr=Ec/PET_Ec,WaSSI=ET/PT)%>%
-  mutate(WaSSI_Tr=if_else(PET_Ec==0,1,WaSSI_Tr),WaSSI=if_else(PT==0,1,WaSSI))%>%
-  mutate(Tr_ET=Ec/ET)%>%
-  mutate(Method="dWaSSI")
+	data_Ec<-cbind(da_sac,out_Ec)%>%
+	  dplyr::select(Date,Rainfall,PT,PET_Ec,Ei,Fc,LAI,aetTot,aetUZT,aetUZF,uztwc,lztwc,WaYldTot)
+	 
+	data_Es<-cbind(da_sac,out_Es)%>%
+	  dplyr::select(Date,aetTot,aetUZT,aetUZF,uztwc,lztwc,WaYldTot)
+
+	result_SACSMA<-data_Ec%>%
+	  left_join(data_Es,by="Date",suffix=c(".c",".s"))%>%
+	  mutate(Year=year(Date),Month=month(Date))%>%
+	  mutate(Ec=aetTot.c,Es=aetTot.s)%>%
+	  mutate(AET=Ec+Es+Ei)%>%
+	  dplyr::select(Date,Rainfall,Fc,PT,PET_Ec,Ei,Es,Ec,AET,WaYldTot.c,WaYldTot.s)%>%
+	  dplyr::rename(ET=AET)%>%
+	  mutate(WaYldTot=WaYldTot.s+WaYldTot.c,WaSSI_Tr=Ec/PET_Ec,WaSSI=ET/PT)%>%
+	  mutate(WaSSI_Tr=if_else(PET_Ec==0,1,WaSSI_Tr),WaSSI=if_else(PT==0,1,WaSSI))%>%
+	  mutate(Tr_ET=Ec/ET)%>%
+	  mutate(Method="dWaSSI")
 
   return(result_SACSMA)
 }
