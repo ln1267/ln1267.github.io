@@ -2718,7 +2718,11 @@ f_dailyWaSSI=function(da_daily,soil_pars,kc=0.6,GSjdays=c(128,280),forest="DBF",
 	mutate(GW=ifelse(j>=GSjdays[1] & j<=GSjdays[2],"GW","NonGW"))%>%
 	mutate(P_c=Rainfall*Fc,P_s=Rainfall*(1-Fc))
 
-da_sac<-funs_nl$f_Ei_USA(da_daily,forest)%>%
+# calculate Ei if it is not caculated before
+if(!"Ei" %in% names(da_daily))da_daily<-funs_nl$f_Ei_USA(da_daily,forest)
+
+# partition PET to canopy PET and soil surface PET
+da_sac<-da_daily%>%
 	rowwise() %>%
 	arrange(Date)%>%
 	mutate(PET_Ec=PT*Fc-Ei,PET_Es=PT*(1-Fc))
