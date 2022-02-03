@@ -132,6 +132,27 @@ f_Season = function(DATES) {
 
 
 #
+## Function for fit NDVI phenology curve----
+#' @param da dataframe with Year
+#' @keywords 
+#' @export
+#' @examples
+f_fit_AG=function(da,Var="NDVI"){
+  require(phenofit)
+  da_filled<-NULL
+  for(yr in unique(da$Year)){
+
+    t <- da$DOY[da$Year==yr]
+    y <- unlist(da[da$Year==yr,Var])
+    tout <- seq(1, 365, 1)
+    r <- FitDL.AG(y, t, tout)
+    filled<-data.frame("Year"=yr,DOY=tout,Filled=r$zs$iter2)
+  da_filled<-rbind(da_filled,filled)
+  }
+  da_filled
+},
+
+#
 ## Function for calculating Hamon PET----
 #' @param tavg Mean temperature.
 #' @param mon The value of month.
