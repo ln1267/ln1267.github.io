@@ -36,7 +36,7 @@ f_lib_check=function(libs){
 # Theme for ggplot ----
 theme_ning=function(p1,size.axis=8,size.title=10,base_family="sans"){
 p1+
-  theme_bw(base_family = base_family) %+replace% 
+  theme_bw(base_family = base_family) %+replace%
   theme(axis.title = element_text(face="bold", colour="black", size=size.title),
         axis.text= element_text(angle=0, vjust=0.3, size=size.axis),
         legend.title = element_text(colour="black", size=size.axis, face="bold"),
@@ -74,11 +74,11 @@ f_crop_roi=function(daRaster,ROI,.mask=FALSE,.plot=FALSE){
 
 ## R2
   f_R2=function(obs,sim){
-    
+
 	da<-data.frame(obs=obs,sim=sim)
 	da<-na.omit(da)
     cor(da$obs,da$sim) ^ 2
-    
+
   },
 ## RMSE
 f_RMSD=function(obs,sim){
@@ -91,7 +91,7 @@ f_RMSD=function(obs,sim){
 f_RMSE=function(obs,sim){
 
   sqrt(mean((obs-sim)^2,na.rm=T))
-  
+
 },
 ## NSE
 f_NSE=function(obs,sim){
@@ -114,6 +114,21 @@ f_Pbias=function(obs,sim){
 	100 * ( sum( sim - obs,na.rm=T ) / sum( obs,na.rm=T ) )
 },
 
+#
+## Function for checking simulation accuracy----
+#' @param obs
+#' @keywords
+#' @export
+#' @examples
+f_acc=function(obs,sim){
+  #require("hydroGOF")
+  acc_result<-c(funs_nl$f_R2(obs,sim),funs_nl$f_RMSE(obs,sim),funs_nl$f_Pbias(obs,sim),funs_nl$f_NSE(obs,sim),funs_nl$f_KGE(obs,sim))
+  acc_result<-round(acc_result,3)
+  names(acc_result)<-c("R2","RMSE","Pbias","NSE","KGE")
+  #print(acc_result)
+  acc_result
+},
+
 
 ## Function for get season
 f_Season = function(DATES) {
@@ -134,7 +149,7 @@ f_Season = function(DATES) {
 #
 ## Function for fit NDVI phenology curve----
 #' @param da dataframe with Year
-#' @keywords 
+#' @keywords
 #' @export
 #' @examples
 f_fit_AG=function(da,Var="NDVI"){
@@ -149,7 +164,7 @@ f_fit_AG=function(da,Var="NDVI"){
     filled<-data.frame("Year"=yr,DOY=tout,Filled=r$zs$iter2)
   da_filled<-rbind(da_filled,filled)
   }
-  da_filled
+  return(da_filled)
 },
 
 #
@@ -209,33 +224,33 @@ f_PT=function(da,alpha=1.26){
 
 f_PT_JPL=function(da,kPAR=0.5, kRn=0.6, TaOpt=25){
   require(dplyr)
-  
+
   #kPAR is the light extinction coefficient (doi:10.1007/s11707-014-0446-7)
   #kRn is extinction coefficient constant (doi:10.1007/BF02243377.)
-  
+
   #For mm/mo: x 0.0000004*60*60*12*30
   #W/m2
 
   # Check whether LAI is exist
   if( "LAI" %in% names(da)){
-   
+
     df<-da%>%
     mutate(fiPAR=1-exp(-kPAR*LAI),
            NDVI= fiPAR +0.05,
            SAVI=0.45*NDVI+0.132,
            fAPAR=1.16*NDVI-0.14)
-  
-  # Otherwise NDVI is used  
+
+  # Otherwise NDVI is used
   }else{
      df<-da%>%
     mutate(SAVI=0.45*NDVI+0.132,
            fAPAR=1.16*NDVI-0.14,
            fiPAR=1.0*NDVI-0.05,
-           LAI=-(1/kPAR)*log(1-fiPAR)) 
-    
+           LAI=-(1/kPAR)*log(1-fiPAR))
+
   }
 
-  df<-df%>%         
+  df<-df%>%
         mutate(Rns=Rn*exp(-kRn*LAI),
            Rnc=Rn-Rns,
            ea=RH*(0.61121*exp(17.502*Ta/(Ta+240.97))), # unit is Kpa
@@ -245,7 +260,7 @@ f_PT_JPL=function(da,kPAR=0.5, kRn=0.6, TaOpt=25){
            ssy=s/(s+0.066),
            phen=SAVI*Rn*Ta/VPD,
            phen=ifelse(phen<0,0,phen))
-  
+
   # get the optimum condition
   df_max<-df%>%
     dplyr::select(Year,SAVI,phen,fAPAR)%>%
@@ -256,12 +271,12 @@ f_PT_JPL=function(da,kPAR=0.5, kRn=0.6, TaOpt=25){
   # Calculate Topt from Phenmax
   if(0){
     for(i in 1:length(df_max$Year)){
-      
+
       df_max$Topt[i]<-max(df$Ta[df$Year==df_max$Year[i] & df$phen==df_max$phenmax[i]],na.rm = T)
-    
+
     }
   }
-  
+
   PT_ET<-df%>%
 	left_join(df_max,by="Year")%>%
     group_by(Year)%>%
@@ -312,7 +327,7 @@ f_Ei=function(ts.prcp,ts.lai,lc_code="ENF") {
    LAIref<-7
    LAI<-ts.lai;P<-ts.prcp
    lc_id<-which(MODIS_LCs==lc_code)
-   
+
    fveg <- 1 - exp(-LAI/LAIref)
    Sveg <- S_sls[lc_id]*LAI
 
@@ -331,7 +346,7 @@ f_Ei=function(ts.prcp,ts.lai,lc_code="ENF") {
 #' @examples
 #' @cites  Helvey, J.D., Patric, J.H., 1965. Canopy and litter interception of rainfall by hardwoods of eastern United States. Water Resour. Res. 1, 193–206. https://doi.org/10.1029/WR001i002p00193
 #' @cites  Biological effects in the hydrological cycle 1971
-#' 
+#'
 #'
 
 f_Ei_pot_USA=function(da_daily,forest="ENF") {
@@ -343,18 +358,18 @@ f_Ei_pot_USA=function(da_daily,forest="ENF") {
 	# emperial Throughfall and Rainfall
 	#Table 7 . Summary of Throughfall Plus Stemflow Equations and Computed Throughfall and
     # Slope  : specific canopy rainfall storage capacity per unit leaf area (mm)
-    # Interception   : 
+    # Interception   :
     #   set:
     #   13 (Urban and Built-Up)           = 5  (mixed forest)
     #   16 (Barren or Sparsely Vegetated) = 10 (grassland)
-	
+
    	require(dplyr)
 
 	# Calculate the potential interception by forest type using the regression between throughfall and rainfall
 	  if(forest=="DBF"){
 	  	 da_Ei<-da_daily%>%
 				mutate(Ei_pot=ifelse(GW=="GW",P_c*0.06+0.04*25.4,P_c*0.03+0.02*25.4))
-	  
+
 	  }else{
 	  	da_Ei<-da_daily%>%
 				mutate(Ei_pot=P_c*0.12+0.03*25.4) # Loblolly pine
@@ -370,18 +385,18 @@ f_Ei_pot_USA=function(da_daily,forest="ENF") {
 #' @examples
 #' @cites  Helvey, J.D., Patric, J.H., 1965. Canopy and litter interception of rainfall by hardwoods of eastern United States. Water Resour. Res. 1, 193–206. https://doi.org/10.1029/WR001i002p00193
 #' @cites  Biological effects in the hydrological cycle 1971
-#' 
+#'
 #'
 
 f_Evap=function(da_daily) {
 	# Correct by rainfall
-	
+
 	da_Ei<-da_daily%>%
 	  mutate(Ei_pot=ifelse(Ei_pot>P_c,P_c,Ei_pot))%>% # Interception should less than Rainfall
 	  mutate(Ei_pot=ifelse(P_c==0,0,Ei_pot))%>% # If Rainfall ==0 , Interception ==0
 	  rowwise() %>%
 	  mutate(Ei=NA,P_Ei=P_c-Ei_pot)
-	  
+
 	da_Ei[is.na(da_Ei)]<-0
 
 	# Calculate Canopy evaporation with PET
@@ -390,7 +405,7 @@ f_Evap=function(da_daily) {
 		Ei_left=0
 		ei_pot<-da_Ei$Ei_pot[i]
 		Ep<-da_Ei$PT[i]*da_Ei$Fc[i]
-		
+
 		da_Ei$Ei[i]=min(Ep,ei_pot)
 		Ei_left=max(0,ei_pot-da_Ei$Ei[i])
 
@@ -401,9 +416,9 @@ f_Evap=function(da_daily) {
 		Ei_left=max(0,ei_pot-da_Ei$Ei[i])
 
 	  }
-	  
+
 	}
-	
+
 	da_Ei
 },
 
@@ -414,11 +429,11 @@ f_Evap=function(da_daily) {
 #' @param constants PT constants
 #' @export
 #' @examples
-#' 
-#' 
-f_ET.PT=function (data, constants, ts = "daily", solar = "sunshine hours", 
-    alpha = 0.23, message = "yes", AdditionalStats = "yes", 
-    save.csv = "no", ...) 
+#'
+#'
+f_ET.PT=function (data, constants, ts = "daily", solar = "sunshine hours",
+    alpha = 0.23, message = "yes", AdditionalStats = "yes",
+    save.csv = "no", ...)
 {
     if (is.null(data$Tmax) | is.null(data$Tmin)) {
         stop("Required data missing for 'Tmax' and 'Tmin', or 'Temp'")
@@ -454,59 +469,59 @@ f_ET.PT=function (data, constants, ts = "daily", solar = "sunshine hours",
         vas <- data$vs
     }
     else {
-        vs_Tmax <- 0.6108 * exp(17.27 * data$Tmax/(data$Tmax + 
+        vs_Tmax <- 0.6108 * exp(17.27 * data$Tmax/(data$Tmax +
             237.3))
-        vs_Tmin <- 0.6108 * exp(17.27 * data$Tmin/(data$Tmin + 
+        vs_Tmin <- 0.6108 * exp(17.27 * data$Tmin/(data$Tmin +
             237.3))
         vas <- (vs_Tmax + vs_Tmin)/2
         vabar <- (vs_Tmin * data$RHmax/100 + vs_Tmax * data$RHmin/100)/2
     }
     P <- 101.3 * ((293 - 0.0065 * constants$Elev)/293)^5.26
-    delta <- 4098 * (0.6108 * exp((17.27 * Ta)/(Ta + 237.3)))/((Ta + 
+    delta <- 4098 * (0.6108 * exp((17.27 * Ta)/(Ta + 237.3)))/((Ta +
         237.3)^2)
     gamma <- 0.00163 * P/constants$lambda
     d_r2 <- 1 + 0.033 * cos(2 * pi/365 * data$J)
     delta2 <- 0.409 * sin(2 * pi/365 * data$J - 1.39)
     w_s <- acos(-tan(constants$lat_rad) * tan(delta2))
     N <- 24/pi * w_s
-    R_a <- (1440/pi) * d_r2 * constants$Gsc * (w_s * sin(constants$lat_rad) * 
-        sin(delta2) + cos(constants$lat_rad) * cos(delta2) * 
+    R_a <- (1440/pi) * d_r2 * constants$Gsc * (w_s * sin(constants$lat_rad) *
+        sin(delta2) + cos(constants$lat_rad) * cos(delta2) *
         sin(w_s))
     R_so <- (0.75 + (2 * 10^-5) * constants$Elev) * R_a
     if (solar == "data") {
         R_s <- data$Rs
     }
-    else if (solar != "monthly precipitation" & solar != 
+    else if (solar != "monthly precipitation" & solar !=
         "cloud") {
         R_s <- (constants$as + constants$bs * (data$n/N)) * R_a
     }
     else {
         R_s <- (0.85 - 0.047 * data$Cd) * R_a
     }
-    R_nl <- constants$sigma * (0.34 - 0.14 * sqrt(vabar)) * ((data$Tmax + 
-        273.2)^4 + (data$Tmin + 273.2)^4)/2 * (1.35 * R_s/R_so - 
+    R_nl <- constants$sigma * (0.34 - 0.14 * sqrt(vabar)) * ((data$Tmax +
+        273.2)^4 + (data$Tmin + 273.2)^4)/2 * (1.35 * R_s/R_so -
         0.35)
     R_nsg <- (1 - alpha) * R_s
     R_ng <- R_nsg - R_nl
-    E_PT.Daily <- constants$alphaPT * (delta/(delta + gamma) * 
+    E_PT.Daily <- constants$alphaPT * (delta/(delta + gamma) *
         R_ng/constants$lambda - constants$G/constants$lambda)
     ET.Daily <- E_PT.Daily
-    ET.Monthly <- aggregate(ET.Daily, list(as.yearmon(data$Date.daily, 
+    ET.Monthly <- aggregate(ET.Daily, list(as.yearmon(data$Date.daily,
         "%m/%y")), FUN = sum)
-    ET.Annual <- aggregate(ET.Daily, list(floor(as.numeric(as.yearmon(data$Date.daily, 
+    ET.Annual <- aggregate(ET.Daily, list(floor(as.numeric(as.yearmon(data$Date.daily,
         "%m/%y")))), FUN = sum)
     ET.MonthlyAve <- ET.AnnualAve <- NULL
     if (AdditionalStats == "yes") {
         for (mon in min(as.POSIXlt(data$Date.daily)$mon):max(as.POSIXlt(data$Date.daily)$mon)) {
-            i = mon - min(as.POSIXlt(data$Date.daily)$mon) + 
+            i = mon - min(as.POSIXlt(data$Date.daily)$mon) +
                 1
-            ET.MonthlyAve[i] <- mean(ET.Daily[as.POSIXlt(data$Date.daily)$mon == 
+            ET.MonthlyAve[i] <- mean(ET.Daily[as.POSIXlt(data$Date.daily)$mon ==
                 mon])
         }
         for (year in min(as.POSIXlt(data$Date.daily)$year):max(as.POSIXlt(data$Date.daily)$year)) {
-            i = year - min(as.POSIXlt(data$Date.daily)$year) + 
+            i = year - min(as.POSIXlt(data$Date.daily)$year) +
                 1
-            ET.AnnualAve[i] <- mean(ET.Daily[as.POSIXlt(data$Date.daily)$year == 
+            ET.AnnualAve[i] <- mean(ET.Daily[as.POSIXlt(data$Date.daily)$year ==
                 year])
         }
     }
@@ -530,9 +545,9 @@ f_ET.PT=function (data, constants, ts = "daily", solar = "sunshine hours",
     else {
         message1 <- "Monthly precipitation data have been used for calculating incoming solar radiation"
     }
-    results <- list(ET.Daily = ET.Daily, ET.Monthly = ET.Monthly, 
-        ET.Annual = ET.Annual, ET.MonthlyAve = ET.MonthlyAve, 
-        ET.AnnualAve = ET.AnnualAve, ET_formulation = ET_formulation, 
+    results <- list(ET.Daily = ET.Daily, ET.Monthly = ET.Monthly,
+        ET.Annual = ET.Annual, ET.MonthlyAve = ET.MonthlyAve,
+        ET.AnnualAve = ET.AnnualAve, ET_formulation = ET_formulation,
         ET_type = ET_type, message1 = message1)
     if (ts == "daily") {
         res_ts <- ET.Daily
@@ -549,17 +564,17 @@ f_ET.PT=function (data, constants, ts = "daily", solar = "sunshine hours",
         message(message1)
         message("Timestep: ", ts)
         message("Units: mm")
-        message("Time duration: ", time(res_ts[1]), " to ", 
+        message("Time duration: ", time(res_ts[1]), " to ",
             time(res_ts[length(res_ts)]))
         if (NA %in% res_ts) {
-            message(length(res_ts), " ET estimates obtained; ", 
+            message(length(res_ts), " ET estimates obtained; ",
                 length(which(is.na(res_ts))), " NA output entries due to missing data")
             message("Basic stats (NA excluded)")
-            message("Mean: ", round(mean(res_ts, na.rm = T), 
+            message("Mean: ", round(mean(res_ts, na.rm = T),
                 digits = 2))
-            message("Max: ", round(max(res_ts, na.rm = T), 
+            message("Max: ", round(max(res_ts, na.rm = T),
                 digits = 2))
-            message("Min: ", round(min(res_ts, na.rm = T), 
+            message("Min: ", round(min(res_ts, na.rm = T),
                 digits = 2))
         }
         else {
@@ -573,10 +588,10 @@ f_ET.PT=function (data, constants, ts = "daily", solar = "sunshine hours",
     if (save.csv == "yes") {
         for (i in 1:length(results)) {
             namer <- names(results[i])
-            write.table(as.character(namer), file = "ET_PriestleyTaylor.csv", 
-                dec = ".", quote = FALSE, col.names = FALSE, 
+            write.table(as.character(namer), file = "ET_PriestleyTaylor.csv",
+                dec = ".", quote = FALSE, col.names = FALSE,
                 row.names = F, append = TRUE, sep = ",")
-            write.table(data.frame(get(namer, results)), file = "ET_PriestleyTaylor.csv", 
+            write.table(data.frame(get(namer, results)), file = "ET_PriestleyTaylor.csv",
                 col.names = F, append = T, sep = ",")
         }
         invisible(results)
@@ -592,10 +607,10 @@ f_ET.PT=function (data, constants, ts = "daily", solar = "sunshine hours",
 #' @param constants PT constants
 #' @export
 #' @examples
-#' 
-#' 
-f_ET.Hamon=function (data, ts = "daily", message = "yes", 
-    AdditionalStats = "yes", save.csv = "no", ...) 
+#'
+#'
+f_ET.Hamon=function (data, ts = "daily", message = "yes",
+    AdditionalStats = "yes", save.csv = "no", ...)
 {
     if (is.null(data$Tmax) | is.null(data$Tmin)) {
         stop("Required data missing for 'Tmax' and 'Tmin', or 'Temp'")
@@ -607,33 +622,33 @@ f_ET.Hamon=function (data, ts = "daily", message = "yes",
     vs_Tmax <- 0.6108 * exp(17.27 * data$Tmax/(data$Tmax + 237.3))
     vs_Tmin <- 0.6108 * exp(17.27 * data$Tmin/(data$Tmin + 237.3))
     vas <- (vs_Tmax + vs_Tmin)/2
-    ET_Hamon.Daily <- 0.55 * 25.4 * (data$n/12)^2 * (216.7 * 
+    ET_Hamon.Daily <- 0.55 * 25.4 * (data$n/12)^2 * (216.7 *
         vas * 10/(Ta + 273.3))/100
     ET.Daily <- ET_Hamon.Daily
-    ET.Monthly <- aggregate(ET.Daily, list(as.yearmon(data$Date.daily, 
+    ET.Monthly <- aggregate(ET.Daily, list(as.yearmon(data$Date.daily,
         "%m/%y")), FUN = sum)
-    ET.Annual <- aggregate(ET.Daily, list(floor(as.numeric(as.yearmon(data$Date.daily, 
+    ET.Annual <- aggregate(ET.Daily, list(floor(as.numeric(as.yearmon(data$Date.daily,
         "%m/%y")))), FUN = sum)
     ET.MonthlyAve <- ET.AnnualAve <- NULL
     if (AdditionalStats == "yes") {
         for (mon in min(as.POSIXlt(data$Date.daily)$mon):max(as.POSIXlt(data$Date.daily)$mon)) {
-            i = mon - min(as.POSIXlt(data$Date.daily)$mon) + 
+            i = mon - min(as.POSIXlt(data$Date.daily)$mon) +
                 1
-            ET.MonthlyAve[i] <- mean(ET.Daily[as.POSIXlt(data$Date.daily)$mon == 
+            ET.MonthlyAve[i] <- mean(ET.Daily[as.POSIXlt(data$Date.daily)$mon ==
                 mon])
         }
         for (year in min(as.POSIXlt(data$Date.daily)$year):max(as.POSIXlt(data$Date.daily)$year)) {
-            i = year - min(as.POSIXlt(data$Date.daily)$year) + 
+            i = year - min(as.POSIXlt(data$Date.daily)$year) +
                 1
-            ET.AnnualAve[i] <- mean(ET.Daily[as.POSIXlt(data$Date.daily)$year == 
+            ET.AnnualAve[i] <- mean(ET.Daily[as.POSIXlt(data$Date.daily)$year ==
                 year])
         }
     }
     ET_formulation <- "Hamon"
     ET_type <- "Potential ET"
-    results <- list(ET.Daily = ET.Daily, ET.Monthly = ET.Monthly, 
-        ET.Annual = ET.Annual, ET.MonthlyAve = ET.MonthlyAve, 
-        ET.AnnualAve = ET.AnnualAve, ET_formulation = ET_formulation, 
+    results <- list(ET.Daily = ET.Daily, ET.Monthly = ET.Monthly,
+        ET.Annual = ET.Annual, ET.MonthlyAve = ET.MonthlyAve,
+        ET.AnnualAve = ET.AnnualAve, ET_formulation = ET_formulation,
         ET_type = ET_type)
     if (ts == "daily") {
         res_ts <- ET.Daily
@@ -648,17 +663,17 @@ f_ET.Hamon=function (data, ts = "daily", message = "yes",
         message(ET_formulation, " ", ET_type)
         message("Timestep: ", ts)
         message("Units: mm")
-        message("Time duration: ", time(res_ts[1]), " to ", 
+        message("Time duration: ", time(res_ts[1]), " to ",
             time(res_ts[length(res_ts)]))
         if (NA %in% res_ts) {
-            message(length(res_ts), " ET estimates obtained; ", 
+            message(length(res_ts), " ET estimates obtained; ",
                 length(which(is.na(res_ts))), " NA output entries due to missing data")
             message("Basic stats (NA excluded)")
-            message("Mean: ", round(mean(res_ts, na.rm = T), 
+            message("Mean: ", round(mean(res_ts, na.rm = T),
                 digits = 2))
-            message("Max: ", round(max(res_ts, na.rm = T), 
+            message("Max: ", round(max(res_ts, na.rm = T),
                 digits = 2))
-            message("Min: ", round(min(res_ts, na.rm = T), 
+            message("Min: ", round(min(res_ts, na.rm = T),
                 digits = 2))
         }
         else {
@@ -672,10 +687,10 @@ f_ET.Hamon=function (data, ts = "daily", message = "yes",
     if (save.csv == "yes") {
         for (i in 1:length(results)) {
             namer <- names(results[i])
-            write.table(as.character(namer), file = "ET_Hamon.csv", 
-                dec = ".", quote = FALSE, col.names = FALSE, 
+            write.table(as.character(namer), file = "ET_Hamon.csv",
+                dec = ".", quote = FALSE, col.names = FALSE,
                 row.names = F, append = TRUE, sep = ",")
-            write.table(data.frame(get(namer, results)), file = "ET_Hamon.csv", 
+            write.table(data.frame(get(namer, results)), file = "ET_Hamon.csv",
                 col.names = F, append = T, sep = ",")
         }
         invisible(results)
@@ -689,7 +704,7 @@ f_ET.Hamon=function (data, ts = "daily", message = "yes",
 ## Calculate stream level ----
 #' https://usgs-mrs.cr.usgs.gov/NHDHelp/WebHelp/NHD_Help/Introduction_to_the_NHD/Feature_Attribution/Stream_Levels.htm
 #' stream level increase from outlet (1) to the top
-#' @param FlowDir The file includes flow direction from a unique ID to the other ID. 
+#' @param FlowDir The file includes flow direction from a unique ID to the other ID.
 #' @keywords stream_level
 #' @export
 #' @examples
@@ -699,12 +714,12 @@ f_stream_level=function(FlowDir=NA){
   stream<-read.csv(FlowDir)
   if(sum(c("FROM","TO")%in% names(stream))<2) return ("It should has 'FROM' and 'TO' fields")
   #stream_level<-stream[c("FROM","TO")]
-  
+
   stream$LEVEL<-NA
-  
+
   # store assigned hucs
   index_assigned<-NULL
-  
+
   lev<-1
   for (i in c(1:500)){
 
@@ -713,24 +728,24 @@ f_stream_level=function(FlowDir=NA){
       index_lev_down<-which(!stream$TO %in% stream$FROM)
       stream$LEVEL[index_lev_down]<-lev
       lev<-lev+1
-    
+
       #Get the assigned index
       index_assigned<-union(index_assigned,index_lev_down)
     }
-	
+
 	# get the upstream of these hus
     index_lev_up<-which(stream$TO %in% stream$FROM[index_lev_down])
-    
+
     # Check the loop, which is defined as water flows from a huc to a lower level huc
     loops_index<-intersect(index_lev_up,index_assigned)
-    
+
 	if(length(loops_index)) return (paste0("There are loops",stream$FROM[loops_index]))
-    
+
     # assign level to next level
     stream$LEVEL[index_lev_up]<-lev
     index_lev_down<-index_lev_up
     lev<-lev+1
-	
+
     #Get the assigned index
     index_assigned<-union(index_assigned,index_lev_down)
   }
@@ -743,7 +758,7 @@ f_stream_level=function(FlowDir=NA){
 #' @param datain The dataframe for calculation. It should has the unique ID and the variable to be accumulated.
 #' @param byfield The unique ID, which should be the same as the flow direction file.
 #' @param varname The variable to be accumulated
-#' @param routpar The stream level that caculated from f_stream_level. 
+#' @param routpar The stream level that caculated from f_stream_level.
 #' @keywords flow accumulation
 #' @export
 #' @examples
@@ -751,11 +766,11 @@ f_stream_level=function(FlowDir=NA){
 #' f_hrurouting(datain=Flwdata,byfield="HUC8",varname="flow",routpar=routpar)
 f_hrurouting=function(datain,byfield,varname,routpar,mc_cores=1){
   library(parallel)
-  
+
   # get the input variables
   datain["flow"]<-datain[varname]
   datain["HUC"]<-datain[byfield]
-  
+
 # function for sum the upstream HUCs
 	hru_accm=function(hru,water,routpar){
 		hru<-as.numeric(hru)
@@ -764,16 +779,16 @@ f_hrurouting=function(datain,byfield,varname,routpar,mc_cores=1){
 
 	# Get the maximum LEVEL
 	max_level<-max(routpar$LEVEL)
-	
+
 	# calculate accumulated flow by Level
 	for (level in c(max_level:1)){
-		
+
 		# Get the HUC IDs in this Level
 		hrus<-unique(routpar$TO[routpar$LEVEL==level])
-		
+
 		# calculate accumulated flow for each HUC in this Level
 		flowaccu<-lapply(hrus,hru_accm,water=datain,routpar=routpar)
-		
+
 		# update the accumulated flow for each HUC in this level
 		for (i in c(1:length(hrus))) datain$flow[datain$HUC==hrus[i]]<- flowaccu[[i]]
 	}
@@ -786,29 +801,29 @@ f_hrurouting=function(datain,byfield,varname,routpar,mc_cores=1){
 ## Get the upstream HUCs of a HUC ----
 #' return HUCIDs of this HUC
 #' @param HUCID The unique ID of this HUC, which should be the same as the flow direction file.
-#' @param routpar The stream level that caculated from f_stream_level. 
+#' @param routpar The stream level that caculated from f_stream_level.
 #' @keywords upstream detection
 #' @export
 #' @examples
 #' routpar<-f_stream_level('flowdir.txt')
 #' f_upstreamHUCs(HUCID=HUCID,routpar=routpar)
 f_upstreamHUCs=function(HUCID,routpar){
-  
+
   # Get the Stream LEVEL of this HUC
   level_to<-routpar$LEVEL[routpar$TO==HUCID]
-  
+
   upHUCs<-NULL
   To<-HUCID
   if(length(level_to)>0){
-	
-	# look for upstream HUCs 
+
+	# look for upstream HUCs
     while (length(level_to)>0){
       FROM_HUCs<-routpar$FROM[routpar$TO %in% To]
 
       upHUCs<-c(upHUCs,FROM_HUCs)
 
       To<-routpar$FROM[routpar$TO %in% To]
-	
+
 	# Update the list of upstream HUCs
       level_to<-routpar$LEVEL[routpar$TO %in% To]
 
@@ -824,42 +839,42 @@ f_upstreamHUCs=function(HUCID,routpar){
 ## Get the downstream HUCs of a HUC ----
 #' return HUCIDs of this HUC
 #' @param HUCID The unique ID of this HUC, which should be the same as the flow direction file.
-#' @param routpar The stream level that caculated from f_stream_level. 
+#' @param routpar The stream level that caculated from f_stream_level.
 #' @keywords upstream detection
 #' @export
 #' @examples
 #' routpar<-f_stream_level('flowdir.txt')
 #' f_downstreamHUCs(HUCID=HUCID,routpar=routpar)
 f_downstreamHUCs=function(HUCID,routpar){
-  
+
   # Get the Stream LEVEL of this HUC
   level_from<-routpar$LEVEL[routpar$FROM==HUCID]
   donwhucids<-NULL
-  
+
   if (length(level_from)>0){
-    
+
     FROM_HUC<-HUCID
     level_from_from<-level_from
-	
+
 	# look for upstreams HUCs
     while (length(level_from_from)>0) {
       #print(level_to)
       TO_HUC<-routpar$TO[routpar$FROM==FROM_HUC]
-      
+
 	  donwhucids<-c(donwhucids,TO_HUC)
-      
+
 	  FROM_HUC<-routpar$TO[routpar$FROM==FROM_HUC]
-	  
+
 	  # Update the list of downstream HUCs
-	  
+
       level_from_from<-routpar$LEVEL[routpar$FROM==FROM_HUC]
     }
-	
+
     return(donwhucids)
   }else{
     return(NULL)
   }
-  
+
 },
 
 
@@ -868,7 +883,7 @@ f_downstreamHUCs=function(HUCID,routpar){
 #' @param datain The dataframe for calculation. It should has the unique ID and the variable to be accumulated.
 #' @param byfield The unique ID, which should be the same as the flow direction file.
 #' @param varname The variable to be accumulated
-#' @param routpar The stream level that caculated from f_stream_level. 
+#' @param routpar The stream level that caculated from f_stream_level.
 #' @keywords flow accumulation
 #' @export
 #' @examples
@@ -876,55 +891,55 @@ f_downstreamHUCs=function(HUCID,routpar){
 #' f_WaterDemand(datain=Flwdata,byfield="HUC8",varname="flow",routpar=routpar)
 f_WaterDemand=function(datain,byfield,varname,routpar,mc_cores=1){
   library(parallel)
-  
+
     # get the input variables
 	datain["flow"]<-datain[varname]
 	datain["HUC"]<-datain[byfield]
-	
+
 	# Get the maximum LEVEL
 	max_level<-max(routpar$LEVEL)
-	
+
 	# Setup water demand variable
     datain$WD<-0
-	
+
 	# update the headstream HUCs
 		# get the headstream HUCs in flow direction file
 		hucs_all<-unique(c(routpar$FROM,routpar$TO))
-		
+
 		# Get all HUCs in the headstream (no getting water from other HUCs)(there could be some inland HUCs)
 		# The inland HUCs are generally not listed in the flow direction file
 		hrus<-c(datain$HUC[!datain$HUC %in% hucs_all],routpar$FROM[which(!routpar$FROM %in% routpar$TO)])
-		
+
 		# Get the negative flow HUCs
 		hrus<-hrus[hrus %in% datain$HUC[datain$flow<0]]
-		
+
 		# update WD by giving this extra water back to all affected HUCs
 		if(length(hrus)>0){
 		  for(hru in hrus){
 		  # update WD based on the water shortage
 			datain$WD[datain$HUC==hru]<-abs(datain$flow[datain$HUC==hru])
 			datain$flow[datain$HUC==hru]<-0
-			
+
 			## update all Downstreams HUCs + WD
 			downhurids_from<-f_downstreamHUCs(hru,routpar)
 			datain$flow[datain$HUC %in% downhurids_from]<-datain$flow[datain$HUC %in% downhurids_from]+datain$WD[datain$HUC==hru]
-	  
+
 		  }
 		}
 
 	# update all other HUCs downstream of headstream
 		# Update WD by each stream level from upstream to the downstream
 		  for (level in c(max_level:1)){
-			
+
 			hrus<-unique(routpar$TO[routpar$LEVEL==level])
 			hrus<-hrus[hrus %in% datain$HUC[datain$flow<0]]
-			
+
 			#print(paste0("There are ",length(hrus)," hrus in level ",level))
 			if(length(hrus)==0) next()
 			for(hru in hrus){
 			  datain$WD[datain$HUC==hru]<-abs(datain$flow[datain$HUC==hru])
 			  datain$flow[datain$HUC==hru]<-0
-			  
+
 			  ## Downstreams
 					downhurids_from<-f_downstreamHUCs(hru,routpar)
 					datain$flow[datain$HUC %in% downhurids_from]<-datain$flow[datain$HUC %in% downhurids_from]+datain$WD[datain$HUC==hru]
@@ -2125,18 +2140,18 @@ f_2nc=function(filename=NULL,da=NULL,ncfname,varname,start_date=NULL,scale="1 ye
 #' f_8days2month(2001,da_brick)
 
 f_8days2month=function(year,r){
-  
+
   # number of days in that year (leap year or not?)
   ndays <- ifelse(((year %% 100 != 0) & (year %%4 ==0)) | (year %% 400==0), 366 , 365)
-  
+
   # how many layers?
-  n <- ceiling(ndays/8) 
+  n <- ceiling(ndays/8)
   # day of year for each layer
-  nn <- rep(1:n, each=8)[1:ndays] 
-  
+  nn <- rep(1:n, each=8)[1:ndays]
+
   # day of year for each month
   m <- as.integer(format(as.Date(1:ndays, origin=paste0(year-1, "-12-31")), "%m"))
-  
+
   x <- cbind(layer=nn, month=m)
   weights <- table(x[,1], x[,2])
 
@@ -2150,7 +2165,7 @@ f_8days2month=function(year,r){
 
     s[[i]] <- calc(x, mean,na.rm=T)
   }
-  
+
   s <- stack(s)
   names(s) <- month.abb
   s
@@ -2166,49 +2181,49 @@ f_8days2month=function(year,r){
 #' filename<-"E:/Research/WaSSI/Turkey/TerraClimate_CB.csv"
 #' f_readGEEClimate(filename)
 f_readGEEClimate=function(filename,dataSource="Terra",dataScale="Monthly"){
-  
+
   require("dplyr")
   require("lubridate")
-  
+
   da<-read.csv(filename)%>%
     mutate(Date=as.Date(as.character(date),"%Y%m%d"))%>%
     dplyr::select(-"system.index",-"date",-".geo")
 
   if(dataSource=="Terra"){
-    da<-da%>% 
+    da<-da%>%
 	  mutate(Year=year(Date),Month=month(Date))%>%
       dplyr::rename(Ppt_mm=pr,Tmin_C=tmmn,Tmax_C=tmmx,swe_mm=swe,ET0=pet)%>%
       mutate(Tavg_C=(Tmin_C+Tmax_C)/20,ET0=ET0/10)%>%
       mutate(Tmax_C=Tmax_C/10,Tmin_C=Tmin_C/10)
-    
+
   }else if(dataSource=="Daymet"){
-    
+
    da<-da%>%
         mutate(Year=year(Date),Month=month(Date),Day=day(Date))%>%
 		mutate(Tavg_C=(tmax+tmin)/2)%>%
         dplyr::rename(Ppt_mm=ppt,Tmin_C=tmin,Tmax_C=tmax,swe_kgm2=swe,vp_Pa=vp,dayl_s=dayl,srad_Wm2=srad)
-		
+
 	if(dataScale=="Monthly"){
 	da<-da%>%
 	      group_by(WS_ID,Year,Month)%>%
 			summarise(Ppt_mm=sum(Ppt_mm),swe_kgm2=sum(swe_kgm2),dayl_s=sum(dayl_s),Tavg_C=mean(Tavg_C),Tmax_C=mean(Tmax_C),Tmin_C=mean(Tmin_C),vp_Pa=mean(vp_Pa),srad_Wm2=mean(srad_Wm2))
 	}
-    
+
   }else if(dataSource=="PRISM"){
      da<-da%>%
           mutate(Year=year(Date),Month=month(Date),Day=day(Date))%>%
 		  dplyr::rename(Tavg_C=tmean,Ppt_mm=ppt,Tmin_C=tmin,Tmax_C=tmax,Tdavg_C=tdmean,vpdmin_hPa=vpdmin,vpdmax_hPa=vpdmax)
-	   
+
 	if(dataScale=="Monthly"){
 		da<-da%>%
 	      group_by(WS_ID,Year,Month)%>%
 			summarise(Ppt_mm=sum(Ppt_mm),Tavg_C=mean(Tavg_C),Tmax_C=mean(Tmax_C),Tmin_C=mean(Tmin_C),Tdavg_C=mean(Tdavg_C),vpdmin_hPa=mean(vpdmin_hPa),vpdmax_hPa=mean(vpdmax_hPa))
-	}   
-	   
+	}
+
   }
-  
+
   return(da)
-  
+
 },
 
 ## Extract soil values for each watershed
@@ -2222,10 +2237,10 @@ f_soilinfo=function(soilfname,Watersheds){
     SOIL_catchment[is.infinite(SOIL_catchment)]<-NA
     SOIL_catchment[is.na(SOIL_catchment)]<-0
     SOIL_catchment<-round(SOIL_catchment,4)
-    
+
     colnames(SOIL_catchment)<-c("uztwm", "uzfwm" , "uzk", "zperc" , "rexp" , "lztwm" , "lzfsm",
                                 "lzfpm", "lzsk" , "lzpk" , "pfree")
-    
+
     SOIL_catchment<-as.data.frame(cbind(WS_ID=Watersheds$WS_ID,SOIL_catchment))
     return(SOIL_catchment)
 },
@@ -2236,16 +2251,16 @@ f_soilinfo=function(soilfname,Watersheds){
 #' @param date date of the data
 f_m3stomm=function(Q_m3s,area_m2,date=NULL){
   require(lubridate)
-  
+
   if(is.null(date)){
-    
+
     Q_m3s*1000*24*3600/area_m2
-    
+
   }else{
-    
+
     Days<-days_in_month(date)
     Q_m3s*1000*24*Days*3600/area_m2
-    
+
   }
 
 },
@@ -2267,7 +2282,7 @@ f_m3stomm=function(Q_m3s,area_m2,date=NULL){
 #' @rdname sacSim_mon
 #' @export
 f_SacSma = function(pet, prcp, par, SoilEvp=FALSE, DailyStep=FALSE,ini.states = c(0,0,500,500,500,0)) {
-	
+
 	names(par)<-toupper(names(par))
   if(sum(names(par) %in% c("UZTWM","UZFWM","UZK", "ZPERC",  "REXP", "LZTWM", "LZFSM", "LZFPM",  "LZSK",  "LZPK", "PFREE"))==11){
     uztwm  <-  par["UZTWM"]    # Upper zone tension water capacity [mm]
@@ -2390,7 +2405,7 @@ f_SacSma = function(pet, prcp, par, SoilEvp=FALSE, DailyStep=FALSE,ini.states = 
       et3<-0
       et5<-0
     }else{
-      
+
     # ET(3), ET from Lower zone tension water storage when residual ET > 0
     et3 <- red * lztwc / (uztwm + lztwm) #residual ET is always bigger than ET(3)
     lztwc <- lztwc - et3
@@ -2401,7 +2416,7 @@ f_SacSma = function(pet, prcp, par, SoilEvp=FALSE, DailyStep=FALSE,ini.states = 
       lztwc <- 0
     }
     }
-	
+
     # Water resupply from Lower free water storages to Lower tension water storage
     saved  <- rserv * (lzfpm + lzfsm)
     ratlzt <- lztwc / lztwm
@@ -2433,7 +2448,7 @@ f_SacSma = function(pet, prcp, par, SoilEvp=FALSE, DailyStep=FALSE,ini.states = 
       adimc <- 0
     }
     et5 <- et5 * adimp
-    
+
     # Time interval available moisture in excess of uztw requirements
     twx <- pr + uztwc - uztwm
 
@@ -2743,10 +2758,10 @@ f_SacSma = function(pet, prcp, par, SoilEvp=FALSE, DailyStep=FALSE,ini.states = 
 #' @rdname sacSim_mon
 #' @export
 f_dailyWaSSI=function(da_daily,soil_pars,kc=0.6,GSjdays=c(128,280),forest="DBF",...){
-  
+
   require(dplyr)
   require(lubridate)
-  
+
  da_daily<-da_daily%>%
 	mutate(Rainfall=if_else(is.na(Rainfall),0,Rainfall))%>%
 	mutate(j=yday(Date))%>%
@@ -2776,7 +2791,7 @@ f_dailyWaSSI=function(da_daily,soil_pars,kc=0.6,GSjdays=c(128,280),forest="DBF",
 
 	data_Ec<-cbind(da_sac,out_Ec)%>%
 	  dplyr::select(Date,Rainfall,PT,PET_Ec,Ei_pot,Ei,Fc,LAI,aetTot,aetUZT,aetUZF,uztwc,lztwc,WaYldTot)
-	 
+
 	data_Es<-cbind(da_sac,out_Es)%>%
 	  dplyr::select(Date,aetTot,aetUZT,aetUZF,uztwc,lztwc,WaYldTot)
 
