@@ -2790,7 +2790,7 @@ f_dailyWaSSI=function(da_daily,soil_pars,kc=0.6,GSjdays=c(128,280),forest="DBF",
 	out_Es<-funs_nl$f_SacSma(pet =da_sac$PET_Es,prcp = da_sac$P_s, par = soil_pars,SoilEvp = T)
 
 	data_Ec<-cbind(da_sac,out_Ec)%>%
-	  dplyr::select(Date,Rainfall,PT,PET_Ec,Ei_pot,Ei,Fc,LAI,aetTot,aetUZT,aetUZF,uztwc,lztwc,WaYldTot)
+	  dplyr::select(Date,Rainfall,VPD,PT,PET_Ec,Ei_pot,Ei,Fc,LAI,aetTot,aetUZT,aetUZF,uztwc,lztwc,WaYldTot)
 
 	data_Es<-cbind(da_sac,out_Es)%>%
 	  dplyr::select(Date,aetTot,aetUZT,aetUZF,uztwc,lztwc,WaYldTot)
@@ -2800,11 +2800,12 @@ f_dailyWaSSI=function(da_daily,soil_pars,kc=0.6,GSjdays=c(128,280),forest="DBF",
 	  mutate(Year=year(Date),Month=month(Date))%>%
 	  mutate(Ec=aetTot.c,Es=aetTot.s)%>%
 	  mutate(AET=Ec+Es+Ei)%>%
-	  dplyr::select(Date,Rainfall,Fc,PT,PET_Ec,Ei_pot,Ei,Es,Ec,AET,WaYldTot.c,WaYldTot.s)%>%
+	  dplyr::select(Date,Rainfall,VPD,Fc,PT,PET_Ec,Ei_pot,Ei,Es,Ec,AET,WaYldTot.c,WaYldTot.s)%>%
 	  dplyr::rename(ET=AET)%>%
 	  mutate(WaYldTot=WaYldTot.s+WaYldTot.c,WaSSI_Tr=Ec/PET_Ec,WaSSI=ET/PT)%>%
 	  mutate(WaSSI_Tr=if_else(PET_Ec==0,1,WaSSI_Tr),WaSSI=if_else(PT==0,1,WaSSI))%>%
 	  mutate(Tr_ET=Ec/ET)%>%
+	  mutate(GPP=Ec*12.1/sqrt(VPD))%>%
 	  mutate(Method="dWaSSI")
 
   return(result_SACSMA)
