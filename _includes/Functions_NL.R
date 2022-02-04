@@ -2805,6 +2805,7 @@ f_dailyWaSSI=function(da_daily,soil_pars,kc=0.6,GSjdays=c(128,280),forest="DBF",
 	  mutate(WaYldTot=WaYldTot.s+WaYldTot.c,WaSSI_Tr=Ec/PET_Ec,WaSSI=ET/PT)%>%
 	  mutate(WaSSI_Tr=if_else(PET_Ec==0,1,WaSSI_Tr),WaSSI=if_else(PT==0,1,WaSSI))%>%
 	  mutate(Tr_ET=Ec/ET)%>%
+	  mutate(VPD=VPD*10)%>% # kPa to hPa
 	  mutate(GPP=Ec*12.1/sqrt(VPD))%>%
 	  mutate(Method="dWaSSI")
 
