@@ -100,6 +100,7 @@ f_NSE=function(obs,sim){
 },
 
 f_KGE = function(Q, X, ...) {
+	require(zoo)
   ok <- complete.cases(coredata(X), coredata(Q))
   1 - sqrt(
     (cor(X, Q, use = "complete") - 1)^2 +
@@ -122,6 +123,7 @@ f_Pbias=function(obs,sim){
 #' @examples
 f_acc=function(obs,sim){
   #require("hydroGOF")
+  
   acc_result<-c(funs_nl$f_R2(obs,sim),funs_nl$f_RMSE(obs,sim),funs_nl$f_Pbias(obs,sim),funs_nl$f_NSE(obs,sim),funs_nl$f_KGE(obs,sim))
   acc_result<-round(acc_result,3)
   names(acc_result)<-c("R2","RMSE","Pbias","NSE","KGE")
@@ -154,14 +156,16 @@ f_Season = function(DATES) {
 #' @examples
 f_fit_AG=function(da,Var="NDVI"){
   require(phenofit)
+  require(lubridate)
   da_filled<-NULL
   for(yr in unique(da$Year)){
 
     t <- da$DOY[da$Year==yr]
     y <- unlist(da[da$Year==yr,Var])
-    tout <- seq(1, 365, 1)
+	tout <- seq(1, 365, 1)
+	if(leap_year(paste0(yr,"-01-01"))) tout <- seq(1, 366, 1)
     r <- FitDL.AG(y, t, tout)
-    filled<-data.frame("Year"=yr,DOY=tout,Filled=r$zs$iter2)
+    filled<-data.frame("Date"=as.Date(paste0(yr,tout),"%Y%j"),"Year"=yr,"DOY"=tout,"Filled"=r$zs$iter2)
   da_filled<-rbind(da_filled,filled)
   }
   return(da_filled)
@@ -2890,7 +2894,7 @@ da_original
 #' @export
 #' @examples
 #' da<-f_sel_vars(flux_original)
-SelectVars=function(flux_original,Vars=NULL){
+SelectVars=function(flux_original,QC_flag=0.8,HighQA=FALSE,Vars=NULL){
   ##--------------------------------------------------------------
   # https://fluxnet.org/data/fluxnet2015-dataset/subset-data-product/
 #	**Atomospheric**  
@@ -2947,22 +2951,23 @@ SelectVars=function(flux_original,Vars=NULL){
   flux_QC[ncols][flux_data_QC[ncols]>=0.5 & flux_data_QC[ncols]<0.8]<-"B"
   flux_QC[ncols][flux_data_QC[ncols]<0.5]<-"C"
   flux_QC[ncols][is.na(flux_data_QC[ncols]<0.5)]<-"D"
+   
   
-  QC_flag<-0.8
-  
+  if(HighQA){
   # delete low quality data
-  for (i in c(3:length(flux_data))){
-    print(names(flux_data)[i])
-    # set all -9999 as NA
-    flux_data[[i]][flux_data[[i]]< -299]<-NA
-    
-    # set data below the quality code as NA
-    index_QC<-grep(names(flux_data)[i],names(flux_data_QC))
-    if(length(index_QC)>0){
-      print(names(flux_data_QC)[index_QC])
-      flux_data[[i]][flux_data_QC[index_QC]<QC_flag]<-NA 
-    }
-    
+	  for (i in c(3:length(flux_data))){
+		print(names(flux_data)[i])
+		# set all -9999 as NA
+		flux_data[[i]][flux_data[[i]]< -299]<-NA
+		
+		# set data below the quality code as NA
+		index_QC<-grep(names(flux_data)[i],names(flux_data_QC))
+		if(length(index_QC)>0){
+		  print(names(flux_data_QC)[index_QC])
+		  flux_data[[i]][flux_data_QC[index_QC]<QC_flag]<-NA 
+		}
+		
+	  }
   }
   
   # set carbon to NA based on NEE quality
