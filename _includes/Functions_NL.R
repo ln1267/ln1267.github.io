@@ -2809,13 +2809,15 @@ f_dailyWaSSI=function(da_daily,soil_pars,kc=0.6,GSjdays=c(128,280),forest="DBF",
 	  mutate(Method="dWaSSI")
 	
 	# UWUE from  Zhou 2015; WUE from Zhang 
-	uWUEp<-data.frame("IGBP"=c("CRO","DBF","GRA","ENF","WSA","MF","CSH","Average"),"uWUEp"=c(11,24,9.55,7.88,9.96,9.39,9.07,6.84,9.52),"uWUEp_sd"=c(2.9,1.6,1.78,2.81,1.35,2,1.44,2.53))
+	uWUEp<-data.frame("IGBP"=c("CRO","DBF","GRA","ENF","WSA","MF","CSH","Average"),"uWUEp"=c(11.24,9.55,7.88,9.96,9.39,9.07,6.84,9.52),"uWUEp_sd"=c(2.9,1.6,1.78,2.81,1.35,2,1.44,2.53))
 	# Calculte GPP from Tr
 	if("VPD" %in% names(result_SACSMA))
 	result_SACSMA<-result_SACSMA%>%
 	  mutate(VPD=VPD*10)%>% # kPa to hPa
-	  mutate(GPP=Ec*uWUEp$uWUEp[uWUEp$IGBP==forest] *sqrt(VPD))%>%
-	  mutate(GPP_SD=Ec*uWUEp$uWUEp_sd[uWUEp$IGBP==forest] *sqrt(VPD))%>%
+	  mutate(GPP=Ec*uWUEp$uWUEp[uWUEp$IGBP==forest] /sqrt(VPD))%>%
+	  mutate(GPP=if_else(VPD==0 ,0,GPP))%>%
+	  mutate(GPP_SD=Ec*uWUEp$uWUEp_sd[uWUEp$IGBP==forest]/sqrt(VPD))%>%
+	  mutate(GPP_SD=if_else(VPD==0 ,0,GPP_SD))%>%
 	  mutate(Method="dWaSSI")
 
   return(result_SACSMA)
