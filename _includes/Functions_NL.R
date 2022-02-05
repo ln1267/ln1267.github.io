@@ -2824,3 +2824,190 @@ f_dailyWaSSI=function(da_daily,soil_pars,kc=0.6,GSjdays=c(128,280),forest="DBF",
 }
 
 )
+
+## This is a list for FLUXNET data process
+FLX_fns<-list(
+
+## Function for convert lat and long to shapefile----
+#' @param da dataframe has lat and long.
+#' @keywords lat and long
+#' @export
+#' @examples
+#'	Longitude<-c( -94.99729,-94.99726,-94.99457,-94.99458,-94.99729)
+#'	Latitude<-c( 29.17112, 29.17107, 29.17273, 29.17278, 29.17112)
+#'  da<-data.frame(Longitude=Longitude,Latitude=Latitude)
+#'	ha<-f_LongLat2Point(da)
+
+LongLat2Points=function(da,LongField="Longitude",LatField="Latitude",outfile=NULL){
+  require(sp)
+  require(rgdal)
+  
+  xy<-data.frame(X=da[LongField],Y=da[LatField])
+  
+  points<-SpatialPointsDataFrame(coords = xy, data = da,
+                                 proj4string = CRS("+proj=longlat +datum=WGS84") )
+								 
+  if(!is.null(outfile)) writeOGR(ha,outfile,"XY",driver = "ESRI Shapefile")
+  
+  return(points)
+},
+
+## Function for Read FLUXNET data----
+#' @param dirfolder where those csvs are
+#' @param Sites Filter site IDs
+#' @param Scale "HH", "DD", "WW","MM","YY"
+#' @param Var "FULLSET" OR "SUBSET"
+#' @keywords libraries
+#' @export
+#' @examples
+#' da<-f_read_FLUXNET("E:/Fluxdata")
+
+Read_FLUXNET<-function(dirfolder,Sites=NULL,Scale="MM",Var="FULLSET"){
+##get names of all flux data
+  allFiles<-dir(path=dirfolder,include.dirs=TRUE,all.files =TRUE,pattern = ".csv",full.names = T,recursive = T)
+  names<-dir(path=dirfolder,all.files =TRUE,pattern = ".csv",recursive = T)
+  Sitefiles<-data.frame(Name=names,Files=allFiles)%>%
+    filter(str_detect(Name,paste0(Var,"_",Scale,"_")))%>%
+    mutate(Site_ID=substr(Name, 5, 10))
+  
+  if(!is.null(Sites)) Sitefiles <-Sitefiles%>% filter(Site_ID %in% Sites)
+  
+  da_original<-data.frame()
+  for (i in c(1:nrow(Sitefiles))){
+  
+  		.csv<-read.csv(file=Sitefiles$Files[i],head=T)
+  		.csv<-cbind(Site_ID=Sitefiles$Site_ID[i],.csv)
+  		print(Sitefiles$Site_ID[i])
+  		da_original<-rbind.fill(da_original,.csv)
+  }
+da_original
+},
+
+
+## Function for Select FLUXNET variables and calssify QC----
+#' @param flux_original data read by f_read_FLUXNET
+#' @keywords libraries
+#' @export
+#' @examples
+#' da<-f_sel_vars(flux_original)
+SelectVars=function(flux_original,Vars=NULL){
+  ##--------------------------------------------------------------
+  # https://fluxnet.org/data/fluxnet2015-dataset/subset-data-product/
+#	**Atomospheric**  
+#		TA	deg C	Temperature  
+#		SW	W m-2	Shortwave radiation  
+#		LW	W m-2	Longwave radiation  
+#		VPD	hPa	  Vapor Pressure Deficit  
+#		PA	kpa	  Atmospheric pressure  
+#		P	  mm	  Precipitation  
+#		WS	m s-1	Wind speed  
+#		CO2	umolCO2 mol-1	CO2 mole fraction  
+#		TS	deg C	Soil temperature  
+#		SWC	%	    Soil water content  
+#	**Energy**  
+#		LE	  W m-2	Latent heat flux  
+#		H	  W m-2	Sensible heat flux  
+#		EBC		energy closure balance  
+#	**NET ECOSYSTEM EXCHANGE**  	  
+#		CUT		            Constant Ustar Threshold  
+#		VUT		            Variable Ustar Threshold  
+#		NEE	  gC m-2 d-1	Net Ecosystem Exchange  
+#		RECO  gC m-2 d-1	Ecosystem Respiration  
+#		GPP	  gC m-2 d-1	Gross Primary Production 
+  ## ----------------------------------------------------------
+    
+  allvars<-names(flux_original)
+  # this if for testing select variables
+  allvars<-allvars[-c(grep("_QC",allvars),grep("_SD",allvars),grep("_SE",allvars),grep("_SR",allvars),grep("_JOINTUNC",allvars),grep("_RANDUNC",allvars),grep("_REF",allvars))]
+  allvars[!grepl("[0-9]",allvars)]
+  
+  #select useful vaiables 
+  allvars<-names(flux_original)
+  if(is.null(Vars)) {
+	keeps <- c("Site_ID","TIMESTAMP","TA_F","P_F","SW_IN_F","LW_IN_F","VPD_F","PA_F","USTAR","NETRAD","WS_F","LE_F_MDS","LE_CORR","H_F_MDS","H_CORR","G_F_MDS","EBC_CF_N","SWC_F_MDS_1","NEE_CUT_MEAN","NEE_VUT_MEAN","RECO_NT_VUT_MEAN","RECO_NT_CUT_MEAN","GPP_NT_CUT_MEAN","GPP_NT_VUT_MEAN","RECO_DT_VUT_MEAN","RECO_DT_CUT_MEAN","GPP_DT_CUT_MEAN","GPP_DT_VUT_MEAN","NEE_CUT_REF","NEE_VUT_REF","RECO_NT_VUT_REF","RECO_NT_CUT_REF","GPP_NT_CUT_REF","GPP_NT_VUT_REF","RECO_DT_VUT_REF","RECO_DT_CUT_REF","GPP_DT_CUT_REF","GPP_DT_VUT_REF")
+  
+  }else{
+  
+	keeps <- c("Site_ID","TIMESTAMP",Vars)
+  
+  }
+  
+  keeps_QC <- c("Site_ID","TIMESTAMP",paste(keeps[-c(1:2)],"_QC",sep=""))
+  
+  keeps<-keeps[-grep("_CUT",keeps)]
+  keeps_QC<-keeps_QC[-grep("_CUT",keeps_QC)]
+  
+  flux_data <- flux_original[,(names(flux_original) %in% keeps)]
+  flux_data_QC <- flux_original[,(names(flux_original) %in% keeps_QC)]
+  flux_QC<-flux_data_QC
+  
+  # set data quality based on the QC
+  ncols<-3:ncol(flux_QC)
+  flux_QC[ncols][flux_data_QC[ncols]>=0.8]<-"A"
+  flux_QC[ncols][flux_data_QC[ncols]>=0.5 & flux_data_QC[ncols]<0.8]<-"B"
+  flux_QC[ncols][flux_data_QC[ncols]<0.5]<-"C"
+  flux_QC[ncols][is.na(flux_data_QC[ncols]<0.5)]<-"D"
+  
+  QC_flag<-0.8
+  
+  # delete low quality data
+  for (i in c(3:length(flux_data))){
+    print(names(flux_data)[i])
+    # set all -9999 as NA
+    flux_data[[i]][flux_data[[i]]< -299]<-NA
+    
+    # set data below the quality code as NA
+    index_QC<-grep(names(flux_data)[i],names(flux_data_QC))
+    if(length(index_QC)>0){
+      print(names(flux_data_QC)[index_QC])
+      flux_data[[i]][flux_data_QC[index_QC]<QC_flag]<-NA 
+    }
+    
+  }
+  
+  # set carbon to NA based on NEE quality
+  # for (var in c("RECO_DT_VUT_MEAN","GPP_DT_VUT_MEAN","RECO_NT_VUT_MEAN","GPP_NT_VUT_MEAN")){
+  #   flux_data[[var]][flux_data_QC$NEE_VUT_MEAN_QC<QC_flag]<-NA
+  # }
+ merge(flux_data,flux_QC,by=c("Site_ID","TIMESTAMP"))
+},
+
+## Function for conver LE unit for FLUXNET data----
+#' @param flux_data data read by f_read_FLUXNET
+#' @param Scale daily or monthly
+#' @keywords libraries
+#' @export
+#' @examples
+#' da<-f_convert_unit(flux_data)
+ConvertUnit=function(flux_data,LEField="LE_F_MDS",Scale="daily",useTair=T){
+  # convert units
+  require(lubridate)
+  if(useTair){
+     ##Calculate ET from LE and Tair from the water density and latent heat of vaporation, see Moffat manuscript on WUE
+#  λ (J kg-1) = 1000*(2500 – 2.37T), T = Air Temperature in °C (Celsius) (Pereira et al., 2013):
+    flux_data$ET<-flux_data[LEField]/(1000*(2500 - 2.37 * flux_data$TA_F)) # (ET, mm s-1)
+
+  }else{
+
+    flux_data$ET<-flux_data[LEField]/2454000 # (ET, mm s-1)
+
+  }
+
+  if(Scale=="daily"){
+      flux_data<-flux_data%>%
+        mutate(Date=as.Date(paste0(flux_data$TIMESTAMP),"%Y%m%d"))%>%
+        mutate(ET=ET*60*60*24)                #(ET, mm/day)
+    
+  }else{
+    
+      flux_data<-flux_data%>%
+      mutate(Date=as.Date(paste0(flux_data$TIMESTAMP,"01"),"%Y%m%d"))%>%
+      mutate(ndays=days_in_month(Date))%>%
+      mutate(P_F=P_F*ndays)%>% # Preciptation to mm/month
+      mutate(ET=ET*60*60*24*ndays)   #(ET, mm/month)
+  }
+}
+
+
+)
+
