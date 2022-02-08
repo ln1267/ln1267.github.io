@@ -2761,37 +2761,71 @@ f_SacSma = function(pet, prcp, par, SoilEvp=FALSE, DailyStep=FALSE,ini.states = 
 #' }
 #' @rdname sacSim_mon
 #' @export
-f_dailyWaSSI=function(da_daily,soil_pars,kc=0.6,GSjdays=c(128,280),forest="DBF",...){
+f_dailyWaSSI=function(da_daily,soil_pars,kc=0.6,GSjdays=c(128,280),forest="DBF",spitGrid=FALSE,...){
 
   require(dplyr)
   require(lubridate)
 
- da_daily<-da_daily%>%
-	mutate(Rainfall=if_else(is.na(Rainfall),0,Rainfall))%>%
-	mutate(j=yday(Date))%>%
-	mutate(Fc=1-exp(-kc*LAI))%>%
-	mutate(GW=ifelse(j>=GSjdays[1] & j<=GSjdays[2],"GW","NonGW"))%>%
-	mutate(P_c=Rainfall*Fc,P_s=Rainfall*(1-Fc))
+	if(spitGrid){
+	da_daily<-da_daily%>%
+		mutate(Rainfall=if_else(is.na(Rainfall),0,Rainfall))%>%
+		mutate(j=yday(Date))%>%
+		mutate(Fc=1-exp(-kc*LAI))%>%
+		mutate(GW=ifelse(j>=GSjdays[1] & j<=GSjdays[2],"GW","NonGW"))%>%
+		mutate(P_c=Rainfall*Fc,P_s=Rainfall*(1-Fc))
 
-	# calculate potential Ei if it is not caculated before
-	if(!"Ei_pot" %in% names(da_daily)) da_daily<-funs_nl$f_Ei_pot_USA(da_daily,forest)
+		# calculate potential Ei if it is not caculated before
+		if(!"Ei_pot" %in% names(da_daily)) da_daily<-funs_nl$f_Ei_pot_USA(da_daily,forest)
 
-	# Calculate the canopy Evaporation based on PET
-	da_daily<-funs_nl$f_Evap(da_daily)
+		# Calculate the canopy Evaporation based on PET
+		da_daily<-funs_nl$f_Evap(da_daily)
 
-	# partition PET to canopy PET and soil surface PET
-	da_sac<-da_daily%>%
-		rowwise() %>%
-		arrange(Date)%>%
-		mutate(PET_Ec=PT*Fc-Ei,PET_Es=PT*(1-Fc))
+		# partition PET to canopy PET and soil surface PET
+		da_sac<-da_daily%>%
+			rowwise() %>%
+			arrange(Date)%>%
+			mutate(PET_Ec=PT*Fc-Ei,PET_Es=PT*(1-Fc))
 
-	#print(summary(da_sac))
+		#print(summary(da_sac))
 
-	da_sac[is.na(da_sac)]<-0
+		da_sac[is.na(da_sac)]<-0
+	
+		out_Ec<-funs_nl$f_SacSma(pet =da_sac$PET_Ec,prcp = da_sac$P_Ei, par = soil_pars)
 
-	out_Ec<-funs_nl$f_SacSma(pet =da_sac$PET_Ec,prcp = da_sac$P_Ei, par = soil_pars)
+		out_Es<-funs_nl$f_SacSma(pet =da_sac$PET_Es,prcp = da_sac$P_s, par = soil_pars,SoilEvp = T)
 
-	out_Es<-funs_nl$f_SacSma(pet =da_sac$PET_Es,prcp = da_sac$P_s, par = soil_pars,SoilEvp = T)
+	
+	}else{
+	
+	da_daily<-da_daily%>%
+		mutate(Rainfall=if_else(is.na(Rainfall),0,Rainfall))%>%
+		mutate(j=yday(Date))%>%
+		mutate(Fc=1-exp(-kc*LAI))%>%
+		mutate(GW=ifelse(j>=GSjdays[1] & j<=GSjdays[2],"GW","NonGW"))%>%
+		mutate(P_c=Rainfall,P_s=Rainfall*(1-Fc))
+
+		# calculate potential Ei if it is not caculated before
+		if(!"Ei_pot" %in% names(da_daily)) da_daily<-funs_nl$f_Ei_pot_USA(da_daily,forest)
+
+		# Calculate the canopy Evaporation based on PET
+		da_daily<-funs_nl$f_Evap(da_daily)
+
+		# partition PET to canopy PET and soil surface PET
+		da_sac<-da_daily%>%
+			rowwise() %>%
+			arrange(Date)%>%
+			mutate(PET_Ec=(PT-Ei)*Fc,PET_Es=(PT-Ei)*(1-Fc))
+
+		#print(summary(da_sac))
+
+		da_sac[is.na(da_sac)]<-0
+	
+		out_Ec<-funs_nl$f_SacSma(pet =da_sac$PET_Ec,prcp = da_sac$P_Ei, par = soil_pars)
+
+		out_Es<-funs_nl$f_SacSma(pet =da_sac$PET_Es,prcp = da_sac$P_Ei, par = soil_pars,SoilEvp = T)
+	
+	}
+
 
 	data_Ec<-cbind(da_sac,out_Ec)%>%
 	  dplyr::select(Date,Rainfall,VPD,PT,PET_Ec,Ei_pot,Ei,Fc,LAI,aetTot,aetUZT,aetUZF,uztwc,lztwc,WaYldTot)
@@ -2866,7 +2900,8 @@ LongLat2Points=function(da,LongField="Longitude",LatField="Latitude",outfile=NUL
 #' @examples
 #' da<-f_read_FLUXNET("E:/Fluxdata")
 
-Read_FLUXNET<-function(dirfolder,Sites=NULL,Scale="MM",Var="FULLSET"){
+Read_FLUXNET=function(dirfolder,Sites=NULL,Scale="MM",Var="FULLSET"){
+	#require(plyr)
 ##get names of all flux data
   allFiles<-dir(path=dirfolder,include.dirs=TRUE,all.files =TRUE,pattern = ".csv",full.names = T,recursive = T)
   names<-dir(path=dirfolder,all.files =TRUE,pattern = ".csv",recursive = T)
@@ -2882,7 +2917,7 @@ Read_FLUXNET<-function(dirfolder,Sites=NULL,Scale="MM",Var="FULLSET"){
   		.csv<-read.csv(file=Sitefiles$Files[i],head=T)
   		.csv<-cbind(Site_ID=Sitefiles$Site_ID[i],.csv)
   		print(Sitefiles$Site_ID[i])
-  		da_original<-rbind.fill(da_original,.csv)
+  		da_original<-plyr::rbind.fill(da_original,.csv)
   }
 da_original
 },
@@ -2990,11 +3025,11 @@ ConvertUnit=function(flux_data,LEField="LE_F_MDS",Scale="daily",useTair=T){
   if(useTair){
      ##Calculate ET from LE and Tair from the water density and latent heat of vaporation, see Moffat manuscript on WUE
 #  λ (J kg-1) = 1000*(2500 – 2.37T), T = Air Temperature in °C (Celsius) (Pereira et al., 2013):
-    flux_data$ET<-flux_data[LEField]/(1000*(2500 - 2.37 * flux_data$TA_F)) # (ET, mm s-1)
+    flux_data$ET<-flux_data[,LEField]/(1000*(2500 - 2.37 * flux_data$TA_F)) # (ET, mm s-1)
 
   }else{
 
-    flux_data$ET<-flux_data[LEField]/2454000 # (ET, mm s-1)
+    flux_data$ET<-flux_data[,LEField]/2454000 # (ET, mm s-1)
 
   }
 
@@ -3012,7 +3047,613 @@ ConvertUnit=function(flux_data,LEField="LE_F_MDS",Scale="daily",useTair=T){
       mutate(ET=ET*60*60*24*ndays)   #(ET, mm/month)
   }
 }
-
-
 )
+
+
+dWaSSI=list(
+
+WaSSI=function(da_daily,soil_pars,kc=0.6,GSjdays=c(128,280),forest="DBF",...){
+
+  require(dplyr)
+  require(lubridate)
+
+    da_daily<-da_daily%>%
+      mutate(Rainfall=if_else(is.na(Rainfall),0,Rainfall))%>%
+      mutate(j=yday(Date))%>%
+      mutate(Fc=1-exp(-kc*LAI))%>%
+      mutate(GW=ifelse(j>=GSjdays[1] & j<=GSjdays[2],"GW","NonGW"))%>%
+      mutate(P_c=Rainfall)
+
+    # calculate potential Ei if it is not caculated before
+    if(!"Ei_pot" %in% names(da_daily)) da_daily<-funs_nl$f_Ei_pot_USA(da_daily,forest)
+
+    # Calculate the canopy Evaporation based on PET
+    da_daily<-funs_nl$f_Evap(da_daily)
+
+    # partition PET to canopy PET and soil surface PET
+    da_sac<-da_daily%>%
+      rowwise() %>%
+      arrange(Date)%>%
+      mutate(PET_Ec=(PT-Ei)*Fc,PET_Es=(PT-Ei)*(1-Fc))
+
+    #print(summary(da_sac))
+
+    da_sac[is.na(da_sac)]<-0
+
+    out_Ec<-dWaSSI$SMA(prcp = da_sac$P_Ei,pet = da_sac$PET_Ec,pet_Soil = da_sac$PET_Es,SoilEvp = T, par = soil_pars)
+
+
+	result<-cbind(da_sac,out_Ec[c("ESoilTot","aetTot","aetUZT","aetUZF","uztwc","lztwc","WaYldTot")])%>%
+		mutate(Year=year(Date),Month=month(Date))%>%
+		mutate(Ec=aetTot,Es=ESoilTot)%>%
+		mutate(AET=Ec+Es+Ei)%>%
+		dplyr::select(Date,Rainfall,VPD,Fc,PT,PET_Ec,PET_Es,Ei_pot,Ei,Es,Ec,AET,WaYldTot)%>%
+		dplyr::rename(ET=AET)%>%
+		mutate(WaSSI_Tr=Ec/PET_Ec,WaSSI=ET/PT)%>%
+		mutate(WaSSI_Tr=if_else(PET_Ec==0,1,WaSSI_Tr),WaSSI=if_else(PT==0,1,WaSSI))%>%
+		mutate(Tr_ET=Ec/ET)%>%
+		mutate(Tr_ET=if_else(ET==0 | is.na(ET) | is.nan(Tr_ET),1,Tr_ET))%>%
+		mutate(Method="dWaSSI")
+
+  # UWUE from  Zhou 2015; WUE from Zhang
+  uWUEp<-data.frame("IGBP"=c("CRO","DBF","GRA","ENF","WSA","MF","CSH","Average"),"uWUEp"=c(11.24,9.55,7.88,9.96,9.39,9.07,6.84,9.52),"uWUEp_sd"=c(2.9,1.6,1.78,2.81,1.35,2,1.44,2.53))
+  # Calculte GPP from Tr
+  if("VPD" %in% names(result))
+    result<-result%>%
+		mutate(VPD=VPD*10)%>% # kPa to hPa
+		mutate(GPP=Ec*uWUEp$uWUEp[uWUEp$IGBP==forest] /sqrt(VPD))%>%
+		mutate(GPP=if_else(VPD==0 ,0,GPP))%>%
+		mutate(GPP_SD=Ec*uWUEp$uWUEp_sd[uWUEp$IGBP==forest]/sqrt(VPD))%>%
+		mutate(GPP_SD=if_else(VPD==0 ,0,GPP_SD))%>%
+		mutate(Method="dWaSSI")
+
+  return(result)
+  
+},
+
+#' @title daily SMA model
+#' @description Soil moisture accounting for daily WaSSI
+#' @param prcp daily precipitation data
+#' @param pet potential evapotranspiration, in mm
+#' @param pet_Soil daily input
+#' @param soil_pars soil initial parameters
+#' @param SoilEvp TRUE/FALSE, whether calculate Soil Evaporation
+#' @return OUTPUT_DESCRIPTION
+#' @details DETAILS
+#' @examples
+#' \dontrun{
+#' sacSma_mon(pet, prcp,par)
+#' }
+#' @rdname sacSim_mon
+#' @export
+SMA = function(prcp,pet,par,pet_Soil=NULL,SoilEvp=FALSE, ini.states = c(0,0,500,500,500,0)) {
+
+	names(par)<-toupper(names(par))
+  if(sum(names(par) %in% c("UZTWM","UZFWM","UZK", "ZPERC",  "REXP", "LZTWM", "LZFSM", "LZFPM",  "LZSK",  "LZPK", "PFREE"))==11){
+    uztwm  <-  par["UZTWM"]    # Upper zone tension water capacity [mm]
+    uzfwm  <-  par["UZFWM"]    # Upper zone free water capacity [mm]
+    lztwm  <-  par["LZTWM"]    # Lower zone tension water capacity [mm]
+    lzfpm  <-  par["LZFPM"]    # Lower zone primary free water capacity [mm]
+    lzfsm  <-  par["LZFSM"]    # Lower zone supplementary free water capacity [mm]
+    uzk    <-  par["UZK"]    # Upper zone free water lateral depletion rate [1/day]
+    lzpk   <-  par["LZPK"]    # Lower zone primary free water depletion rate [1/day]
+    lzsk   <-  par["LZSK"]    # Lower zone supplementary free water depletion rate [1/day]
+    zperc  <-  par["ZPERC"]    # Percolation demand scale parameter [-]
+    rexp   <-  par["REXP"]   # Percolation demand shape parameter [-]
+    pfree  <-  par["PFREE"]   # Percolating water split parameter (decimal fraction)
+    pctim  <- 0 #   par[12]   # Impervious fraction of the watershed area (decimal fraction)
+    adimp  <- 0 #  par[13]   # Additional impervious areas (decimal fraction)
+    riva   <- 0 #  par[14]   # Riparian vegetation area (decimal fraction)
+    side   <- 0 # par[15]   # The ratio of deep recharge to channel base flow [-]
+    rserv  <- 0 #par[16]   # Fraction of lower zone free water not transferrable (decimal fraction)
+  }else{
+    print("Input soil parameter is missing")
+  }
+
+  # Initial Storage States (SAC-SMA)
+  uztwc <- uztwm # Upper zone tension water storage
+  uzfwc <- uzfwm # Upper zone free water storage
+  lztwc <- lztwm # Lower zone tension water storage
+  lzfsc <- lzfsm # Lower zone supplementary free water storage
+  lzfpc <- lzfpm # Upper zone primary free water storage
+  adimc <- 0 # Additional impervious area storage
+
+  # RESERVOIR STATE ARRAY INITIALIZATION
+  simaet  <- vector(mode = "numeric", length = length(prcp)) # total ET
+  simaetSoil  <- vector(mode = "numeric", length = length(prcp)) # ET for Soil total
+  simaetSoil_1  <- vector(mode = "numeric", length = length(prcp)) # ET for Soil surface for soil tention
+  simaetSoil_2  <- vector(mode = "numeric", length = length(prcp)) # ET for Soil surface for soil free water
+  simaet1  <- vector(mode = "numeric", length = length(prcp)) # ET for Veg from upper for soil tention
+  simaet2  <- vector(mode = "numeric", length = length(prcp)) # ET for Vegfrom upper for soil free water
+  simaet3  <- vector(mode = "numeric", length = length(prcp)) # ET for Vegfrom lower soil for soil tention
+  simaet4  <- vector(mode = "numeric", length = length(prcp)) # ET for Vegfrom lower soil for soil free water
+  simaet5  <- vector(mode = "numeric", length = length(prcp))
+  simflow   <- vector(mode = "numeric", length = length(prcp))
+  base_tot  <- vector(mode = "numeric", length = length(prcp))
+  surf_tot  <- vector(mode = "numeric", length = length(prcp))
+  interflow_tot  <- vector(mode = "numeric", length = length(prcp))
+  uztwc_ts   <- vector(mode = "numeric", length = length(prcp))
+  uzfwc_ts  <- vector(mode = "numeric", length = length(prcp))
+  lztwc_ts  <- vector(mode = "numeric", length = length(prcp))
+  lzfpc_ts  <- vector(mode = "numeric", length = length(prcp))
+  lzfsc_ts  <- vector(mode = "numeric", length = length(prcp))
+
+  thres_zero  <- 0.00001 # Threshold to be considered as zero
+  parea       <- 1 - adimp - pctim
+
+  for (i in 1:length(prcp)) {
+
+    ### Set input precipitation and potential evapotranspiration
+    pr = prcp[i] # This could be effective rainfall, a sum of rainfall and snowmelt
+	edmnd = pet[i]
+	
+    # Initialize time interval sums
+    sbf   <- 0  # Sum of total baseflow(from primary and supplemental storages)
+    spbf   <- 0  # Sum of total baseflow(from primary storages)
+    ssur  <- 0  # Sum of surface runoff
+    sif   <- 0  # Sum of interflow
+    sperc <- 0  # Time interval summation of percolation
+    sdro  <- 0  # Sum of direct runoff from the additional impervious area
+    tet   <-0   # Sum of total AET
+
+	# Calculate the soil water evapration first for the upper layer
+	if(SoilEvp & !is.null(pet_Soil)){
+		edmnd_soil = pet_Soil[i]
+		# For soil evapration
+		
+		# ET(1), ET soil from Upper zone tension water storage
+		etSoil_1 <- edmnd_soil * uztwc/uztwm
+		red <- edmnd_soil - etSoil_1  # residual ET demand
+		uztwc <- uztwc - etSoil_1
+
+		# ET(2), ET from upper zone free water storage
+		etSoil_2 <- 0
+		# in case et1 > uztws, no water in the upper tension water storage
+		if (uztwc <= 0) {
+		  etSoil_1 <- etSoil_1 + uztwc #et1 = uztwc
+		  uztwc <- 0
+		  red <- edmnd_soil - etSoil_1
+
+		  # when upper zone free water content is less than residual ET
+		  if (uzfwc < red) {
+
+			# all content at upper zone free water zone will be gone as ET
+			etSoil_2 <- uzfwc
+			uzfwc <- 0
+			red <- red - etSoil_2
+			if (uztwc < thres_zero) uztwc <- 0
+			if (uzfwc < thres_zero) uzfwc <- 0
+
+			# when upper zone free water content is more than residual ET
+		  } else {
+			etSoil_2 <- red  # all residual ET will be gone as ET
+			uzfwc <- uzfwc - etSoil_2
+			red <- 0
+		  }
+
+		  # in case et1 <= uztws, all maximum et (et1) are consumed at uztwc,
+		  # so no et from uzfwc (et2=0)
+		} else {
+
+		  # There's possibility that upper zone free water ratio exceeds
+		  #upper zone tension water ratio. If so, free water is transferred to
+		  #tension water storage
+
+		  if((uztwc / uztwm) < (uzfwc / uzfwm)) {
+			uzrat = (uztwc + uzfwc) / (uztwm + uzfwm)
+			uztwc = uztwm * uzrat
+			uzfwc = uzfwm * uzrat
+		  }
+
+		  if(uztwc < thres_zero) uztwc = 0
+		  if(uzfwc < thres_zero) uzfwc = 0
+
+		}
+	}
+
+    # For veg transpiration
+	## Compute for different compnents...
+    # ET(1), ET from Upper zone tension water storage
+    et1 <- edmnd * uztwc/uztwm
+    red <- edmnd - et1  # residual ET demand
+    uztwc <- uztwc - et1
+
+    # ET(2), ET from upper zone free water storage
+    et2 <- 0
+    #print(paste0("I=",i," uztwm= ",uztwm," uztwc= ",uztwc," et1= ", et1, " pr= ",pr," pet= ",edmnd))
+    # in case et1 > uztws, no water in the upper tension water storage
+    if (uztwc <= 0) {
+      et1 <- et1 + uztwc #et1 = uztwc
+      uztwc <- 0
+      red <- edmnd - et1
+
+      # when upper zone free water content is less than residual ET
+      if (uzfwc < red) {
+
+        # all content at upper zone free water zone will be gone as ET
+        et2 <- uzfwc
+        uzfwc <- 0
+        red <- red - et2
+        if (uztwc < thres_zero) uztwc <- 0
+        if (uzfwc < thres_zero) uzfwc <- 0
+
+        # when upper zone free water content is more than residual ET
+      } else {
+        et2 <- red  # all residual ET will be gone as ET
+        uzfwc <- uzfwc - et2
+        red <- 0
+      }
+
+      # in case et1 <= uztws, all maximum et (et1) are consumed at uztwc,
+      # so no et from uzfwc (et2=0)
+    } else {
+
+      # There's possibility that upper zone free water ratio exceeds
+      #upper zone tension water ratio. If so, free water is transferred to
+      #tension water storage
+
+      if((uztwc / uztwm) < (uzfwc / uzfwm)) {
+        uzrat = (uztwc + uzfwc) / (uztwm + uzfwm)
+        uztwc = uztwm * uzrat
+        uzfwc = uzfwm * uzrat
+      }
+
+      if(uztwc < thres_zero) uztwc = 0
+      if(uzfwc < thres_zero) uzfwc = 0
+
+    }
+
+    # ET(3), ET from Lower zone tension water storage when residual ET > 0
+    et3 <- red * lztwc / (uztwm + lztwm) #residual ET is always bigger than ET(3)
+    lztwc <- lztwc - et3
+
+    # if lztwc is less than zero, et3 cannot exceed lztws
+    if(lztwc < 0) {
+      et3   <- et3 + lztwc  # et3 = lztwc
+      lztwc <- 0
+    }
+
+    # Water resupply from Lower free water storages to Lower tension water storage
+    saved  <- rserv * (lzfpm + lzfsm)
+    ratlzt <- lztwc / lztwm
+    ratlz  <- (lztwc + lzfpc + lzfsc - saved) / (lztwm + lzfpm + lzfsm - saved)
+
+    # water is first taken from supplementary water storage for resupply
+    if (ratlzt < ratlz) {
+
+      del <- (ratlz - ratlzt) * lztwm
+      lztwc <- lztwc + del  # Transfer water from lzfss to lztws
+      lzfsc <- lzfsc - del
+
+      # if tranfer exceeds lzfsc then remainder comes from lzfps
+      if(lzfsc < 0) {
+        lzfpc <- lzfpc + lzfsc
+        lzfsc <- 0
+      }
+    }
+
+    if(lztwc < thres_zero) {lztwc <- 0}
+    # Comment for additional imprevious ET
+    # # ET(5), ET from additional impervious (ADIMP) area
+    # # ????? no idea where this come from, I think there's a possibility that et5 can be negative values
+    et5   <- et1 + (red + et2) * (adimc - et1 - uztwc) / (uztwm + lztwm)
+    adimc <- adimc - et5
+    if(adimc < 0) {
+      #et5 cannot exceed adimc
+      et5 <- et5 + adimc # et5 = adimc
+      adimc <- 0
+    }
+    et5 <- et5 * adimp
+
+
+	# Add Precip in to update the soil water content
+
+    # Time interval available moisture in excess of uztw requirements
+    twx <- pr + uztwc - uztwm
+
+    # all moisture held in uztw- no excess
+    if(twx < 0) {
+      uztwc <- uztwc + pr
+      twx <- 0
+      # moisture available in excess of uztw storage
+    } else {
+      uztwc = uztwm
+    }
+    #
+    # for now twx is excess rainfall after filling the uztwc
+    #
+    adimc <- adimc + pr - twx
+
+    # Compute Impervious Area Runoff
+    roimp <- pr * pctim
+
+    # Determine computational time increments for the basic time interval
+    ninc <- floor(1 + 0.2*(uzfwc+twx))  # Number of time increments that interval is divided into for further soil-moisture accountng
+
+    dinc <- 1.0 / ninc                    # Length of each increment in days
+    pinc <- twx / ninc                    # Amount of available moisture for each increment
+
+    # Compute free water depletion fractions for the time increment
+    #(basic depletions are for one day)
+    duz   <- 1 - (1 - uzk)^dinc
+    dlzp  <- 1 - (1 - lzpk)^dinc
+    dlzs  <- 1 - (1 - lzsk)^dinc
+
+    #print(paste0("ninc=", str(ninc)))
+
+    # Start incremental for-loop for the time interval (smaller scale than the input data time series)
+    for (n in 1:ninc){
+
+      adsur <- 0 # Amount of surface runoff. This will be updated.
+      excess<- 0  # the excess of LZ soil water capacity
+
+      # Compute direct runoff from adimp area
+      ratio <- (adimc - uztwc) / lztwm
+      if(ratio < 0) ratio <- 0
+
+      # Amount of direct runoff from the additional impervious area
+      addro <- pinc*(ratio^2)
+
+      # Compute baseflow and keep track of time interval sum
+      # Baseflow from free water primary storage
+      bf_p <- lzfpc * dlzp
+      lzfpc <- lzfpc - bf_p
+      if(lzfpc <= 0.0001) {
+        bf_p  <- bf_p + lzfpc
+        lzfpc <- 0
+      }
+
+      sbf <- sbf + bf_p
+      spbf<- sbf + bf_p
+      # Baseflow from free water supplemental storage
+      bf_s  <- lzfsc * dlzs
+      lzfsc <- lzfsc - bf_s
+      if (lzfsc <= 0.0001) {
+        bf_s <- bf_s + lzfsc
+        lzfsc <- 0
+      }
+
+      # Total Baseflow from primary and supplemental storages
+      sbf <- sbf + bf_s
+
+      # Compute PERCOLATION- if no water available then skip.
+      if((pinc + uzfwc) <= 0.01) {
+        uzfwc <- uzfwc + pinc
+      } else {
+
+        # Limiting drainage rate from the combined saturated lower zone storages
+        percm <- lzfpm * dlzp + lzfsm * dlzs
+        perc <- percm * uzfwc / uzfwm
+
+        # DEFR is the lower zone moisture deficiency ratio
+        defr <- 1.0 - (lztwc + lzfpc + lzfsc)/(lztwm + lzfpm + lzfsm)
+
+        if(defr < 0) {defr <- 0}
+
+        perc <- perc * (1.0 + zperc * (defr^rexp))
+
+        # Note. . . percolation occurs from uzfws before pav is added
+
+        # Percolation rate exceeds uzfws
+        if(perc >= uzfwc) {perc <- uzfwc}
+
+        uzfwc <- uzfwc - perc    # Percolation rate is less than uzfws.
+
+        # Check to see if percolation exceeds lower zone deficiency.
+        check <- lztwc + lzfpc + lzfsc + perc - lztwm - lzfpm - lzfsm
+        if(check > 0) {
+          perc <- perc - check
+          uzfwc <- uzfwc + check
+        }
+
+        # SPERC is the time interval summation of PERC
+        sperc <- sperc + perc
+
+        # Compute interflow and keep track of time interval sum. Note that PINC has not yet been added.
+        del <- uzfwc * duz # The amount of interflow
+
+        ## Check whether interflow is larger than uzfwc
+        if (del > uzfwc) {
+          del<-uzfwc
+          uzfwc<-0.0
+        }else{
+          uzfwc <- uzfwc - del
+        }
+
+        sif <- sif + del
+
+        # Distribute percolated water into the lower zones. Tension water
+        # must be filled first except for the PFREE area. PERCT is
+        # percolation to tension water and PERCF is percolation going to
+        # free water.
+
+        perct <- perc * (1.0 - pfree)  # Percolation going to the tension water storage
+        if((perct + lztwc) <= lztwm) {
+
+          lztwc <- lztwc + perct
+          percf <- 0 # Pecolation going to th lower zone free water storages
+
+        } else {
+
+          percf <- lztwc + perct - lztwm
+          lztwc <- lztwm
+
+        }
+
+        # Distribute percolation in excess of tension requirements among the free water storages.
+        percf <- percf + (perc * pfree)
+
+        if(percf != 0) {
+
+          # Relative size of the primary storage as compared with total lower zone free water storages.
+          hpl <- lzfpm / (lzfpm + lzfsm)
+
+          # Relative fullness of each storage.
+          ratlp <- lzfpc / lzfpm
+          ratls <- lzfsc / lzfsm
+
+          # The fraction going to primary
+          fracp <- hpl * 2 * (1 - ratlp) / (2 - ratlp - ratls)
+
+          if(fracp > 1.0) {fracp <- 1.0}
+
+          percp <- percf * fracp # Amount of the excess percolation going to primary
+          percs <- percf - percp # Amount of the excess percolation going to supplemental
+          lzfsc <- lzfsc + percs
+
+          if(lzfsc > lzfsm) {
+            percs <- percs - lzfsc + lzfsm
+            lzfsc <- lzfsm
+          }
+
+          lzfpc <- lzfpc + percf - percs
+
+          # This is different to Peter's
+          #
+          # Check to make sure lzfps does not exceed lzfpm
+          if(lzfpc >= lzfpm) {
+            excess <- lzfpc - lzfpm
+            lztwc <- lztwc + excess
+            lzfpc <- lzfpm
+            if(lztwc >= lztwm) {
+              excess <- lztwc - lztwm
+              lztwc <- lztwm
+            }
+          }
+
+        }
+
+        #
+
+        # Distribute PINC between uzfws and surface runoff
+        if((pinc+excess) != 0) {
+
+          # check if pinc exceeds uzfwm
+          if((pinc + uzfwc+excess) <= uzfwm) {
+
+            uzfwc <- uzfwc + pinc+excess  # no surface runoff
+          } else {
+            sur <- pinc + uzfwc + excess - uzfwm # Surface runoff
+            uzfwc <- uzfwm
+
+            ssur = ssur + (sur * parea)
+
+            # ADSUR is the amount of surface runoff which comes from
+            # that portion of adimp which is not currently generating
+            # direct runoff. ADDRO/PINC is the fraction of adimp
+            # currently generating direct runoff.
+            adsur = sur * (1.0 - addro / pinc)
+            ssur = ssur + adsur * adimp
+
+          }
+        }
+      }
+
+      adimc <- adimc + pinc - addro - adsur
+      if(adimc > (uztwm + lztwm)) {
+        addro = addro + adimc - (uztwm + lztwm)
+        adimc = uztwm + lztwm
+      }
+
+      # Direct runoff from the additional impervious area
+      sdro  = sdro + (addro * adimp)
+
+      if(adimc < thres_zero) {adimc <- 0}
+
+    } # END of incremental for loop
+
+    # Compute sums and adjust runoff amounts by the area over which they are generated.
+
+    # EUSED is the ET from PAREA which is 1.0 - adimp - pctim
+    eused <- et1 + et2 + et3
+    sif <- sif * parea
+
+    # Separate channel component of baseflow from the non-channel component
+    tbf <- sbf * parea   # TBF is the total baseflow
+    bfcc <- tbf / (1 + side)    # BFCC is baseflow, channel component
+
+    bfp = (spbf * parea) / (1.0 + side)
+    bfs = bfcc - bfp
+    if (bfs < 0.) bfs = 0
+    bfncc = tbf - bfcc # BFNCC IS BASEFLOW, NON-CHANNEL COMPONENT
+
+    # Ground flow and Surface flow
+    base <- bfcc                       # Baseflow and Interflow are considered as Ground inflow to the channel
+    surf <- roimp + sdro + ssur + sif  # Surface flow consists of Direct runoff and Surface inflow to the channel
+
+    # ET(4)- ET from riparian vegetation.
+    et4 <- (edmnd - eused) * riva  # no effect if riva is set to zero
+
+    # Compute total evapotransporation - TET
+    eused <- eused * parea
+    tet <- tet+eused + et4 + et5
+
+    # Check that adimc >= uztws
+    # This is not sure?
+    #if(adimc > uztwc) adimc <- uztwc
+
+    # Total inflow to channel for a timestep
+    tot_outflow <- surf + base - et4;
+
+    ### ------- Adjustments to prevent negative flows -------------------------#
+
+    # If total outflow <0 surface and baseflow needs to be updated
+    if (tot_outflow < 0) {
+
+      tot_outflow = 0; surf = 0; base = 0;
+
+    } else {
+
+      surf_remainder = surf - et4
+      surf <- max(0,surf_remainder)
+
+      if (surf_remainder < 0) { # In this case, base is reduced
+
+        base = base + surf_remainder
+        if (base < 0) base = 0
+      }
+    }
+
+
+    # Total inflow to channel for a timestep
+    simaet[i]  <- tet
+    simaet1[i]  <- et1
+    simaet2[i]  <- et2
+    simaet3[i]  <- et3
+    simaet4[i]  <- et4
+    simaet5[i]  <- et5
+    simflow[i]  <- tot_outflow
+    #surf_tot[i] <- surf
+    surf_tot[i] <- ssur
+    interflow_tot[i] <- sif
+    base_tot[i] <- base
+    uztwc_ts[i] <- uztwc
+    uzfwc_ts[i]  <- uzfwc
+    lztwc_ts[i]  <- lztwc
+    lzfpc_ts[i]  <- lzfpc
+    lzfsc_ts[i]  <- lzfsc
+	
+	if(SoilEvp & !is.null(pet_Soil)){
+		simaetSoil_1[i]	<-etSoil_1
+		simaetSoil_2[i]	<-etSoil_2
+		simaetSoil[i]	<-etSoil_2+etSoil_1
+	}
+	
+  } #close time-loop
+
+	if(SoilEvp & !is.null(pet_Soil)){
+	  return(data.frame("ESoilTot"=simaetSoil,"ESoil_1"=simaetSoil_1,"ESoil_2"=simaetSoil_2,
+						"aetTot" = simaet,"aetUZT" = simaet1,"aetUZF" = simaet2,"aetLZT" = simaet3,"aet4" = simaet4,"aet5" = simaet5,
+						"WaYldTot" = simflow, "WYSurface" = surf_tot,"WYInter" = interflow_tot, "WYBase" = base_tot,
+						"uztwc"=uztwc_ts,"uzfwc"=uzfwc_ts,
+						"lztwc"=lztwc_ts,"lzfpc"=lzfpc_ts,"lzfsc"=lzfsc_ts))
+	}else{
+	return(data.frame("aetTot" = simaet,"aetUZT" = simaet1,"aetUZF" = simaet2,"aetLZT" = simaet3,"aet4" = simaet4,"aet5" = simaet5,
+						"WaYldTot" = simflow, "WYSurface" = surf_tot,"WYInter" = interflow_tot, "WYBase" = base_tot,
+						"uztwc"=uztwc_ts,"uzfwc"=uzfwc_ts,
+						"lztwc"=lztwc_ts,"lzfpc"=lzfpc_ts,"lzfsc"=lzfsc_ts))
+	}
+}
+)
+
 
