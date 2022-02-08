@@ -2762,102 +2762,122 @@ f_SacSma = function(pet, prcp, par, SoilEvp=FALSE, DailyStep=FALSE,ini.states = 
 #' @rdname sacSim_mon
 #' @export
 f_dailyWaSSI=function(da_daily,soil_pars,kc=0.6,GSjdays=c(128,280),forest="DBF",splitGrid=FALSE,...){
-
+  
   require(dplyr)
   require(lubridate)
-
-	if(splitGrid){
-	da_daily<-da_daily%>%
-		mutate(Rainfall=if_else(is.na(Rainfall),0,Rainfall))%>%
-		mutate(j=yday(Date))%>%
-		mutate(Fc=1-exp(-kc*LAI))%>%
-		mutate(GW=ifelse(j>=GSjdays[1] & j<=GSjdays[2],"GW","NonGW"))%>%
-		mutate(P_c=Rainfall*Fc,P_s=Rainfall*(1-Fc))
-
-		# calculate potential Ei if it is not caculated before
-		if(!"Ei_pot" %in% names(da_daily)) da_daily<-funs_nl$f_Ei_pot_USA(da_daily,forest)
-
-		# Calculate the canopy Evaporation based on PET
-		da_daily<-funs_nl$f_Evap(da_daily)
-
-		# partition PET to canopy PET and soil surface PET
-		da_sac<-da_daily%>%
-			rowwise() %>%
-			arrange(Date)%>%
-			mutate(PET_Ec=PT*Fc-Ei,PET_Es=PT*(1-Fc))
-
-		#print(summary(da_sac))
-
-		da_sac[is.na(da_sac)]<-0
+  
+  if(splitGrid){
+    da_daily<-da_daily%>%
+      mutate(Rainfall=if_else(is.na(Rainfall),0,Rainfall))%>%
+      mutate(j=yday(Date))%>%
+      mutate(Fc=1-exp(-kc*LAI))%>%
+      mutate(GW=ifelse(j>=GSjdays[1] & j<=GSjdays[2],"GW","NonGW"))%>%
+      mutate(P_c=Rainfall*Fc,P_s=Rainfall*(1-Fc))
+    
+    # calculate potential Ei if it is not caculated before
+    if(!"Ei_pot" %in% names(da_daily)) da_daily<-funs_nl$f_Ei_pot_USA(da_daily,forest)
+    
+    # Calculate the canopy Evaporation based on PET
+    da_daily<-funs_nl$f_Evap(da_daily)
+    
+    # partition PET to canopy PET and soil surface PET
+    da_sac<-da_daily%>%
+      rowwise() %>%
+      arrange(Date)%>%
+      mutate(PET_Ec=PT*Fc-Ei,PET_Es=PT*(1-Fc))
+    
+    #print(summary(da_sac))
+    
+    da_sac[is.na(da_sac)]<-0
+    
+    out_Ec<-funs_nl$f_SacSma(pet =da_sac$PET_Ec,prcp = da_sac$P_Ei, par = soil_pars)
+    
+    out_Es<-funs_nl$f_SacSma(pet =da_sac$PET_Es,prcp = da_sac$P_s, par = soil_pars,SoilEvp = T)
+    
 	
-		out_Ec<-funs_nl$f_SacSma(pet =da_sac$PET_Ec,prcp = da_sac$P_Ei, par = soil_pars)
-
-		out_Es<-funs_nl$f_SacSma(pet =da_sac$PET_Es,prcp = da_sac$P_s, par = soil_pars,SoilEvp = T)
-
+	  data_Ec<-cbind(da_sac,out_Ec)%>%
+		dplyr::select(Date,Rainfall,VPD,PT,PET_Ec,Ei_pot,Ei,Fc,LAI,aetTot,aetUZT,aetUZF,uztwc,lztwc,WaYldTot)
+	  
+	  data_Es<-cbind(da_sac,out_Es)%>%
+		dplyr::select(Date,aetTot,aetUZT,aetUZF,uztwc,lztwc,WaYldTot)
+	  
+	  result_SACSMA<-data_Ec%>%
+		left_join(data_Es,by="Date",suffix=c(".c",".s"))%>%
+		mutate(Year=year(Date),Month=month(Date))%>%
+		mutate(Ec=aetTot.c,Es=aetTot.s)%>%
+		mutate(AET=Ec+Es+Ei)%>%
+		dplyr::select(Date,Rainfall,VPD,Fc,PT,PET_Ec,Ei_pot,Ei,Es,Ec,AET,WaYldTot.c,WaYldTot.s)%>%
+		dplyr::rename(ET=AET)%>%
+		mutate(WaYldTot=WaYldTot.s+WaYldTot.c,WaSSI_Tr=Ec/PET_Ec,WaSSI=ET/PT)%>%
+		mutate(WaSSI_Tr=if_else(PET_Ec==0,1,WaSSI_Tr),WaSSI=if_else(PT==0,1,WaSSI))%>%
+		mutate(Tr_ET=Ec/ET)%>%
+		mutate(Tr_ET=if_else(ET==0 | is.na(ET) | is.nan(Tr_ET),1,Tr_ET))%>%
+		mutate(Method="dWaSSI")
 	
-	}else{
-	
-	da_daily<-da_daily%>%
-		mutate(Rainfall=if_else(is.na(Rainfall),0,Rainfall))%>%
-		mutate(j=yday(Date))%>%
-		mutate(Fc=1-exp(-kc*LAI))%>%
-		mutate(GW=ifelse(j>=GSjdays[1] & j<=GSjdays[2],"GW","NonGW"))%>%
-		mutate(P_c=Rainfall*Fc,P_s=Rainfall*(1-Fc))
-
-		# calculate potential Ei if it is not caculated before
-		if(!"Ei_pot" %in% names(da_daily)) da_daily<-funs_nl$f_Ei_pot_USA(da_daily,forest)
-
-		# Calculate the canopy Evaporation based on PET
-		da_daily<-funs_nl$f_Evap(da_daily)
-
-		# partition PET to canopy PET and soil surface PET
-		da_sac<-da_daily%>%
-			rowwise() %>%
-			arrange(Date)%>%
-			mutate(PET_Ec=(PT-Ei)*Fc,PET_Es=(PT-Ei)*(1-Fc))
-
-		#print(summary(da_sac))
-
-		da_sac[is.na(da_sac)]<-0
-	
-		out_Ec<-funs_nl$f_SacSma(pet =da_sac$PET_Ec,prcp = da_sac$P_Ei, par = soil_pars)
-
-		out_Es<-funs_nl$f_SacSma(pet =da_sac$PET_Es,prcp = da_sac$P_s, par = soil_pars,SoilEvp = T)
-	
-	}
-
-
+    
+  }else{
+    
+    da_daily<-da_daily%>%
+      mutate(Rainfall=if_else(is.na(Rainfall),0,Rainfall))%>%
+      mutate(j=yday(Date))%>%
+      mutate(Fc=1-exp(-kc*LAI))%>%
+      mutate(GW=ifelse(j>=GSjdays[1] & j<=GSjdays[2],"GW","NonGW"))%>%
+      mutate(P_c=Rainfall)
+    
+    # calculate potential Ei if it is not caculated before
+    if(!"Ei_pot" %in% names(da_daily)) da_daily<-funs_nl$f_Ei_pot_USA(da_daily,forest)
+    
+    # Calculate the canopy Evaporation based on PET
+    da_daily<-funs_nl$f_Evap(da_daily)
+    
+    # partition PET to canopy PET and soil surface PET
+    da_sac<-da_daily%>%
+      rowwise() %>%
+      arrange(Date)%>%
+      mutate(PET_Ec=(PT-Ei)*Fc,PET_Es=(PT-Ei)*(1-Fc))
+    
+    #print(summary(da_sac))
+    
+    da_sac[is.na(da_sac)]<-0
+    
+    out_Ec<-funs_nl$f_SacSma(pet =da_sac$PET_Ec,prcp = da_sac$P_Ei, par = soil_pars)
+    
+    out_Es<-funs_nl$f_SacSma(pet =da_sac$PET_Es,prcp = da_sac$P_Ei, par = soil_pars,SoilEvp = T)
+    
 	data_Ec<-cbind(da_sac,out_Ec)%>%
-	  dplyr::select(Date,Rainfall,VPD,PT,PET_Ec,Ei_pot,Ei,Fc,LAI,aetTot,aetUZT,aetUZF,uztwc,lztwc,WaYldTot)
-
+		dplyr::select(Date,Rainfall,VPD,PT,PET_Ec,Ei_pot,Ei,Fc,LAI,aetTot,aetUZT,aetUZF,uztwc,lztwc,WaYldTot)
+  
 	data_Es<-cbind(da_sac,out_Es)%>%
-	  dplyr::select(Date,aetTot,aetUZT,aetUZF,uztwc,lztwc,WaYldTot)
-
+		dplyr::select(Date,aetTot,aetUZT,aetUZF,uztwc,lztwc,WaYldTot)
+  
 	result_SACSMA<-data_Ec%>%
-	  left_join(data_Es,by="Date",suffix=c(".c",".s"))%>%
-	  mutate(Year=year(Date),Month=month(Date))%>%
-	  mutate(Ec=aetTot.c,Es=aetTot.s)%>%
-	  mutate(AET=Ec+Es+Ei)%>%
-	  dplyr::select(Date,Rainfall,VPD,Fc,PT,PET_Ec,Ei_pot,Ei,Es,Ec,AET,WaYldTot.c,WaYldTot.s)%>%
-	  dplyr::rename(ET=AET)%>%
-	  mutate(WaYldTot=WaYldTot.s+WaYldTot.c,WaSSI_Tr=Ec/PET_Ec,WaSSI=ET/PT)%>%
-	  mutate(WaSSI_Tr=if_else(PET_Ec==0,1,WaSSI_Tr),WaSSI=if_else(PT==0,1,WaSSI))%>%
-	  mutate(Tr_ET=Ec/ET)%>%
-	  mutate(Tr_ET=if_else(ET==0 | is.na(ET) | is.nan(Tr_ET),1,Tr_ET))%>%
-	  mutate(Method="dWaSSI")
+		left_join(data_Es,by="Date",suffix=c(".c",".s"))%>%
+		mutate(Year=year(Date),Month=month(Date))%>%
+		mutate(Ec=aetTot.c,Es=aetTot.s)%>%
+		mutate(AET=Ec+Es+Ei)%>%
+		dplyr::select(Date,Rainfall,VPD,Fc,PT,PET_Ec,Ei_pot,Ei,Es,Ec,AET,WaYldTot.c,WaYldTot.s)%>%
+		dplyr::rename(ET=AET)%>%
+		mutate(WaYldTot=WaYldTot.s*(1-Fc)+WaYldTot.c*Fc,WaSSI_Tr=Ec/PET_Ec,WaSSI=ET/PT)%>%
+		mutate(WaSSI_Tr=if_else(PET_Ec==0,1,WaSSI_Tr),WaSSI=if_else(PT==0,1,WaSSI))%>%
+		mutate(Tr_ET=Ec/ET)%>%
+		mutate(Tr_ET=if_else(ET==0 | is.na(ET) | is.nan(Tr_ET),1,Tr_ET))%>%
+		mutate(Method="dWaSSI")
 	
-	# UWUE from  Zhou 2015; WUE from Zhang 
-	uWUEp<-data.frame("IGBP"=c("CRO","DBF","GRA","ENF","WSA","MF","CSH","Average"),"uWUEp"=c(11.24,9.55,7.88,9.96,9.39,9.07,6.84,9.52),"uWUEp_sd"=c(2.9,1.6,1.78,2.81,1.35,2,1.44,2.53))
-	# Calculte GPP from Tr
-	if("VPD" %in% names(result_SACSMA))
-	result_SACSMA<-result_SACSMA%>%
-	  mutate(VPD=VPD*10)%>% # kPa to hPa
-	  mutate(GPP=Ec*uWUEp$uWUEp[uWUEp$IGBP==forest] /sqrt(VPD))%>%
-	  mutate(GPP=if_else(VPD==0 ,0,GPP))%>%
-	  mutate(GPP_SD=Ec*uWUEp$uWUEp_sd[uWUEp$IGBP==forest]/sqrt(VPD))%>%
-	  mutate(GPP_SD=if_else(VPD==0 ,0,GPP_SD))%>%
-	  mutate(Method="dWaSSI")
-
+  }
+  
+  
+  # UWUE from  Zhou 2015; WUE from Zhang 
+  uWUEp<-data.frame("IGBP"=c("CRO","DBF","GRA","ENF","WSA","MF","CSH","Average"),"uWUEp"=c(11.24,9.55,7.88,9.96,9.39,9.07,6.84,9.52),"uWUEp_sd"=c(2.9,1.6,1.78,2.81,1.35,2,1.44,2.53))
+  # Calculte GPP from Tr
+  if("VPD" %in% names(result_SACSMA))
+    result_SACSMA<-result_SACSMA%>%
+    mutate(VPD=VPD*10)%>% # kPa to hPa
+    mutate(GPP=Ec*uWUEp$uWUEp[uWUEp$IGBP==forest] /sqrt(VPD))%>%
+    mutate(GPP=if_else(VPD==0 ,0,GPP))%>%
+    mutate(GPP_SD=Ec*uWUEp$uWUEp_sd[uWUEp$IGBP==forest]/sqrt(VPD))%>%
+    mutate(GPP_SD=if_else(VPD==0 ,0,GPP_SD))%>%
+    mutate(Method="dWaSSI")
+  
   return(result_SACSMA)
 }
 
