@@ -2761,12 +2761,12 @@ f_SacSma = function(pet, prcp, par, SoilEvp=FALSE, DailyStep=FALSE,ini.states = 
 #' }
 #' @rdname sacSim_mon
 #' @export
-f_dailyWaSSI=function(da_daily,soil_pars,kc=0.6,GSjdays=c(128,280),forest="DBF",spitGrid=FALSE,...){
+f_dailyWaSSI=function(da_daily,soil_pars,kc=0.6,GSjdays=c(128,280),forest="DBF",splitGrid=FALSE,...){
 
   require(dplyr)
   require(lubridate)
 
-	if(spitGrid){
+	if(splitGrid){
 	da_daily<-da_daily%>%
 		mutate(Rainfall=if_else(is.na(Rainfall),0,Rainfall))%>%
 		mutate(j=yday(Date))%>%
@@ -2802,7 +2802,7 @@ f_dailyWaSSI=function(da_daily,soil_pars,kc=0.6,GSjdays=c(128,280),forest="DBF",
 		mutate(j=yday(Date))%>%
 		mutate(Fc=1-exp(-kc*LAI))%>%
 		mutate(GW=ifelse(j>=GSjdays[1] & j<=GSjdays[2],"GW","NonGW"))%>%
-		mutate(P_c=Rainfall,P_s=Rainfall*(1-Fc))
+		mutate(P_c=Rainfall*Fc,P_s=Rainfall*(1-Fc))
 
 		# calculate potential Ei if it is not caculated before
 		if(!"Ei_pot" %in% names(da_daily)) da_daily<-funs_nl$f_Ei_pot_USA(da_daily,forest)
@@ -2822,7 +2822,7 @@ f_dailyWaSSI=function(da_daily,soil_pars,kc=0.6,GSjdays=c(128,280),forest="DBF",
 	
 		out_Ec<-funs_nl$f_SacSma(pet =da_sac$PET_Ec,prcp = da_sac$P_Ei, par = soil_pars)
 
-		out_Es<-funs_nl$f_SacSma(pet =da_sac$PET_Es,prcp = da_sac$P_Ei, par = soil_pars,SoilEvp = T)
+		out_Es<-funs_nl$f_SacSma(pet =da_sac$PET_Es,prcp = da_sac$P_s, par = soil_pars,SoilEvp = T)
 	
 	}
 
