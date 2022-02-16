@@ -2229,6 +2229,29 @@ f_readGEEClimate=function(filename,dataSource="Terra",dataScale="Monthly"){
   return(da)
 
 },
+## Read the zonal 8days LAI from GEE ----
+#' @param filename The csv file from GEE.
+#' @param dataScale The timestep of for ouput data ("Daily","8days,"Monthly").
+#' @keywords LAI
+#' @export
+#' @examples
+#' filename<-"E:/Research/WaSSI/Turkey/TerraClimate_CB.csv"
+#' read_GEE8DayLAI(filename)
+read_GEE8DayLAI=function(filename,TimeScale="8days"){
+  require(tidyverse)
+  require(dplyr)
+  require(lubridate)
+  da_gee<-read.csv(filename)%>%
+    dplyr::select(-.geo,-system.index)%>%
+    pivot_longer(cols =starts_with("X20"),names_to="Info",names_prefix = "X",values_to ="LAI")%>%
+    mutate(Date=as.Date(as.character(Info),"%Y%j"))%>%
+    mutate(Year=year(Date),Month=month(Date),Day=day(Date))%>%
+    dplyr::select(-Info)
+  
+  da_gee
+
+},
+
 
 ## Extract soil values for each watershed
 f_soilinfo=function(soilfname,Watersheds){
@@ -2794,8 +2817,7 @@ f_dailyWaSSI=function(da_daily,soil_pars,kc=0.6,GSjdays=c(128,280),forest="DBF",
     
     out_Es<-funs_nl$f_SacSma(pet =da_sac$PET_Es,prcp = da_sac$P_s, par = soil_pars,SoilEvp = T)
     
-	
-	  data_Ec<-cbind(da_sac,out_Ec)%>%
+	data_Ec<-cbind(da_sac,out_Ec)%>%
 		dplyr::select(Date,Rainfall,VPD,PT,PET_Ec,Ei_pot,Ei,Fc,LAI,aetTot,aetUZT,aetUZF,uztwc,lztwc,WaYldTot)
 	  
 	  data_Es<-cbind(da_sac,out_Es)%>%
@@ -2844,10 +2866,14 @@ f_dailyWaSSI=function(da_daily,soil_pars,kc=0.6,GSjdays=c(128,280),forest="DBF",
     
     out_Es<-funs_nl$f_SacSma(pet =da_sac$PET_Es,prcp = da_sac$P_Ei, par = soil_pars,SoilEvp = T)
     
+	# Update flow from veg
 	data_Ec<-cbind(da_sac,out_Ec)%>%
+		mutate(WaYldTot=(WYSurface+WYInter)*Fc+WYBase)%>%
 		dplyr::select(Date,Rainfall,VPD,PT,PET_Ec,Ei_pot,Ei,Fc,LAI,aetTot,aetUZT,aetUZF,uztwc,lztwc,WaYldTot)
-  
+		
+	# Update flow from Soil surface
 	data_Es<-cbind(da_sac,out_Es)%>%
+		mutate(WaYldTot=(WYSurface+WYInter)*(1-Fc))%>%
 		dplyr::select(Date,aetTot,aetUZT,aetUZF,uztwc,lztwc,WaYldTot)
   
 	result_SACSMA<-data_Ec%>%
@@ -2857,7 +2883,7 @@ f_dailyWaSSI=function(da_daily,soil_pars,kc=0.6,GSjdays=c(128,280),forest="DBF",
 		mutate(AET=Ec+Es+Ei)%>%
 		dplyr::select(Date,Rainfall,VPD,Fc,PT,PET_Ec,Ei_pot,Ei,Es,Ec,AET,WaYldTot.c,WaYldTot.s)%>%
 		dplyr::rename(ET=AET)%>%
-		mutate(WaYldTot=WaYldTot.s*(1-Fc)+WaYldTot.c*Fc,WaSSI_Tr=Ec/PET_Ec,WaSSI=ET/PT)%>%
+		mutate(WaYldTot=WaYldTot.s+WaYldTot.c,WaSSI_Tr=Ec/PET_Ec,WaSSI=ET/PT)%>%
 		mutate(WaSSI_Tr=if_else(PET_Ec==0,1,WaSSI_Tr),WaSSI=if_else(PT==0,1,WaSSI))%>%
 		mutate(Tr_ET=Ec/ET)%>%
 		mutate(Tr_ET=if_else(ET==0 | is.na(ET) | is.nan(Tr_ET),1,Tr_ET))%>%
@@ -3673,7 +3699,145 @@ SMA = function(prcp,pet,par,pet_Soil=NULL,SoilEvp=FALSE, ini.states = c(0,0,500,
 						"uztwc"=uztwc_ts,"uzfwc"=uzfwc_ts,
 						"lztwc"=lztwc_ts,"lzfpc"=lzfpc_ts,"lzfsc"=lzfsc_ts))
 	}
-}
+},
+
+# Calibration Soil parameters based on Q ----
+#' @title Calibration Soil parameters of WaSSI model
+#' @description FUNCTION_DESCRIPTION
+#' @param data_in  dataframe with Date, P, E and Q cariables
+#' @param warmup months or days for warming up WaSSI-C model
+#' @param Sim_year The priod for calibration and validation
+#' @return outputs calibration and validation result
+#' @examples
+#'  warmup=12
+#'  stationname=""
+#'  Sim_year<-list("Calibration"=c("2003-01-01","2010-12-01"),"Validation"=c("2011-01-01","2016-12-01"))
+#'  WaSSI_calibration(data_in,Sim_year,stationname,warmup)
+#' @export
+
+SoilParCal=function(data_in,Sim_year,stationname="",scale="daily",validation=TRUE){
+	
+	warmup<-365
+	
+	if(scale !="daily" ) warmup<-12
+	
+  # Define values
+    Accu_cal<-NULL;Accu_val<-NULL
+
+    HydroTestData <- as.zooreg(zoo(data_in[c("P","E","Q")], order.by = data_in$Date))
+
+    # select particular time period for calibration
+    index_cal<-which(index(HydroTestData)<= Sim_year$Calibration[2] & index(HydroTestData)>= Sim_year$Calibration[1])
+
+    # Fill missing data based on Warmup and get the calibration data
+    if(index_cal[1]<warmup){
+      da_cal<-HydroTestData[index_cal,]
+      da_add<-HydroTestData[1:warmup,]
+      index(da_add)<-index(da_add) %m-% years(1)
+      da_cal<-rbind(da_add,da_cal)
+    }else{
+      index_cal<-c((index_cal[1]-c(warmup:1)),index_cal)
+      da_cal<-HydroTestData[index_cal,]
+    }
+
+    da_cal$Period<-0
+
+    ## an unfitted model, with ranges of possible parameter values
+    modx <- hydromad(da_cal, sma = "sacramento",warmup=warmup,adimp = 0,pctim = 0)
+    ## now try to fit it
+	
+	hydromad.stats("viney" = function(Q, X, ...) {
+    hmadstat("r.squared")(Q, X, ...) -
+      5*(abs(log(1+hmadstat("rel.bias")(Q,X)))^2.5)
+	})
+
+    set.seed(0)
+    fitx <- fitByOptim(modx,objective=hmadstat("viney")) #,objective=f_KGE
+
+    # Add simulated Q to calibratin data
+    da_cal$Q_sim<-fitx$U[,"U"]
+
+    da_all<-da_cal[-c(1:warmup),]
+
+    # Run validation period with optimized soil parameters
+    soil_pars<-fitx$parlist
+
+    # write calibrated soil parameters
+    soil_par_dataframe<-t(as.data.frame(round(unlist(soil_pars),4)))
+    #rownames(soil_par_dataframe)<-stationname
+    write.csv(soil_par_dataframe,paste0("SoilPar_calibrated_",stationname,".csv"))
+
+    # get the validation data
+    if (validation ){
+
+      index_val<-which(index(HydroTestData)<= Sim_year$Validation[2] & index(HydroTestData)>= Sim_year$Validation[1])
+      index_val<-c((index_val[1]-c(warmup:1)),index_val)
+
+      da_val<-HydroTestData[index_val,]
+
+      # apply soil parameters to validation period
+      out<-hydromad::sacramento.sim(da_val,uztwm = soil_pars["uztwm"], uzfwm = soil_pars["uzfwm"], uzk = soil_pars["uzk"], pctim = soil_pars["pctim"], adimp = soil_pars["adimp"],
+                          zperc = soil_pars["zperc"], rexp = soil_pars["rexp"], lztwm = soil_pars["lztwm"], lzfsm = soil_pars["lzfsm"],
+                          lzfpm = soil_pars["lzfpm"], lzsk = soil_pars["lzsk"], lzpk = soil_pars["lzpk"], pfree = soil_pars["pfree"],return_state = T)
+
+      da_val$Q_sim<-out$U
+      da_val$Period<-1
+      da_val<-da_val[-c(1:warmup),]
+
+    # merge calibration and validation data
+      da_all<-rbind(da_all,da_val)
+    }
+
+    # write calibration
+    df<-da_all%>%
+      as.data.frame()%>%
+      mutate(Date=as.Date(index(da_all)))%>%
+      mutate(Period=ifelse(Period>0,"Validation","Calibration"))
+
+    #write.csv(df,paste0("Q_",stationname,"_calibration.csv"),row.names = F)
+
+    p1<-df%>%
+      ggplot()+
+      geom_line(data =df,aes(x=Date,y=Q_sim,color="Simulated"))+
+      geom_line(data =df,aes(x=Date,y=Q,color="Observed"))+
+      facet_grid(Period~.)+
+      #theme_ning(size.axis = 8,size.title = 10)+
+      labs(y="Flow (mm/month)",colour ="Source")+
+      scale_x_date(date_breaks ="1 year",date_labels = "%Y")
+    print(p1)
+    ggsave(paste0("Q_",stationname,"_calibration.png"),p1,width = 6,height = 3)
+
+    # Print information
+    #print(soil_pars)
+	Accu_cal<-funs_nl$f_acc(df$Q[df$Period=="Calibration"],df$Q_sim[df$Period=="Calibration"])
+    print(Accu_cal)
+
+    if(validation){
+	  Accu_val<-funs_nl$f_acc(df$Q[df$Period=="Validation"],df$Q_sim[df$Period=="Validation"])
+      print(Accu_val)
+    }
+
+    # Getting the new numeric goodness of fit
+    for(pred in c("Calibration","Validation")){
+      Simulated<-df$Q_sim[df$Period==pred]
+      Observed<-df$Q[df$Period==pred]
+      if(pred== "Validation" & (!validation | length(Observed)<24)) next()
+
+      if((index(HydroTestData)[2]-index(HydroTestData)[1])==1){
+        pdf(paste0("Q_",stationname,"_",pred,".pdf"),width = 9,height = 9)
+        ggof(sim=Simulated, obs=Observed,dates=df$Date[df$Period==pred],ylab = "Flow (mm)",main =stationname,ftype = "dma",FUN = "sum",gofs=c( "RMSE", "PBIAS", "NSE","KGE", "R2"))
+        dev.off()
+
+      }else{
+        pdf(paste0("Q_",stationname,"_",pred,".pdf"),width = 9,height = 6)
+        ggof(sim=Simulated, obs=Observed,dates=df$Date[df$Period==pred],ylab = "Flow (mm)",main =stationname,ftype = "ma",FUN = "sum",gofs=c( "RMSE", "PBIAS", "NSE", "KGE","R2"))
+        dev.off()
+      }
+
+    }
+    return(list("fig"=p1,"soil_pars"=soil_pars,"Accu_cal"=Accu_cal,"Accu_val"=Accu_val))
+  }
+
 )
 
 
