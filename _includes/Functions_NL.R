@@ -50,6 +50,14 @@ p1+
   )
 },
 
+f_digits=function(x,n=2,format=F) {
+  if(format){
+    format(round(x,n), big.mark=",")
+  }else{
+    round(x,n)
+  }
+  
+},
 
 #
 ## Function for clipping raster file by shapefile----
@@ -2931,7 +2939,7 @@ LongLat2Points=function(da,LongField="Longitude",LatField="Latitude",outfile=NUL
   points<-SpatialPointsDataFrame(coords = xy, data = da,
                                  proj4string = CRS("+proj=longlat +datum=WGS84") )
 								 
-  if(!is.null(outfile)) writeOGR(ha,outfile,"XY",driver = "ESRI Shapefile")
+  if(!is.null(outfile)) writeOGR(points,outfile,"XY",driver = "ESRI Shapefile")
   
   return(points)
 },
@@ -3839,5 +3847,39 @@ SoilParCal=function(data_in,Sim_year,stationname="",scale="daily",validation=TRU
   }
 
 )
+
+
+fn_NFS<-list(
+
+# Function for accpop of intakes
+AccPopulation=function(da_in,Pct_field="Pct",IBT=FALSE){
+  
+    da_sta<-data.frame("Group"=c(">0%",">10%",">20%",">30%",">40%",">50%",">60%",">70%",">80%",">90%"),"Population"=NA)
+    
+	intervlas<-c(0,10,20,30,40,50,60,70,80,90)
+	
+	da_in$Pct<-Pct[Pct_field]
+	
+  	if(IBT) da_sta["PopuIBT"]<-NA
+  
+  	for (j in c(1:length(intervlas))) {
+  	  da_sta$Population[j]<-sum(da_in$Population[da_in$Pct>intervlas[j]],na.rm=T)
+  	  
+  	  if(IBT) da_sta$PopuIBT[j]<-sum(da_in$Population[da_in$Pct_post>intervlas[j]],na.rm=T)
+  	} 
+
+  return(da_sta)
+  
+},
+
+# Cut to 0-10
+PctCut=function(pct){
+  as.character(cut(pct,c(0,10,25,50,75,100),labels = c(">0 - 10","11 - 25","26 - 50","51 - 75","76 - 100"),include.lowest = F, right = T))
+}
+
+
+
+)
+
 
 
