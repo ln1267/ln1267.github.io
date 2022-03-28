@@ -4114,18 +4114,19 @@ Datalist=function(dir_Cloud=NULL,dir_LST=NULL,dir_ET=NULL){
 		print(ID)
 		
 		if(plot){
-		plot(da,main=paste0(var," - ",ID,"\n",Datalist$Timestamp[Datalist$Name==ID]))
-	   if(!is.null(shp)) {
-		 plot(coweeta_shp,add=T)
-		 plot(CS_shp,add=T,pch=16,color="red")
-	   }
+			plot(da,main=paste0(var," - ",ID,"\n",Datalist$Timestamp[Datalist$Name==ID]))
+		   if(!is.null(shp)) {
+			 plot(coweeta_shp,add=T)
+			 plot(CS_shp,add=T,pch=16,color="red")
+		   }
 		}
 		
 		names(da)<-paste0(var,ID)
 		return(da)
+		}
 	  },
 	  
-	  readEcosET<-function(ID,var,da_dir="ECOSTRESS/data/JPL_ET/",mask=F,plot=T,shp=NULL){
+	  readEcosET=function(ID,var,da_dir="ECOSTRESS/data/JPL_ET/",mask=F,plot=T,shp=NULL){
 	  
 	  filename<-paste0(da_dir,"ECO3ETPTJPL.001_EVAPOTRANSPIRATION_PT_JPL_",var,"_doy",ID,"_aid0001.tif")
 	  LST_QC_lookup<-read.csv("ECOSTRESS/data/Lookups/ECO2LSTE-001-SDS-QC-lookup.csv")%>%
