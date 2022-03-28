@@ -4173,6 +4173,21 @@ Datalist=function(dir_Cloud=NULL,dir_LST=NULL,dir_ET=NULL){
 		return(da)
 	  }
 	  
+	},
+	
+	# delete no intersection images
+	rmNULLImages=function(dalist,shp){
+		f_intect<-function(x){
+		if(is.null(x)) return(NULL) 
+		x<-mask(x,shp)
+		if(sum(!is.na(values(x)))==0) return(NULL) 
+		crop(x,shp)
+		}
+	  aa<-lapply(dalist,f_intect) 
+	  aa[sapply(aa, is.null)] <- NULL
+	  a1<-lapply(aa,function(x) names(x))
+	  names(aa)<-a1
+	  return(aa)
 	}
 	
 )
