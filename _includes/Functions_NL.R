@@ -3927,4 +3927,256 @@ PctCut=function(pct){
 )
 
 
+fn_ECOSTRESS<-list(
 
+	#Function for downloading data for a request from https://appeears.earthdatacloud.nasa.gov
+	AppEEARX_download=function(task_id,task_name,user="",password=""){
+	  ###-----------------------------
+	  # This function is used to download all data from a request on "https://appeears.earthdatacloud.nasa.gov"
+	  ###-----------------------------
+
+	  require(httr)
+	  require(jsonlite)
+
+	  ## function for downloading each file
+	  download_withAPI<-function(id,dest_dir){
+		file_id<-filelist$file_id[id]
+		filename<-filelist$file_name[id]
+		token <- paste("Bearer", fromJSON(token_response)$token)
+
+		# create a destination directory to store the file in
+
+		filepath <- paste(dest_dir, filename, sep = '/')
+		suppressWarnings(dir.create(dirname(filepath)))
+
+		# write the file to disk using the destination directory and file name
+		response <- GET(paste("https://appeears.earthdatacloud.nasa.gov/api/bundle/", task_id, '/', file_id, sep = ""),
+						write_disk(filepath, overwrite = TRUE), progress(), add_headers(Authorization = token))
+	  }
+
+
+	  # Connect to the servier
+	  if(user==""| password=="") return("Username and Password are required for https://appeears.earthdatacloud.nasa.gov")
+	  secret <- base64_enc(paste(user, password, sep = ":"))
+	  response <- POST("https://appeears.earthdatacloud.nasa.gov/api/login",
+					   add_headers("Authorization" = paste("Basic", gsub("\n", "", secret)),
+								   "Content-Type" = "application/x-www-form-urlencoded;charset=UTF-8"),
+					   body = "grant_type=client_credentials")
+	  token_response <- prettify(toJSON(content(response), auto_unbox = TRUE))
+
+	  token <- paste("Bearer", fromJSON(token_response)$token)
+
+	  response <- GET(paste("https://appeears.earthdatacloud.nasa.gov/api/bundle/", task_id, sep = ""), add_headers(Authorization = token))
+	  bundle_response <- prettify(toJSON(content(response), auto_unbox = TRUE))
+
+	  # Get the file list
+	  filelist <- fromJSON(bundle_response)$files
+
+	  # download each file
+	  lapply(1:nrow(filelist), download_withAPI,dest_dir=task_name)
+
+
+	},
+
+# Function for masking cloud of ECOSTRESS data
+## Function for get the image list
+Datalist=function(dir_Cloud=NULL,dir_LST=NULL,dir_ET=NULL){
+
+	library(stringr)
+	
+	Datalist<-list(Cloud_list=NULL,LST_list=NULL,ET_list=NULL)
+	
+	if(!is.null(dir_Cloud)) {
+		files_Cloud<-dir(dir_Cloud,"*.tif")
+		Cloud_list<-data.frame("filename"=files_Cloud)%>%
+		 mutate(Var=str_match(filename, "SDS_(.*?)_doy")[,2])%>%
+		  mutate(Name=str_match(filename, "_doy(.*?)_aid0001")[,2])%>%
+		  as.data.frame()%>%
+		  filter(!is.na(Var))%>%
+		  select(Var,Name)%>%
+		  dcast(Name~Var)%>%
+		  group_by(Name)%>%
+		  mutate_each(funs = function(x) ifelse(is.na(x),NA,"Yes"))%>%
+		  mutate(UTC=parse_date_time(Name,"%Y%j%H%M%S",tz="UTC"))%>%
+		  mutate(Timestamp=with_tz(UTC,tz="EST"))
+		Datalist$Cloud_list<-Cloud_list
+	}
+	
+	if(!is.null(dir_LST)) {
+
+		files_LST<-dir(dir_LST,"*.tif")
+		LST_list<-data.frame("filename"=files_LST)%>%
+		 mutate(Var=str_match(filename, "SDS_(.*?)_doy")[,2])%>%
+		  mutate(Name=str_match(filename, "_doy(.*?)_aid0001")[,2])%>%
+		  as.data.frame()%>%
+		  filter(!is.na(Var))%>%
+		  select(Var,Name)%>%
+		  dcast(Name~Var)%>%
+		  group_by(Name)%>%
+		  mutate_each(funs = function(x) ifelse(is.na(x),NA,"Yes"))%>%
+		  mutate(UTC=parse_date_time(Name,"%Y%j%H%M%S",tz="UTC"))%>%
+		  mutate(Timestamp=with_tz(UTC,tz="EST"))
+		  
+		Datalist$LST_list<-LST_list
+	}
+	if(!is.null(dir_ET)){
+		files_ET<-dir(dir_LST,"*.tif")
+		ET_list<-data.frame("filename"=files_ET)%>%
+		 mutate(Var=str_match(filename, "PT_JPL_(.*?)_doy")[,2])%>%
+		  mutate(Name=str_match(filename, "_doy(.*?)_aid0001")[,2])%>%
+		  as.data.frame()%>%
+		  filter(!is.na(Var))%>%
+		  select(Var,Name)%>%
+		  dcast(Name~Var)%>%
+		  group_by(Name)%>%
+		  mutate_each(funs = function(x) ifelse(is.na(x),NA,"Yes"))
+		Datalist$ET_list<-ET_list
+	}	
+
+	return(Datalist)
+	
+	},
+
+## Read cloud info
+	readEcosCloud<-function(ID,Dir_cloud="ECOSTRESS/data/Cloud/",plot=T,shp=NULL){
+	  
+	  filename<-paste0(Dir_cloud,"ECO2CLD.001_SDS_CloudMask_doy",ID,"_aid0001.tif")
+	  #print(filename)
+	  if(!file.exists(filename)) return()
+
+	  # try to open the raster
+	  a<-try(raster(filename),silent=T)
+	  if(inherits(a, "try-error")) stop(paste0("Bad raster - ",ID))
+	  da<-raster(filename)
+	  
+	  # mask data by it QC
+	  values(da)[values(da)>1 | values(da)<0]<- 0 # Clear sky - value==1
+	  values(da)[is.na(values(da))]<- 0
+	  values(da)<-as.integer(values(da))
+	  
+	  # plot if there is valid pixels
+	  if(sum(values(da)==1)>0) {
+		print(ID)
+		arg <- list(at=c(0.5,1.3), labels=c("Cloudy","Clear"))
+		if(plot){
+		plot(da,main=paste0("Cloud - ",ID,"\n",Datalist$Timestamp[Datalist$Name==ID]),breaks=c(-0.1,0.9,1.8), col=c("gray","skyblue"), axis.args=arg,zlim=c(-0.1,1.5))
+	   if(!is.null(shp)) plot(coweeta_shp,add=T)
+		}
+		
+		names(da)<-paste0("CloudMask",ID)
+		return(da)
+	  }
+	  
+	},
+
+# Function for reading Ecostress LST variables
+	readEcosLST=function(ID,var,da_dir="ECOSTRESS/data/Cloud/",mask=F,plot=T,shp=NULL){
+	  
+	  filename<-paste0(da_dir,"ECO2LSTE.001_SDS_",var,"_doy",ID,"_aid0001.tif")
+	  LST_QC_lookup<-read.csv("ECOSTRESS/data/Lookups/ECO2LSTE-001-SDS-QC-lookup.csv")%>%
+		filter(Mandatory.QA.flags=="Pixel produced, best quality")%>%
+		filter(LST.accuracy!=">2 K (Poor performance)")
+	  #print(filename)
+	  if(!file.exists(filename)) return()
+	  #options(show.error.messages = FALSE)
+	  # try to ooen the raster
+	  a<-try(raster(filename),silent=T)
+	  if(inherits(a, "try-error")) stop(paste0("Bad raster - ",ID))
+	  if(is.character(a)) next()
+	  da<-raster(filename)
+	  
+	  # mask data by it QC
+	  if(var=="LST"){
+		values(da)[values(da)>65535 | values(da)<7500]<- NA
+		values(da)<-values(da)*0.02-273.15 
+	  }else if (var=="QC"){
+		values(da)[!values(da) %in% LST_QC_lookup$Value]<- NA
+		
+	  }else if(var=="LST_err"){
+		values(da)[values(da)==0]<- NA
+		values(da)<-values(da)*0.04 
+	  }
+
+	  # Mask the variable by QC
+	  if(mask & var!="QC"){
+		da_qc<-raster(paste0(da_dir,"ECO2LSTE.001_SDS_QC_doy",ID,"_aid0001.tif"))
+		values(da_qc)[!values(da_qc) %in% LST_QC_lookup$Value]<- NA
+		da<-mask(da,da_qc)
+	  }
+
+	  # plot if there is valid pixels
+	  if(!is.null(shp)) {
+		values_no<-sum(!is.na(values(mask(da,coweeta_shp))))
+	  }else{
+		values_no<-sum(!is.na(values(da)))
+	  }
+	  if(values_no>50) {
+		print(ID)
+		
+		if(plot){
+		plot(da,main=paste0(var," - ",ID,"\n",Datalist$Timestamp[Datalist$Name==ID]))
+	   if(!is.null(shp)) {
+		 plot(coweeta_shp,add=T)
+		 plot(CS_shp,add=T,pch=16,color="red")
+	   }
+		}
+		
+		names(da)<-paste0(var,ID)
+		return(da)
+	  },
+	  
+	  readEcosET<-function(ID,var,da_dir="ECOSTRESS/data/JPL_ET/",mask=F,plot=T,shp=NULL){
+	  
+	  filename<-paste0(da_dir,"ECO3ETPTJPL.001_EVAPOTRANSPIRATION_PT_JPL_",var,"_doy",ID,"_aid0001.tif")
+	  LST_QC_lookup<-read.csv("ECOSTRESS/data/Lookups/ECO2LSTE-001-SDS-QC-lookup.csv")%>%
+		filter(Mandatory.QA.flags=="Pixel produced, best quality")%>%
+		filter(LST.accuracy!=">2 K (Poor performance)")
+	  # 
+	  # LST_QC_lookup<-read.csv("ECOSTRESS/data/Lookups/ECO2LSTE-001-SDS-QC-lookup.csv")%>%
+	  #   filter(Mandatory.QA.flags=="Pixel produced, best quality")
+	  #print(filename)
+	  if(!file.exists(filename)) return()
+	  #options(show.error.messages = FALSE)
+	  # try to ooen the raster
+	  a<-try(raster(filename),silent=T)
+	  if(inherits(a, "try-error")) stop(paste0("Bad raster - ",ID))
+	  if(is.character(a)) next()
+	  da<-raster(filename)
+	  
+	  # mask data by it QC
+	  if(var=="ETinst" | var=="ETdaily" | var=="ETinstUncertainty"){
+		values(da)[values(da)>2000 | values(da)<0]<- NA
+	  }else if (var=="ETcanopy"| var=="ETsoil" | var=="ETinterception"){
+		
+		values(da)[values(da)>100 | values(da)<0]<- NA
+		
+	  }
+
+	  # Mask the variable by QC
+	  if(mask & var!="QC"){
+		da_qc<-raster(paste0(da_dir,"ECO2LSTE.001_SDS_QC_doy",ID,"_aid0001.tif"))
+		values(da_qc)[!values(da_qc) %in% LST_QC_lookup$Value]<- NA
+		da<-mask(da,da_qc)
+	  }
+
+	  # plot if there is valid pixels
+	  if(!is.null(shp)) {
+		values_no<-sum(!is.na(values(mask(da,shp))))
+	  }else{
+		values_no<-sum(!is.na(values(da)))
+	  }
+	  if(values_no>50) {
+		print(ID)
+		
+		if(plot){
+		plot(da,main=paste0(var," - ",ID,"\n",Datalist$Timestamp[Datalist$Name==ID]))
+	   if(!is.null(shp)) plot(shp,add=T)
+		}
+		
+		names(da)<-paste0(var,ID)
+		return(da)
+	  }
+	  
+	}
+	
+)
