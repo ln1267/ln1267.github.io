@@ -4052,7 +4052,7 @@ Datalist=function(dir_Cloud=NULL,dir_LST=NULL,dir_ET=NULL){
 		arg <- list(at=c(0.5,1.3), labels=c("Cloudy","Clear"))
 		if(plot){
 		plot(da,main=paste0("Cloud - ",ID,"\n",Datalist$Timestamp[Datalist$Name==ID]),breaks=c(-0.1,0.9,1.8), col=c("gray","skyblue"), axis.args=arg,zlim=c(-0.1,1.5))
-	   if(!is.null(shp)) plot(coweeta_shp,add=T)
+	   if(!is.null(shp)) plot(shp[,1],color=0,add=T)
 		}
 		
 		names(da)<-paste0("CloudMask",ID)
@@ -4110,7 +4110,7 @@ Datalist=function(dir_Cloud=NULL,dir_LST=NULL,dir_ET=NULL){
 		if(plot){
 			plot(da,main=paste0(var," - ",ID,"\n",Datalist$Timestamp[Datalist$Name==ID]))
 		   if(!is.null(shp)) {
-			 plot(shp,add=T)
+			 plot(shp[,1],color=0,add=T)
 		   }
 		}
 		
@@ -4166,7 +4166,7 @@ Datalist=function(dir_Cloud=NULL,dir_LST=NULL,dir_ET=NULL){
 		
 		if(plot){
 		plot(da,main=paste0(var," - ",ID,"\n",Datalist$Timestamp[Datalist$Name==ID]))
-	   if(!is.null(shp)) plot(shp,add=T)
+	   if(!is.null(shp)) plot(shp[,1],color=0,add=T)
 		}
 		
 		names(da)<-paste0(var,ID)
