@@ -4062,10 +4062,10 @@ Datalist=function(dir_Cloud=NULL,dir_LST=NULL,dir_ET=NULL){
 	},
 
 # Function for reading Ecostress LST variables
-	readEcosLST=function(ID,var,da_dir="ECOSTRESS/data/Cloud/",mask=F,plot=T,shp=NULL){
-	  
+	readEcosLST=function(ID,var,LST_QC_lookup,da_dir,mask=F,plot=T,shp=NULL){
+	  #LST_QC_lookup "ECOSTRESS/data/Lookups/ECO2LSTE-001-SDS-QC-lookup.csv"
 	  filename<-paste0(da_dir,"ECO2LSTE.001_SDS_",var,"_doy",ID,"_aid0001.tif")
-	  LST_QC_lookup<-read.csv("ECOSTRESS/data/Lookups/ECO2LSTE-001-SDS-QC-lookup.csv")%>%
+	  LST_QC_lookup<-read.csv(LST_QC_lookup)%>%
 		filter(Mandatory.QA.flags=="Pixel produced, best quality")%>%
 		filter(LST.accuracy!=">2 K (Poor performance)")
 	  #print(filename)
@@ -4102,7 +4102,7 @@ Datalist=function(dir_Cloud=NULL,dir_LST=NULL,dir_ET=NULL){
 	  }else{
 		values_no<-sum(!is.na(values(da)))
 	  }
-	  if(values_no>50) {
+	  if(values_no>1) {
 		print(ID)
 		
 		if(plot){
@@ -4118,10 +4118,10 @@ Datalist=function(dir_Cloud=NULL,dir_LST=NULL,dir_ET=NULL){
 		}
 	  },
 	  
-	  readEcosET=function(ID,var,da_dir="ECOSTRESS/data/JPL_ET/",mask=F,plot=T,shp=NULL){
+	  readEcosET=function(ID,var,LST_QC_lookup,da_dir,mask=F,da_LST_dir=NULL,plot=T,shp=NULL){
 	  
 	  filename<-paste0(da_dir,"ECO3ETPTJPL.001_EVAPOTRANSPIRATION_PT_JPL_",var,"_doy",ID,"_aid0001.tif")
-	  LST_QC_lookup<-read.csv("ECOSTRESS/data/Lookups/ECO2LSTE-001-SDS-QC-lookup.csv")%>%
+	  LST_QC_lookup<-read.csv(LST_QC_lookup)%>%
 		filter(Mandatory.QA.flags=="Pixel produced, best quality")%>%
 		filter(LST.accuracy!=">2 K (Poor performance)")
 	  # 
@@ -4146,8 +4146,8 @@ Datalist=function(dir_Cloud=NULL,dir_LST=NULL,dir_ET=NULL){
 	  }
 
 	  # Mask the variable by QC
-	  if(mask & var!="QC"){
-		da_qc<-raster(paste0(da_dir,"ECO2LSTE.001_SDS_QC_doy",ID,"_aid0001.tif"))
+	  if(mask & var!="QC" & !is.null(da_LST_dir){
+		da_qc<-raster(paste0(da_LST_dir,"ECO2LSTE.001_SDS_QC_doy",ID,"_aid0001.tif"))
 		values(da_qc)[!values(da_qc) %in% LST_QC_lookup$Value]<- NA
 		da<-mask(da,da_qc)
 	  }
@@ -4158,7 +4158,7 @@ Datalist=function(dir_Cloud=NULL,dir_LST=NULL,dir_ET=NULL){
 	  }else{
 		values_no<-sum(!is.na(values(da)))
 	  }
-	  if(values_no>50) {
+	  if(values_no>1) {
 		print(ID)
 		
 		if(plot){
