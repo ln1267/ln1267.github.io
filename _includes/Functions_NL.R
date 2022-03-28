@@ -4146,7 +4146,7 @@ Datalist=function(dir_Cloud=NULL,dir_LST=NULL,dir_ET=NULL){
 	  }
 
 	  # Mask the variable by QC
-	  if(mask & var!="QC" & !is.null(da_LST_dir){
+	  if(mask & var!="QC" & !is.null(da_LST_dir)){
 		da_qc<-raster(paste0(da_LST_dir,"ECO2LSTE.001_SDS_QC_doy",ID,"_aid0001.tif"))
 		values(da_qc)[!values(da_qc) %in% LST_QC_lookup$Value]<- NA
 		da<-mask(da,da_qc)
