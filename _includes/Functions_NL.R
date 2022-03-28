@@ -3983,56 +3983,48 @@ fn_ECOSTRESS<-list(
 Datalist=function(dir_Cloud=NULL,dir_LST=NULL,dir_ET=NULL){
 
 	library(stringr)
+	require(lubridate)
+	require(stringr)
+	require(dplyr)
+	require(tidyverse)
 	
-	Datalist<-list(Cloud_list=NULL,LST_list=NULL,ET_list=NULL)
+	Datalist<-NULL
 	
 	if(!is.null(dir_Cloud)) {
-		files_Cloud<-dir(dir_Cloud,"*.tif")
+		files_Cloud<-dir(dir_Cloud,".tif")
 		Cloud_list<-data.frame("filename"=files_Cloud)%>%
-		 mutate(Var=str_match(filename, "SDS_(.*?)_doy")[,2])%>%
+		  mutate(Var=str_match(filename, "SDS_(.*?)_doy")[,2])%>%
 		  mutate(Name=str_match(filename, "_doy(.*?)_aid0001")[,2])%>%
-		  as.data.frame()%>%
-		  filter(!is.na(Var))%>%
-		  select(Var,Name)%>%
-		  dcast(Name~Var)%>%
-		  group_by(Name)%>%
-		  mutate_each(funs = function(x) ifelse(is.na(x),NA,"Yes"))%>%
-		  mutate(UTC=parse_date_time(Name,"%Y%j%H%M%S",tz="UTC"))%>%
-		  mutate(Timestamp=with_tz(UTC,tz="EST"))
-		Datalist$Cloud_list<-Cloud_list
+		  as.data.frame()
+		  
+		Datalist<-rbind(Datalist,Cloud_list)
 	}
 	
 	if(!is.null(dir_LST)) {
 
-		files_LST<-dir(dir_LST,"*.tif")
+		files_LST<-dir(dir_LST,".tif")
 		LST_list<-data.frame("filename"=files_LST)%>%
-		 mutate(Var=str_match(filename, "SDS_(.*?)_doy")[,2])%>%
+		  mutate(Var=str_match(filename, "SDS_(.*?)_doy")[,2])%>%
 		  mutate(Name=str_match(filename, "_doy(.*?)_aid0001")[,2])%>%
-		  as.data.frame()%>%
-		  filter(!is.na(Var))%>%
-		  select(Var,Name)%>%
-		  dcast(Name~Var)%>%
-		  group_by(Name)%>%
-		  mutate_each(funs = function(x) ifelse(is.na(x),NA,"Yes"))%>%
-		  mutate(UTC=parse_date_time(Name,"%Y%j%H%M%S",tz="UTC"))%>%
-		  mutate(Timestamp=with_tz(UTC,tz="EST"))
+		  as.data.frame()
 		  
-		Datalist$LST_list<-LST_list
+		Datalist<-rbind(Datalist,LST_list)
 	}
 	if(!is.null(dir_ET)){
-		files_ET<-dir(dir_LST,"*.tif")
+		files_ET<-dir(dir_LST,".tif")
 		ET_list<-data.frame("filename"=files_ET)%>%
 		 mutate(Var=str_match(filename, "PT_JPL_(.*?)_doy")[,2])%>%
-		  mutate(Name=str_match(filename, "_doy(.*?)_aid0001")[,2])%>%
-		  as.data.frame()%>%
-		  filter(!is.na(Var))%>%
-		  select(Var,Name)%>%
-		  dcast(Name~Var)%>%
-		  group_by(Name)%>%
-		  mutate_each(funs = function(x) ifelse(is.na(x),NA,"Yes"))
-		Datalist$ET_list<-ET_list
+		 mutate(Name=str_match(filename, "_doy(.*?)_aid0001")[,2])%>%
+		 as.data.frame()
+		 
+		Datalist<-rbind(Datalist,ET_list)
 	}	
 
+	Datalist<-Datalist%>%
+	  pivot_wider(id_cols = Name,names_from = Var,values_from = filename,values_fill = NA)%>%
+	  mutate(UTC=parse_date_time(Name,"%Y%j%H%M%S",tz="UTC"))%>%
+	  mutate(Timestamp=with_tz(UTC,tz="EST"))
+	  
 	return(Datalist)
 	
 	},
