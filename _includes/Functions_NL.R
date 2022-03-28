@@ -4098,18 +4098,19 @@ Datalist=function(dir_Cloud=NULL,dir_LST=NULL,dir_ET=NULL){
 
 	  # plot if there is valid pixels
 	  if(!is.null(shp)) {
-		values_no<-sum(!is.na(values(mask(da,coweeta_shp))))
+		da<-crop(da,shp)
+		values_no<-sum(!is.na(values(mask(da,shp))))
 	  }else{
 		values_no<-sum(!is.na(values(da)))
 	  }
+		
 	  if(values_no>1) {
 		print(ID)
 		
 		if(plot){
 			plot(da,main=paste0(var," - ",ID,"\n",Datalist$Timestamp[Datalist$Name==ID]))
 		   if(!is.null(shp)) {
-			 plot(coweeta_shp,add=T)
-			 plot(CS_shp,add=T,pch=16,color="red")
+			 plot(shp,add=T)
 		   }
 		}
 		
@@ -4154,10 +4155,12 @@ Datalist=function(dir_Cloud=NULL,dir_LST=NULL,dir_ET=NULL){
 
 	  # plot if there is valid pixels
 	  if(!is.null(shp)) {
+		da<-crop(da,shp)
 		values_no<-sum(!is.na(values(mask(da,shp))))
 	  }else{
 		values_no<-sum(!is.na(values(da)))
 	  }
+	  
 	  if(values_no>1) {
 		print(ID)
 		
