@@ -3945,7 +3945,7 @@ fn_ECOSTRESS<-list(
 		token <- paste("Bearer", fromJSON(token_response)$token)
 
 		# create a destination directory to store the file in
-
+		if(!dir.exists(dest_dir)) dir.create(dest_dir)
 		filepath <- paste(dest_dir, filename, sep = '/')
 		suppressWarnings(dir.create(dirname(filepath)))
 
@@ -3975,7 +3975,13 @@ fn_ECOSTRESS<-list(
 	  # download each file
 	  lapply(1:nrow(filelist), download_withAPI,dest_dir=task_name)
 
-
+	# Log out
+		token <- paste("Bearer", fromJSON(token_response)$token)
+		response <- POST("https://appeears.earthdatacloud.nasa.gov/api/logout",
+						 add_headers(Authorization = token,
+									 "Content-Type" = "application/x-www-form-urlencoded;charset=UTF-8"),
+						 body = "grant_type=client_credentials")
+		
 	},
 
 # Function for masking cloud of ECOSTRESS data
