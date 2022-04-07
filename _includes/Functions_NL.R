@@ -2238,49 +2238,49 @@ f_8days2month=function(year,r){
 #' filename<-"E:/Research/WaSSI/Turkey/TerraClimate_CB.csv"
 #' f_readGEEClimate(filename)
 f_readGEEClimate=function(filename,dataSource="Terra",dataScale="Monthly"){
-
+  
   require("dplyr")
   require("lubridate")
-
+  
   da<-read.csv(filename)%>%
     mutate(Date=as.Date(as.character(date),"%Y%m%d"))%>%
-    dplyr::select(-"system.index",-"date",-".geo")
-
+    dplyr::select(-one_of(c("system.index","date",".geo")))
+  
   if(dataSource=="Terra"){
     da<-da%>%
-	  mutate(Year=year(Date),Month=month(Date))%>%
+      mutate(Year=year(Date),Month=month(Date))%>%
       dplyr::rename(Ppt_mm=pr,Tmin_C=tmmn,Tmax_C=tmmx,swe_mm=swe,ET0=pet)%>%
       mutate(Tavg_C=(Tmin_C+Tmax_C)/20,ET0=ET0/10)%>%
       mutate(Tmax_C=Tmax_C/10,Tmin_C=Tmin_C/10)
-
+    
   }else if(dataSource=="Daymet"){
-
-   da<-da%>%
-        mutate(Year=year(Date),Month=month(Date),Day=day(Date))%>%
-		mutate(Tavg_C=(tmax+tmin)/2)%>%
-        dplyr::rename(Ppt_mm=ppt,Tmin_C=tmin,Tmax_C=tmax,swe_kgm2=swe,vp_Pa=vp,dayl_s=dayl,srad_Wm2=srad)
-
-	if(dataScale=="Monthly"){
-	da<-da%>%
-	      group_by(WS_ID,Year,Month)%>%
-			summarise(Ppt_mm=sum(Ppt_mm),swe_kgm2=sum(swe_kgm2),dayl_s=sum(dayl_s),Tavg_C=mean(Tavg_C),Tmax_C=mean(Tmax_C),Tmin_C=mean(Tmin_C),vp_Pa=mean(vp_Pa),srad_Wm2=mean(srad_Wm2))
-	}
-
+    
+    da<-da%>%
+      mutate(Year=year(Date),Month=month(Date),Day=day(Date))%>%
+      mutate(Tavg_C=(tmax+tmin)/2)%>%
+      dplyr::rename(Ppt_mm=prcp,Tmin_C=tmin,Tmax_C=tmax,swe_kgm2=swe,vp_Pa=vp,dayl_s=dayl,srad_Wm2=srad)
+    
+    if(dataScale=="Monthly"){
+      da<-da%>%
+        group_by(WS_ID,Year,Month)%>%
+        summarise(Ppt_mm=sum(Ppt_mm),swe_kgm2=sum(swe_kgm2),dayl_s=sum(dayl_s),Tavg_C=mean(Tavg_C),Tmax_C=mean(Tmax_C),Tmin_C=mean(Tmin_C),vp_Pa=mean(vp_Pa),srad_Wm2=mean(srad_Wm2))
+    }
+    
   }else if(dataSource=="PRISM"){
-     da<-da%>%
-          mutate(Year=year(Date),Month=month(Date),Day=day(Date))%>%
-		  dplyr::rename(Tavg_C=tmean,Ppt_mm=ppt,Tmin_C=tmin,Tmax_C=tmax,Tdavg_C=tdmean,vpdmin_hPa=vpdmin,vpdmax_hPa=vpdmax)
-
-	if(dataScale=="Monthly"){
-		da<-da%>%
-	      group_by(WS_ID,Year,Month)%>%
-			summarise(Ppt_mm=sum(Ppt_mm),Tavg_C=mean(Tavg_C),Tmax_C=mean(Tmax_C),Tmin_C=mean(Tmin_C),Tdavg_C=mean(Tdavg_C),vpdmin_hPa=mean(vpdmin_hPa),vpdmax_hPa=mean(vpdmax_hPa))
-	}
-
+    da<-da%>%
+      mutate(Year=year(Date),Month=month(Date),Day=day(Date))%>%
+      dplyr::rename(Tavg_C=tmean,Ppt_mm=ppt,Tmin_C=tmin,Tmax_C=tmax,Tdavg_C=tdmean,vpdmin_hPa=vpdmin,vpdmax_hPa=vpdmax)
+    
+    if(dataScale=="Monthly"){
+      da<-da%>%
+        group_by(WS_ID,Year,Month)%>%
+        summarise(Ppt_mm=sum(Ppt_mm),Tavg_C=mean(Tavg_C),Tmax_C=mean(Tmax_C),Tmin_C=mean(Tmin_C),Tdavg_C=mean(Tdavg_C),vpdmin_hPa=mean(vpdmin_hPa),vpdmax_hPa=mean(vpdmax_hPa))
+    }
+    
   }
-
+  
   return(da)
-
+  
 },
 ## Read the zonal 8days LAI from GEE ----
 #' @param filename The csv file from GEE.
