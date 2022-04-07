@@ -2304,7 +2304,30 @@ read_GEE8DayLAI=function(filename,TimeScale="8days"){
   da_gee
 
 },
-
+## Read the zonal data of S2 from GEE ----
+# https://github.com/rfernand387/LEAF-Toolbox/wiki
+#' @param filename The csv file from GEE.
+#' @param VarName one of // 'Albedo', 'fAPAR','FCOVER','LAI','CWC','CCC'
+#' @keywords LAI
+#' @export
+#' @examples
+#' filename<-"E:/Research/WaSSI/Turkey/TerraClimate_CB.csv"
+#' read_GEE_S2(filename)
+read_GEE_S2=function(filename,VarName="LAI"){
+  require(tidyverse)
+  require(dplyr)
+  require(lubridate)
+  da_gee<-read.csv(filename)%>%
+    dplyr::select(-.geo,-system.index)%>%
+    pivot_longer(cols =starts_with("X20"),names_to="Info",names_prefix = "X",values_to =VarName)%>%
+    mutate(Date=as.Date(substr(as.character(Info),1,8),"%Y%m%d"))%>%
+    mutate(Year=year(Date),Month=month(Date),Day=day(Date))%>%
+    dplyr::select(-Info)%>%
+    filter(!is.na(get(VarName)))
+  
+  da_gee
+  
+},
 
 ## Extract soil values for each watershed
 f_soilinfo=function(soilfname,Watersheds){
