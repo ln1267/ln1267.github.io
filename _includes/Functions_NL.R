@@ -3174,6 +3174,42 @@ ConvertUnit=function(flux_data,LEField="LE_F_MDS",Scale="daily",useTair=T){
 
 dWaSSI=list(
 
+addWarmup=function(da,nyr=2){
+
+	### This function is used to add number of years data to the begining for warming up
+	# The data shoud have at either Date or Year field
+
+  require(lubridate)
+  
+  if("Year" %in% names(da) & "Date" %in% names(da) ){
+    
+    da_warm<-da%>%
+      filter(Year<=min(da$Year)+(nyr-1))%>%
+      mutate(Year=Year-nyr,Date=Date-years(nyr))    
+    
+  }else if("Year" %in% names(da)){
+    da_warm<-da%>%
+      filter(Year<=min(da$Year)+(nyr-1))%>%
+      mutate(Year=Year-nyr)
+    
+  }else if("Date" %in% names(da)){
+    
+    da_warm<-da%>%
+      mutate(Year=year(Date))%>%
+      filter(Year<=min(da$Year)+(nyr-1))%>%
+      mutate(Year=Year-nyr,Date=Date-years(nyr))%>%
+      dplyr::select(-Year)
+  }
+  
+  da$Warmup<-FALSE
+  
+  da_warm<-da_warm%>%
+    mutate(Warmup=TRUE)
+    rbind(da)
+
+  return(da_warm)
+},
+
 WaSSI=function(da_daily,soil_pars,kc=0.6,GSjdays=c(128,280),forest="DBF",...){
 
   require(dplyr)
