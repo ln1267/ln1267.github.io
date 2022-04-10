@@ -11,7 +11,7 @@
 #	f_grid2basin(data,type="annual",fun="mean")	#Transfer grid frame data to basin data by fun="mean"
 
 # Theme for ggplot ----
-theme_ning<-function(size.axis=8,size.title=10,base_family="sans"){
+theme_ning<-function(size.axis=8,size.title=10,base_family="sans",legend_position = "top"){
   theme_bw(base_family = base_family) %+replace%
   theme(axis.title = element_text(face="bold", colour="black", size=size.title),
         axis.text= element_text(angle=0, vjust=0.3, size=size.axis),
@@ -22,11 +22,12 @@ theme_ning<-function(size.axis=8,size.title=10,base_family="sans"){
         legend.key.size=unit(1.2, "lines"),
         legend.box.spacing=unit(1, "mm"),
         strip.background = element_blank(),
-        plot.title = element_text(vjust = 2.5,hjust = 0.5,face="bold")
+        plot.title = element_text(vjust = 2.5,hjust = 0.5,face="bold"),
+		legend.position = legend_position
   )
 }
 
-theme_Publication <- function(base_size=14, base_family="sans") {
+theme_Publication <- function(base_size=14, base_family="sans",legend_position = "top") {
       library(grid)
       library(ggthemes)
       (theme_foundation(base_size=base_size, base_family=base_family)
@@ -54,7 +55,8 @@ theme_Publication <- function(base_size=14, base_family="sans") {
                legend.title = element_text(face="italic"),
                plot.margin=unit(c(10,5,5,5),"mm"),
                strip.background=element_rect(colour="#f0f0f0",fill="#f0f0f0"),
-               strip.text = element_text(face="bold")
+               strip.text = element_text(face="bold"),
+				legend.position = legend_position
        ))
       
 }
