@@ -4078,7 +4078,7 @@ Datalist=function(dir_Cloud=NULL,dir_LST=NULL,dir_ET=NULL){
 		Datalist<-rbind(Datalist,LST_list)
 	}
 	if(!is.null(dir_ET)){
-		files_ET<-dir(dir_LST,".tif")
+		files_ET<-dir(dir_ET,".tif")
 		ET_list<-data.frame("filename"=files_ET)%>%
 		 mutate(Var=str_match(filename, "PT_JPL_(.*?)_doy")[,2])%>%
 		 mutate(Name=str_match(filename, "_doy(.*?)_aid0001")[,2])%>%
