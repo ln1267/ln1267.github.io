@@ -3828,6 +3828,74 @@ SMA = function(prcp,pet,par,pet_Soil=NULL,SoilEvp=FALSE, ini.states = c(0,0,500,
 #'  Sim_year<-list("Calibration"=c("2003-01-01","2010-12-01"),"Validation"=c("2011-01-01","2016-12-01"))
 #'  WaSSI_calibration(data_in,Sim_year,stationname,warmup)
 #' @export
+# SNOW Model based on Tavg----
+#' @title SNOW Model
+#' @description Peter's Snow model
+#' @param ts.prcp numeric vector of precipitation time-series (mm)
+#' @param ts.temp numeric vector of average temperatuer time-series (Deg C)
+#' @param snowrange (-3,1) the temperature range between snow and rain
+#' @param meltmax  maximium ratio of snow melt (default: 0.5)
+#' @param snowpack  initial snowpack (default: 0)
+#' @return a dataframe of c("prcp","snowpack","snowmelt"), effective rainfall, snowpack and snowmelt
+#' @rdname snowmelt
+#' @details This is based on Peter's Fortran code
+#' @examples
+#' \dontrun{
+#' mellt<-snow_melt(ts.prcp,ts.temp,meltmax=0.5,snowrange=c(-3,1),snowpack=0)
+#' }
+#' @export
+snow_melt=function(ts.prcp,ts.temp,meltmax=1,snowrange=c(-5,-1),snowpack=0) {
+
+  # Define outputs
+  ts.snowpack <- vector(mode = "numeric", length = length(ts.prcp))
+  ts.snowmelt <- vector(mode = "numeric", length = length(ts.prcp))
+  ts.prcp.eff<- vector(mode = "numeric", length = length(ts.prcp))
+  # loop each time step
+  for (i in c(1:length(ts.prcp))){
+    tavg<-ts.temp[i];prcp<-ts.prcp[i]
+    # ---- FOR TEMPERATURE LESS THAN SNOW TEMP, CALCULATE SNOWPPT
+    if (tavg <= snowrange[1]) {
+      snow<-prcp
+      rain<-0
+      # ---- FOR TEMPERATURE GREATER THAN RAIN TEMP, CALCULATE RAINPPT
+    }else if (tavg >= snowrange[2]){
+      rain<-prcp
+      snow<-0
+      # ---- FOR TEMPERATURE BETWEEN RAINTEMP AND SNOWTEMP, CALCULATE SNOWPPT AND RAINPPT
+    }else{
+      snow<- prcp*((snowrange[2] - tavg)/(snowrange[2] - snowrange[1]))
+      rain<-prcp-snow
+    }
+    # Calculate the snow pack
+    snowpack<-snowpack+snow
+    # ---- CALCULATE SNOW MELT FRACTION BASED ON MAXIMUM MELT RATE (MELTMAX) AND MONTHLY TEMPERATURE
+
+    snowmfrac = ((tavg-snowrange[1])/(snowrange[2] - snowrange[1]))*meltmax
+
+    if (snowmfrac >= meltmax) snowmfrac <- meltmax
+    if (snowmfrac <0) snowmfrac <- 0
+
+    # ---- CALCULATE AMOUNT OF SNOW MELTED (MM) TO CONTRIBUTE TO INFILTRATION & RUNOFF
+
+    # ---- IF SNOWPACK IS LESS THAN 10.0 MM, ASSUME IT WILL ALL MELT (MCCABE AND WOLOCK, 1999)
+    # ---- (GENERAL-CIRCULATION-MODEL SIMULATIONS OF FUTURE SNOWPACK IN THE WESTERN UNITED STATES)
+
+    if (snowpack <= 10.0) {
+      snowm<-snowpack
+      snowpack<- 0
+
+    }else{
+      snowm = snowpack * snowmfrac
+      snowpack = snowpack - snowm
+    }
+
+    # -- COMPUTE THE INFILTRATION FOR A GIVEN MONTH FOR EACH LAND USE
+    ts.snowpack[i]<-snowpack
+    ts.snowmelt[i]<-snowm
+    ts.prcp.eff[i]<-rain+snowm
+  }
+  return(data.frame(prcp=ts.prcp.eff,snowpack=ts.snowpack,snowmelt=ts.snowmelt))
+},
 
 SoilParCal=function(data_in,Sim_year,stationname="",scale="daily",validation=TRUE){
 	
