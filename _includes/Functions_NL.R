@@ -3987,6 +3987,175 @@ PctCut=function(pct){
 
 )
 
+fn_GEE<-list(
+
+	## Read the zonal climate from GEE ----
+	#' @param filename The csv file from GEE.
+	#' @param dataSource The data source ("Terra","Daymet","PRISM").
+	#' @param dataScale The timestep of for ouput data ("Daily","Monthly").
+	#' @keywords Climate
+	#' @export
+	#' @examples
+	#' filename<-"E:/Research/WaSSI/Turkey/TerraClimate_CB.csv"
+	#' f_readGEEClimate(filename)
+	readClimate=function(filename,dataSource="Terra",dataScale="Monthly"){
+	  
+	  require("dplyr")
+	  require("lubridate")
+	  
+	  da<-read.csv(filename)%>%
+		mutate(Date=as.Date(as.character(date),"%Y%m%d"))%>%
+		dplyr::select(-one_of(c("system.index","date",".geo")))
+	  
+	  if(dataSource=="Terra"){
+		da<-da%>%
+		  mutate(Year=year(Date),Month=month(Date))%>%
+		  dplyr::rename(Ppt_mm=pr,Tmin_C=tmmn,Tmax_C=tmmx,swe_mm=swe,ET0=pet)%>%
+		  mutate(Tavg_C=(Tmin_C+Tmax_C)/20,ET0=ET0/10)%>%
+		  mutate(Tmax_C=Tmax_C/10,Tmin_C=Tmin_C/10)
+		
+	  }else if(dataSource=="Daymet"){
+		
+		da<-da%>%
+		  mutate(Year=year(Date),Month=month(Date),Day=day(Date))%>%
+		  mutate(Tavg_C=(tmax+tmin)/2)%>%
+		  dplyr::rename(Ppt_mm=prcp,Tmin_C=tmin,Tmax_C=tmax,swe_kgm2=swe,vp_Pa=vp,dayl_s=dayl,srad_Wm2=srad)
+		
+		if(dataScale=="Monthly"){
+		  da<-da%>%
+			group_by(WS_ID,Year,Month)%>%
+			summarise(Ppt_mm=sum(Ppt_mm),swe_kgm2=sum(swe_kgm2),dayl_s=sum(dayl_s),Tavg_C=mean(Tavg_C),Tmax_C=mean(Tmax_C),Tmin_C=mean(Tmin_C),vp_Pa=mean(vp_Pa),srad_Wm2=mean(srad_Wm2))
+		}
+		
+	  }else if(dataSource=="PRISM"){
+		da<-da%>%
+		  mutate(Year=year(Date),Month=month(Date),Day=day(Date))%>%
+		  dplyr::rename(Tavg_C=tmean,Ppt_mm=ppt,Tmin_C=tmin,Tmax_C=tmax,Tdavg_C=tdmean,vpdmin_hPa=vpdmin,vpdmax_hPa=vpdmax)
+		
+		if(dataScale=="Monthly"){
+		  da<-da%>%
+			group_by(WS_ID,Year,Month)%>%
+			summarise(Ppt_mm=sum(Ppt_mm),Tavg_C=mean(Tavg_C),Tmax_C=mean(Tmax_C),Tmin_C=mean(Tmin_C),Tdavg_C=mean(Tdavg_C),vpdmin_hPa=mean(vpdmin_hPa),vpdmax_hPa=mean(vpdmax_hPa))
+		}
+		
+	  }
+	  
+	  return(da)
+	  
+	},
+	## Read the zonal 8days LAI from GEE ----
+	#' @param filename The csv file from GEE.
+	#' @param dataScale The timestep of for ouput data ("Daily","8days,"Monthly").
+	#' @keywords LAI
+	#' @export
+	#' @examples
+	#' filename<-"E:/Research/WaSSI/Turkey/TerraClimate_CB.csv"
+	#' read_GEE8DayLAI(filename)
+	read8DayLAI=function(filename,TimeScale="8days"){
+	  require(tidyverse)
+	  require(dplyr)
+	  require(lubridate)
+	  da_gee<-read.csv(filename)%>%
+		dplyr::select(-.geo,-system.index)%>%
+		pivot_longer(cols =starts_with("X20"),names_to="Info",names_prefix = "X",values_to ="LAI")%>%
+		mutate(Date=as.Date(as.character(Info),"%Y%j"))%>%
+		mutate(Year=year(Date),Month=month(Date),Day=day(Date))%>%
+		dplyr::select(-Info)
+	  
+	  da_gee
+
+	},
+	## Read the zonal data of S2 from GEE ----
+	# https://github.com/rfernand387/LEAF-Toolbox/wiki
+	#' @param filename The csv file from GEE.
+	#' @param VarName one of // 'Albedo', 'fAPAR','FCOVER','LAI','CWC','CCC'
+	#' @keywords LAI
+	#' @export
+	#' @examples
+	#' filename<-"E:/Research/WaSSI/Turkey/TerraClimate_CB.csv"
+	#' read_S2(filename)
+	read_S2=function(filename,VarName="LAI"){
+	  require(tidyverse)
+	  require(dplyr)
+	  require(lubridate)
+	  da_gee<-read.csv(filename)%>%
+		dplyr::select(-.geo,-system.index)%>%
+		pivot_longer(cols =starts_with("X20"),names_to="Info",names_prefix = "X",values_to =VarName)%>%
+		mutate(Date=as.Date(substr(as.character(Info),1,8),"%Y%m%d"))%>%
+		mutate(Year=year(Date),Month=month(Date),Day=day(Date))%>%
+		dplyr::select(-Info)%>%
+		filter(!is.na(get(VarName)))
+	  
+	  da_gee
+	  
+	},
+
+	read_all=function(siteName,WS_Field=NULL,dir="./"){
+	  require(readr)
+	  da_PRISM<-read_csv(paste0(dir,"Climate_",siteName,".csv")) %>% dplyr::select(-"system:index",-".geo") %>% mutate(Date=as.Date(as.character(date),"%Y%m%d"))
+	  da_Daymet<-read_csv(paste0(dir,"Climate_Daymet_daily_",siteName,".csv")) %>% 
+		dplyr::select(-"system:index",-".geo") %>%   
+		mutate(Date=as.Date(as.character(date),"%Y%m%d")) %>%
+		mutate(Rs=srad* dayl/1000000,n=dayl/60/60)%>% # MJ/m2/day
+		mutate(Tmax=tmax,Tmin=tmin)%>%
+		mutate(J=yday(Date),Year=year(Date),Month=month(Date),Day=day(Date))%>%
+		mutate(Date.daily=Date)%>%
+		mutate(va=vp/1000, #kpa
+			  vs_Tmax=0.6108 * exp(17.27 * Tmax/(Tmax +237.3)),
+			  vs_Tmin =0.6108 * exp(17.27 * Tmin/(Tmin +237.3)))%>%
+		mutate(vs=(vs_Tmax + vs_Tmin)/2,VPD=vs-va)
+		
+	  da_LAI_8days<-funs_nl$read_GEE8DayLAI(paste0(dir,"LAI_8days_2000_2020_",siteName,".csv"))
+
+	  da_Soil<-read_csv(paste0(dir,"Soil_",siteName,".csv")) %>% dplyr::select(-"system:index",-".geo") 
+	  da_Imp<-read_csv(paste0(dir,"Imp_",siteName,".csv")) %>% dplyr::select(-"system:index",-".geo") 
+	  
+	  da_LAI_S2<-funs_nl$read_GEE_S2(paste0(dir,"LAI_S2_",siteName,".csv")) 
+	  da_Albedo_S2<-funs_nl$read_GEE_S2(paste0(dir,"Albedo_S2_",siteName,".csv"),VarName = "Albedo") 
+	  
+	  return(list(Site=siteName,Climate_PRISM=da_PRISM,Climate_Daymet=da_Daymet,LAI_8days=da_LAI_8days,Impervious=da_Imp,LAI_S2=da_LAI_S2,Albedo_S2=da_Albedo_S2))
+	  
+	  },
+	  s2_DailyLAI=function(da){
+	   da%>% 
+		filter(LAI>0)%>%
+		mutate(DOY=yday(Date),Year=year(Date))%>%
+		funs_nl$f_fit_AG(Var="LAI")%>%
+		mutate(Date=as.Date(paste0(Year,DOY),"%Y%j"))%>%
+		dplyr::select(-DOY)%>%
+		dplyr::rename(LAI=Filled)%>%
+		dplyr::select(Date,LAI)
+	  
+	},
+
+	s2_DailyAlbedo=function(da){
+	   da%>% 
+		filter(Albedo>0)%>%
+		mutate(DOY=yday(Date),Year=year(Date))%>%
+		funs_nl$f_fit_AG(Var="Albedo")%>%
+		mutate(Date=as.Date(paste0(Year,DOY),"%Y%j"))%>%
+		dplyr::select(-DOY)%>%
+		dplyr::rename(Albedo=Filled)%>%
+		dplyr::select(Date,Albedo)
+	  
+	},
+	DaymetPT=function(daymetClimate,.alpha=0.23,Albedo=F,lat,elevation){
+		data("constants",package="Evapotranspiration")
+		constants$lat<-lat
+		constants$lat_rad<-lat*pi/180
+		constants$Elev<-elevation
+		if(Albedo){
+		  .alpha<-daymetClimate$Albedo
+		  funs_nl$f_ET.PT(data = daymetClimate,constants = constants, ts = "daily", solar = "data", alpha = .alpha)$ET.Daily
+		  
+		}else{
+		  funs_nl$f_ET.PT(data = daymetClimate,constants = constants, ts = "daily", solar = "data", alpha = .alpha)$ET.Daily
+		}
+
+}
+	  
+)
+
 
 fn_ECOSTRESS<-list(
 
