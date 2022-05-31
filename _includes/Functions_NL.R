@@ -4069,7 +4069,7 @@ SoilParCal=function(data_in,Sim_year,stationname="",scale="daily",validation=TRU
 	  summarise(across(.fns = mean))
 	  
 	  
-	  return(list(daily=result_daily,monthly=result_month,annual=result_ann,
+	return(list(daily=result_daily,monthly=result_month,annual=result_ann,
 		  LongtermSummary=LongtermSummary,
 		  Accuarcy=list(val_par_daily=val_par_daily,val_par_monthly=val_par_monthly,val_par_annual=val_par_annual),
 		  Figs=list(daily=p1,monthly=p2,monthly_lines=p3,annual=p4)))
@@ -4389,7 +4389,7 @@ Datalist=function(dir_Cloud=NULL,dir_LST=NULL,dir_ET=NULL){
 	},
 
 ## Read cloud info
-	readEcosCloud<-function(ID,Dir_cloud="ECOSTRESS/data/Cloud/",plot=T,shp=NULL){
+	readEcosCloud=function(ID,Dir_cloud="ECOSTRESS/data/Cloud/",plot=T,shp=NULL){
 	  
 	  filename<-paste0(Dir_cloud,"ECO2CLD.001_SDS_CloudMask_doy",ID,"_aid0001.tif")
 	  #print(filename)
