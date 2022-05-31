@@ -3950,7 +3950,62 @@ SoilParCal=function(data_in,Sim_year,stationname="",scale="daily",validation=TRU
 
     }
     return(list("fig"=p1,"soil_pars"=soil_pars,"Accu_cal"=Accu_cal,"Accu_val"=Accu_val))
-  }
+  },
+  
+  RunWaSSI=function(data_in,soil_pars,forestType="DBF"){
+
+	result_SACSMA<-dWaSSI$WaSSI(data_in,soil_pars,forest = forestType)
+
+	result_daily<-result_SACSMA%>%
+	  right_join(data_in[,c("Date","Q")],by="Date")%>%
+	  mutate(Q_sim=WaYldTot)%>%
+	  filter(Date>= min(result_SACSMA$Date)+years(1))
+
+	result_month<-result_daily%>%
+	  mutate(Year=year(Date),Month=month(Date))%>%
+	  group_by(Year,Month)%>%
+	  summarise(across(c("Rainfall","Ei","Es","Ec","ET","WaYldTot","Q","Q_sim","GPP","GPP_SD"),.fns = sum,na.rm=T))%>%
+	  mutate(Date=make_date(Year,Month,"01"))
+
+	result_ann<-result_daily%>%
+	  mutate(Year=year(Date))%>%
+	  group_by(Year)%>%
+	  summarise(across(c("Rainfall","PT","Ei","Es","Ec","ET","WaYldTot","Q","Q_sim","GPP","GPP_SD"),.fns = sum,na.rm=T))%>%
+	  mutate(Tr_ET=Ec/ET)%>%
+	  mutate(Pbias=(Q_sim-Q)/Q*100)
+
+# Validation parameters
+	val_par_daily<-funs_nl$f_acc(result_daily$Q,result_daily$Q_sim)
+
+	val_par_monthly<-funs_nl$f_acc(result_month$Q,result_month$Q_sim)
+
+	val_par_annual<-funs_nl$f_acc(result_ann$Q,result_ann$Q_sim)
+
+	# Plots
+	p1<-result_daily%>%
+	  ggplot(aes(x=Q,y=Q_sim))+geom_point()+geom_smooth(method = "lm")+coord_equal()+labs(x="Q Observed",y="Q Simulated")+theme_bw()
+
+	p2<-result_month%>%
+	  ggplot(aes(x=Q,y=Q_sim))+geom_point()+geom_smooth(method = "lm")+coord_equal()+labs(x="Q Observed",y="Q Simulated")+theme_bw()
+
+	p3<-result_month%>%
+	  ggplot(aes(x=Date))+geom_line(aes(y=Q,color="Observed"))+
+	  geom_line(aes(y=Q_sim,color="Simulated"))+scale_color_manual(name="Legend",values = c("black","red"),breaks=c("Observed","Simulated"))+scale_x_date(date_breaks ="1 year",date_labels = "%Y")+labs(x="Date",y="Flow (mm)")+theme_bw()
+
+	p4<-result_ann%>%
+	  ggplot(aes(x=Year))+geom_line(aes(y=Q,color="Observed"))+
+	  geom_line(aes(y=Q_sim,color="Simulated"))+scale_color_manual(name="Legend",values = c("black","red"),breaks=c("Observed","Simulated"))+labs(x="Year",y="Flow (mm)")+scale_x_continuous(breaks = c(seq(1980,2022,1)))+theme_bw()
+
+	LongtermSummary<-result_ann%>%
+	  select(-Year)%>%
+	  summarise(across(.fns = mean))
+	  
+	  
+	  return(list(daily=result_daily,monthly=result_month,annual=result_ann,
+		  LongtermSummary=LongtermSummary,
+		  Accuarcy=list(val_par_daily=val_par_daily,val_par_monthly=val_par_monthly,val_par_annual=val_par_annual),
+		  Figs=list(daily=p1,monthly=p2,monthly_lines=p3,annual=p4)))
+	  }
 
 )
 
