@@ -3334,6 +3334,60 @@ sacSma_monthly =function(pet, prcp,par,inputScale="monthly",DailyStep=FALSE,ini.
                     "lztwc"=lztwc_ts,"lzfpc"=lzfpc_ts,"lzfsc"=lzfsc_ts))
 },
 
+RunMonthlyWaSSI=function(data_in,soil_pars,forestType="DBF"){
+  
+  names(soil_pars)<-toupper(names(soil_pars))
+  
+  result_SACSMA<-cbind(data_in,sacSma(par = soil_pars,pet = data_in$PET, prcp = data_in$Rainfall))%>%
+    mutate(Q_sim=WaYldTot,ET=aetTot)%>%
+    mutate(Date=make_date(Year,Month,"01"))%>%
+    filter(Year>=data_in$Year[1]+1)
+  
+  if(forestType=="DBF"){
+    result_SACSMA<-result_SACSMA%>%
+      mutate(GPP=ET*3.2,GPP_SD=ET*1.26) # DBF
+  }else{
+    result_SACSMA<-result_SACSMA%>%
+      mutate(GPP=ET*2.46,GPP_SD=ET*0.96) # ENF
+  }
+
+	result_month<-result_SACSMA%>%
+	  mutate(Q_sim=WaYldTot)%>%
+	  filter(Date>= min(result_SACSMA$Date)+years(1))
+
+	result_ann<-result_month%>%
+	  mutate(Year=year(Date))%>%
+	  group_by(Year)%>%
+	  summarise(across(c("Rainfall","PT","PET_Hamon","PET","ET","Q","Q_sim","GPP","GPP_SD"),.fns = sum,na.rm=T))%>%
+	  mutate(Pbias=(Q_sim-Q)/Q*100)
+
+# Validation parameters
+	val_par_monthly<-funs_nl$f_acc(result_month$Q,result_month$Q_sim)
+
+	val_par_annual<-funs_nl$f_acc(result_ann$Q,result_ann$Q_sim)
+
+	# Plots
+	p2<-result_month%>%
+	  ggplot(aes(x=Q,y=Q_sim))+geom_point()+geom_smooth(method = "lm")+coord_equal()+labs(x="Q Observed",y="Q Simulated")+theme_bw()
+
+	p3<-result_month%>%
+	  ggplot(aes(x=Date))+geom_line(aes(y=Q,color="Observed"))+
+	  geom_line(aes(y=Q_sim,color="Simulated"))+scale_color_manual(name="Legend",values = c("black","red"),breaks=c("Observed","Simulated"))+scale_x_date(date_breaks ="1 year",date_labels = "%Y")+labs(x="Date",y="Flow (mm)")+theme_bw()
+
+	p4<-result_ann%>%
+	  ggplot(aes(x=Year))+geom_line(aes(y=Q,color="Observed"))+
+	  geom_line(aes(y=Q_sim,color="Simulated"))+scale_color_manual(name="Legend",values = c("black","red"),breaks=c("Observed","Simulated"))+labs(x="Year",y="Flow (mm)")+scale_x_continuous(breaks = c(seq(1980,2022,1)))+theme_bw()
+
+	LongtermSummary<-result_ann%>%
+	  select(-Year)%>%
+	  summarise(across(.fns = mean))
+	  
+	  
+	return(list(monthly=result_month,annual=result_ann,
+		  LongtermSummary=LongtermSummary,
+		  Accuarcy=list(val_par_monthly=val_par_monthly,val_par_annual=val_par_annual),
+		  Figs=list(monthly=p2,monthly_lines=p3,annual=p4)))
+	  },
 
 #' @title daily WaSSI based on SAC-SMA model
 #' @description daily WaSSI model
