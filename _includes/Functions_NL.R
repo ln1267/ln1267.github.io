@@ -3338,22 +3338,18 @@ RunMonthlyWaSSI=function(data_in,soil_pars,forestType="DBF"){
   
   names(soil_pars)<-toupper(names(soil_pars))
   
-  result_SACSMA<-cbind(data_in,sacSma(par = soil_pars,pet = data_in$PET, prcp = data_in$Rainfall))%>%
+  result_month<-cbind(data_in,sacSma(par = soil_pars,pet = data_in$PET, prcp = data_in$Rainfall))%>%
     mutate(Q_sim=WaYldTot,ET=aetTot)%>%
     mutate(Date=make_date(Year,Month,"01"))%>%
     filter(Year>=data_in$Year[1]+1)
   
   if(forestType=="DBF"){
-    result_SACSMA<-result_SACSMA%>%
+    result_month<-result_month%>%
       mutate(GPP=ET*3.2,GPP_SD=ET*1.26) # DBF
   }else{
-    result_SACSMA<-result_SACSMA%>%
+    result_month<-result_month%>%
       mutate(GPP=ET*2.46,GPP_SD=ET*0.96) # ENF
   }
-
-	result_month<-result_SACSMA%>%
-	  mutate(Q_sim=WaYldTot)%>%
-	  filter(Date>= min(result_SACSMA$Date)+years(1))
 
 	result_ann<-result_month%>%
 	  mutate(Year=year(Date))%>%
