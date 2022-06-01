@@ -4800,7 +4800,7 @@ fn_GEE<-list(
 		dplyr::select(Date,Albedo)
 	  
 	},
-	DaymetPT=function(daymetClimate,.alpha=0.23,Albedo=F,lat,elevation){
+	DaymetPT=function(daymetClimate,lat,elevation,.alpha=0.23,Albedo=F){
 		data("constants",package="Evapotranspiration")
 		constants$lat<-lat
 		constants$lat_rad<-lat*pi/180
@@ -4812,8 +4812,39 @@ fn_GEE<-list(
 		}else{
 		  funs_nl$f_ET.PT(data = daymetClimate,constants = constants, ts = "daily", solar = "data", alpha = .alpha)$ET.Daily
 		}
+		
 
-}
+
+},
+	Rn_Daymet=function(data,constants,lat,elevation,.alpha=0.23){
+		
+		data("constants",package="Evapotranspiration")
+		constants$lat<-lat
+		constants$lat_rad<-lat*pi/180
+		constants$Elev<-elevation
+		
+		data$Ta <- (data$Tmax + data$Tmin)/2
+		P <- 101.3 * ((293 - 0.0065 * constants$Elev)/293)^5.26
+		delta <- 4098 * (0.6108 * exp((17.27 * data$Ta)/(data$Ta + 237.3)))/((data$Ta +
+			237.3)^2)
+		gamma <- 0.00163 * P/constants$lambda
+		d_r2 <- 1 + 0.033 * cos(2 * pi/365 * data$J)
+		delta2 <- 0.409 * sin(2 * pi/365 * data$J - 1.39)
+		w_s <- acos(-tan(constants$lat_rad) * tan(delta2))
+		N <- 24/pi * w_s
+		R_a <- (1440/pi) * d_r2 * constants$Gsc * (w_s * sin(constants$lat_rad) *
+			sin(delta2) + cos(constants$lat_rad) * cos(delta2) *
+			sin(w_s))
+		R_so <- (0.75 + (2 * 10^-5) * constants$Elev) * R_a
+		R_s <- data$Rs
+		R_nl <- constants$sigma * (0.34 - 0.14 * sqrt(data$va)) * ((data$Tmax +
+			273.2)^4 + (data$Tmin + 273.2)^4)/2 * (1.35 * R_s/R_so -
+			0.35)
+		R_nsg <- (1 - .alpha) * R_s
+		R_ng <- R_nsg - R_nl
+		
+		return(list(Rn=R_ng,Rns=R_nsg,Rnl=R_nl))
+	}
 	  
 )
 
