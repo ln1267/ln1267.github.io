@@ -3374,13 +3374,18 @@ RunMonthlyWaSSI=function(data_in,soil_pars,inputScale="monthly",DailyStep=FALSE,
 	  ggplot(aes(x=Year))+geom_line(aes(y=Q,color="Observed"))+
 	  geom_line(aes(y=Q_sim,color="Simulated"))+scale_color_manual(name="Legend",values = c("black","red"),breaks=c("Observed","Simulated"))+labs(x="Year",y="Flow (mm)")+scale_x_continuous(breaks = c(seq(1980,2022,1)))+theme_bw()
 
-	LongtermSummary<-result_ann%>%
+	Monthly_avg<-result_month%>%
+	  ungroup()%>%
+	  dplyr::select(-Date,-Year)%>%
+	  group_by(Month)%>%
+	  summarise(across(.fns = mean))
+	
+	Annual_avg<-result_ann%>%
 	  select(-Year)%>%
 	  summarise(across(.fns = mean))
-	  
-	  
+	  	  
 	return(list(monthly=result_month,annual=result_ann,
-		  LongtermSummary=LongtermSummary,
+		  monthly_avg=Monthly_avg,annual_avg=Annual_avg,
 		  Accuarcy=list(val_par_monthly=val_par_monthly,val_par_annual=val_par_annual),
 		  Figs=list(monthly=p2,monthly_lines=p3,annual=p4)))
 	  },
