@@ -4760,7 +4760,7 @@ SoilParCal=function(data_in,Sim_year,stationname="",scale="daily",validation=TRU
 
 	Monthly_avg<-result_month%>%
 	  dplyr::select(-Date,-Year)%>%
-	  group(Month)%>%
+	  group_by(Month)%>%
 	  summarise(across(.fns = mean))
 	
 	Annual_avg<-result_ann%>%
