@@ -3334,11 +3334,11 @@ sacSma_monthly =function(pet, prcp,par,inputScale="monthly",DailyStep=FALSE,ini.
                     "lztwc"=lztwc_ts,"lzfpc"=lzfpc_ts,"lzfsc"=lzfsc_ts))
 },
 
-RunMonthlyWaSSI=function(data_in,soil_pars,forestType="DBF"){
+RunMonthlyWaSSI=function(data_in,soil_pars,inputScale="monthly",DailyStep=FALSE,forestType="DBF"){
   
   names(soil_pars)<-toupper(names(soil_pars))
   
-  result_month<-cbind(data_in,funs_nl$sacSma_monthly(par = soil_pars,pet = data_in$PET, prcp = data_in$Rainfall))%>%
+  result_month<-cbind(data_in,funs_nl$sacSma_monthly(par = soil_pars,inputScale=inputScale,DailyStep=DailyStep,pet = data_in$PET, prcp = data_in$Rainfall))%>%
     mutate(Q_sim=WaYldTot,ET=aetTot)%>%
     mutate(Date=make_date(Year,Month,"01"))%>%
     filter(Year>=data_in$Year[1]+1)
