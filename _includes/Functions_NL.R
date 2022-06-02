@@ -4759,6 +4759,7 @@ SoilParCal=function(data_in,Sim_year,stationname="",scale="daily",validation=TRU
 	  geom_line(aes(y=Q_sim,color="Simulated"))+scale_color_manual(name="Legend",values = c("black","red"),breaks=c("Observed","Simulated"))+labs(x="Year",y="Flow (mm)")+scale_x_continuous(breaks = c(seq(1980,2022,1)))+theme_bw()
 
 	Monthly_avg<-result_month%>%
+	  ungroup()%>%
 	  dplyr::select(-Date,-Year)%>%
 	  group_by(Month)%>%
 	  summarise(across(.fns = mean))
