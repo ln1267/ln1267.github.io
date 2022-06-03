@@ -4651,7 +4651,7 @@ SoilParCal=function(data_in,Sim_year,stationname="",scale="daily",validation=TRU
     # get the validation data
     if (validation ){
 
-      index_val<-which(index(HydroTestData)<= Sim_year$Validation[2] & index(HydroTestData)>= Sim_year$Validation[1])
+      index_val<-which(data_in$Date<= Sim_year$Validation[2] & data_in$Date>= Sim_year$Validation[1])
       index_val<-c((index_val[1]-c(warmup:1)),index_val)
 
       da_val<-HydroTestData[index_val,]
@@ -4704,7 +4704,7 @@ SoilParCal=function(data_in,Sim_year,stationname="",scale="daily",validation=TRU
       Observed<-df$Q[df$Period==pred]
       if(pred== "Validation" & (!validation | length(Observed)<24)) next()
 
-      if((index(HydroTestData)[2]-index(HydroTestData)[1])==1){
+      if((data_in$Date[2]-data_in$Date[1])==1){
         pdf(paste0("Q_",stationname,"_",pred,".pdf"),width = 9,height = 9)
         ggof(sim=Simulated, obs=Observed,dates=df$Date[df$Period==pred],ylab = "Flow (mm)",main =stationname,ftype = "dma",FUN = "sum",gofs=c( "RMSE", "PBIAS", "NSE","KGE", "R2"))
         dev.off()
