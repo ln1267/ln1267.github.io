@@ -4608,7 +4608,7 @@ SoilParCal=function(data_in,Sim_year,stationname="",scale="daily",validation=TRU
     HydroTestData <- as.zooreg(zoo(data_in[c("P","E","Q")], order.by = data_in$Date))
 
     # select particular time period for calibration
-    index_cal<-which(index(HydroTestData)<= Sim_year$Calibration[2] & index(HydroTestData)>= Sim_year$Calibration[1])
+    index_cal<-which(data_in$Date<= Sim_year$Calibration[2] & data_in$Date >= Sim_year$Calibration[1])
 
     # Fill missing data based on Warmup and get the calibration data
     if(index_cal[1]<warmup){
