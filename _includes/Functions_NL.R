@@ -2938,8 +2938,10 @@ sacSma_monthly =function(pet, prcp,par,inputScale="monthly",DailyStep=FALSE,ini.
 		day<-30
 		pr<-prcp[i]/30
 		edmnd<-pet[i]/30
+		dt<-1
 	}else{
 		day<-1
+		dt<-30
 
 	}
 
@@ -3059,22 +3061,22 @@ sacSma_monthly =function(pet, prcp,par,inputScale="monthly",DailyStep=FALSE,ini.
     roimp <- pr * pctim
 
     # Determine computational time increments for the basic time interval
-    ninc <- floor(30.0 + 0.2*(uzfwc+twx)/30)  # Number of time increments that interval is divided into for further soil-moisture accountng
+    ninc <- floor(1.0 + 0.2*(uzfwc+twx)/1)  # Number of time increments that interval is divided into for further soil-moisture accountng
 
-    dinc <- 1.0 / ninc                    # Length of each increment in days
+    dinc <- 1.0 / ninc*dt                    # Length of each increment in days
     pinc <- twx / ninc                    # Amount of available moisture for each increment
 
     # Compute free water depletion fractions for the time increment
     #(basic depletions are for one day)
-    # duz   <- 1 - (1 - uzk)^dinc
-    # dlzp  <- 1 - (1 - lzpk)^dinc
-    # dlzs  <- 1 - (1 - lzsk)^dinc
+     duz   <- 1 - (1 - uzk)^dinc
+     dlzp  <- 1 - (1 - lzpk)^dinc
+     dlzs  <- 1 - (1 - lzsk)^dinc
 
     #browser()
     # This is the version of Peter's
-    duz   <- uzk*dinc*30
-    dlzp  <- lzpk*dinc*30
-    dlzs  <- lzsk*dinc*30
+  #  duz   <- uzk*dinc*30
+   # dlzp  <- lzpk*dinc*30
+   # dlzs  <- lzsk*dinc*30
 
     #print(paste0("ninc=", str(ninc)))
 
@@ -4596,7 +4598,7 @@ SnowMelt=function(JDay, precip_mm, Tmax_C, Tmin_C, lat_deg, slope=0, aspect=0, t
 	return(Results)
 },
 
-SoilParCal=function(data_in,Sim_year,stationname="",scale="daily",validation=TRUE){
+SoilParCal=function(data_in,Sim_year,stationname="",scale="daily",validation=TRUE,export=F){
 	
 	warmup<-365
 	
@@ -4716,7 +4718,11 @@ SoilParCal=function(data_in,Sim_year,stationname="",scale="daily",validation=TRU
       }
 
     }
+	if(export){
+	return(list("fig"=p1,"soil_pars"=soil_pars,"Accu_cal"=Accu_cal,"Accu_val"=Accu_val,data_input=HydroTestData,Simulated_result=out))
+	}else{
     return(list("fig"=p1,"soil_pars"=soil_pars,"Accu_cal"=Accu_cal,"Accu_val"=Accu_val))
+	}
   },
   
   RunWaSSI=function(data_in,soil_pars,forestType="DBF"){
