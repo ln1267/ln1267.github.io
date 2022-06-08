@@ -4598,7 +4598,7 @@ SnowMelt=function(JDay, precip_mm, Tmax_C, Tmin_C, lat_deg, slope=0, aspect=0, t
 	return(Results)
 },
 
-SoilParCal=function(data_in,Sim_year,stationname="",dailyScale=T,validation=TRUE,export=F){
+SoilParCal=function(data_in,Sim_year,stationname="",dailyScale=T,validation=TRUE,return_state=F,export=F){
   
   warmup<-365
   dt<-1
@@ -4618,7 +4618,7 @@ SoilParCal=function(data_in,Sim_year,stationname="",dailyScale=T,validation=TRUE
   da_cal<-window(HydroTestData,start = as.Date(Sim_year$Calibration[1])-years(1),end = Sim_year$Calibration[2])
 
   ## an unfitted model, with ranges of possible parameter values
-  modx <- hydromad(da_cal, sma = "sacramento",warmup=warmup,adimp = 0,pctim = 0,dt=dt,return_state=T)
+  modx <- hydromad(da_cal, sma = "sacramento",warmup=warmup,adimp = 0,pctim = 0,dt=dt,return_state=return_state)
  
    ## now try to fit it
   
@@ -4637,7 +4637,7 @@ SoilParCal=function(data_in,Sim_year,stationname="",dailyScale=T,validation=TRUE
   summary(fitx)
   # Run validation period with optimized soil parameters
 
-  Output_all<-predict(fitx,newdata=HydroTestData,return_state =T)[,c("U","AET","uztwc","uzfwc" ,"lztwc" ,"lzfsc" ,"lzfpc")]
+  Output_all<-predict(fitx,newdata=HydroTestData,return_state =return_state)[,c("U","AET","uztwc","uzfwc" ,"lztwc" ,"lzfsc" ,"lzfpc")]
 
   names(Output_all)[1:2]<-c("Q_Sim","ET")
   
