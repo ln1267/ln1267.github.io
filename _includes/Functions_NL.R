@@ -3336,6 +3336,65 @@ sacSma_monthly =function(pet, prcp,par,inputScale="monthly",DailyStep=FALSE,ini.
                     "lztwc"=lztwc_ts,"lzfpc"=lzfpc_ts,"lzfsc"=lzfsc_ts))
 },
 
+Predict_monthly=function(fitModel,newdata,forestType="DBF"){
+  
+  HydroTestData <- as.zooreg(zoo(newdata[c("P","E","Q")], order.by = newdata$Date))
+
+  Output_all<-predict(fitModel,newdata=HydroTestData,return_state =T)[,c("U","AET","uztwc","uzfwc" ,"lztwc" ,"lzfsc" ,"lzfpc")]
+
+  names(Output_all)[1:2]<-c("Q_sim","ET")
+
+  result_month<-cbind(data_in,Output_all)%>%
+    mutate(Date=make_date(Year,Month,"01"))%>%
+    filter(Year>=data_in$Year[1]+1)
+  
+  if(forestType=="DBF"){
+    result_month<-result_month%>%
+      mutate(GPP=ET*3.2,GPP_SD=ET*1.26) # DBF
+  }else{
+    result_month<-result_month%>%
+      mutate(GPP=ET*2.46,GPP_SD=ET*0.96) # ENF
+  }
+
+	result_ann<-result_month%>%
+	  mutate(Year=year(Date))%>%
+	  group_by(Year)%>%
+	  summarise(across(c("Rainfall","PT","PET_Hamon","PET","ET","Q","Q_sim","GPP","GPP_SD"),.fns = sum,na.rm=T))%>%
+	  mutate(Pbias=(Q_sim-Q)/Q*100)
+
+# Validation parameters
+	val_par_monthly<-funs_nl$f_acc(result_month$Q,result_month$Q_sim)
+
+	val_par_annual<-funs_nl$f_acc(result_ann$Q,result_ann$Q_sim)
+
+	# Plots
+	p2<-result_month%>%
+	  ggplot(aes(x=Q,y=Q_sim))+geom_point()+geom_smooth(method = "lm")+coord_equal()+labs(x="Q Observed",y="Q Simulated")+theme_bw()
+
+	p3<-result_month%>%
+	  ggplot(aes(x=Date))+geom_line(aes(y=Q,color="Observed"))+
+	  geom_line(aes(y=Q_sim,color="Simulated"))+scale_color_manual(name="Legend",values = c("black","red"),breaks=c("Observed","Simulated"))+scale_x_date(date_breaks ="1 year",date_labels = "%Y")+labs(x="Date",y="Flow (mm)")+theme_bw()
+
+	p4<-result_ann%>%
+	  ggplot(aes(x=Year))+geom_line(aes(y=Q,color="Observed"))+
+	  geom_line(aes(y=Q_sim,color="Simulated"))+scale_color_manual(name="Legend",values = c("black","red"),breaks=c("Observed","Simulated"))+labs(x="Year",y="Flow (mm)")+scale_x_continuous(breaks = c(seq(1980,2022,1)))+theme_bw()
+
+	Monthly_avg<-result_month%>%
+	  ungroup()%>%
+	  dplyr::select(-Date,-Year)%>%
+	  group_by(Month)%>%
+	  summarise(across(.fns = mean))
+	
+	Annual_avg<-result_ann%>%
+	  select(-Year)%>%
+	  summarise(across(.fns = mean))
+	  	  
+	return(list(monthly=result_month,annual=result_ann,
+		  monthly_avg=Monthly_avg,annual_avg=Annual_avg,
+		  Accuarcy=list(val_par_monthly=val_par_monthly,val_par_annual=val_par_annual),
+		  Figs=list(monthly=p2,monthly_lines=p3,annual=p4)))
+	  },
+
 RunMonthlyWaSSI=function(data_in,soil_pars,inputScale="monthly",DailyStep=FALSE,forestType="DBF"){
   
   names(soil_pars)<-toupper(names(soil_pars))
