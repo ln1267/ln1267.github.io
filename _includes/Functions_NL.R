@@ -4953,10 +4953,10 @@ fn_GEE<-list(
 		constants$Elev<-elevation
 		if(Albedo){
 		  .alpha<-daymetClimate$Albedo
-		  funs_nl$f_ET.PT(data = daymetClimate,constants = constants, ts = "daily", solar = "data", alpha = .alpha)$ET.Daily
+		  funs_nl$f_ET.PT(data = daymetClimate,constants = constants, ts = "daily", solar = "data", alpha = .alpha,message=F)$ET.Daily
 		  
 		}else{
-		  funs_nl$f_ET.PT(data = daymetClimate,constants = constants, ts = "daily", solar = "data", alpha = .alpha)$ET.Daily
+		  funs_nl$f_ET.PT(data = daymetClimate,constants = constants, ts = "daily", solar = "data", alpha = .alpha,message=T)$ET.Daily
 		}
 		
 
