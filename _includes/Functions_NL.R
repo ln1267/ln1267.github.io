@@ -4667,18 +4667,17 @@ SoilParCal=function(data_in,Sim_year,stationname="",dailyScale=T,validation=TRUE
   # Getting the new numeric goodness of fit
   for(pred in c("Calibration","Validation")){
 
-    if(pred== "Validation" & (!validation | length(Observed)<24)) next()
-    
     if(pred=="Calibration"){
       Simulated<-Output_calibrated$Q_Sim
       Observed<-Output_calibrated$Q  
       da_dates<-index(Output_calibrated)
-    }else{
+    }else if(pred== "Validation" & validation){
       Simulated<-out_Val$Q_Sim
       Observed<-out_Val$Q
       da_dates<-index(out_Val)
+      if(length(Observed)<24) next()
     }
-    
+
     if(dailyScale){
       pdf(paste0("Q_",stationname,"_",pred,".pdf"),width = 9,height = 9)
       ggof(sim=Simulated, obs=Observed,dates=da_dates,ylab = "Flow (mm)",main =stationname,ftype = "dma",FUN = "sum",gofs=c( "RMSE", "PBIAS", "NSE","KGE", "R2"))
