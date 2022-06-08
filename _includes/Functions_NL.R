@@ -4737,8 +4737,10 @@ SoilParCal=function(data_in,Sim_year,stationname="",dailyScale=T,validation=TRUE
       if(length(Observed)<24) next()
     }
 
+    if(pred== "Validation" & !validation) next()
+
     if(dailyScale){
-      pdf(paste0(output_dir,"Q_",stationname,"_",pred,".pdf"),width = 9,height = 9)
+      pdf(paste0(output_dir,"Q_daily_",stationname,"_",pred,".pdf"),width = 9,height = 9)
       ggof(sim=Simulated, obs=Observed,dates=da_dates,ylab = "Flow (mm)",main =stationname,ftype = "dma",FUN = "sum",gofs=c( "RMSE", "PBIAS", "NSE","KGE", "R2"))
       dev.off()
 
