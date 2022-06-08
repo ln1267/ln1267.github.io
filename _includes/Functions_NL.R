@@ -4602,6 +4602,8 @@ SoilParCal=function(data_in,Sim_year,stationname="",dailyScale=T,validation=TRUE
   
   warmup<-365
   dt<-1
+  exportVars<-c("U","AET")
+  if(return_state) exportVars<-c("U","AET","uztwc","uzfwc" ,"lztwc" ,"lzfsc" ,"lzfpc")
   #browser()
   if(!dailyScale ) {
     
@@ -4616,7 +4618,9 @@ SoilParCal=function(data_in,Sim_year,stationname="",dailyScale=T,validation=TRUE
   
   # select particular time period for calibration
   da_cal<-window(HydroTestData,start = as.Date(Sim_year$Calibration[1])-years(1),end = Sim_year$Calibration[2])
-
+  
+  if(dailyScale & leap_year(as.Date(Sim_year$Calibration[1])-years(1))) warmup<-366
+  
   ## an unfitted model, with ranges of possible parameter values
   modx <- hydromad(da_cal, sma = "sacramento",warmup=warmup,adimp = 0,pctim = 0,dt=dt,return_state=return_state)
  
@@ -4630,14 +4634,15 @@ SoilParCal=function(data_in,Sim_year,stationname="",dailyScale=T,validation=TRUE
   set.seed(0)
   fitx <- fitByOptim(modx,objective=hmadstat("viney")) #,bjective=f_KGE
   
-  Output_calibrated<-window(cbind(fitx$data,fitx$U),start = Sim_year$Calibration[1],end = Sim_year$Calibration[2])[,c("P","E","Q","U","AET","uztwc","uzfwc" ,"lztwc" ,"lzfsc" ,"lzfpc")]
+  Output_calibrated<-window(cbind(fitx$data,fitx$U),start = Sim_year$Calibration[1],end = Sim_year$Calibration[2])[,c("P","E","Q",exportVars)]
   
   names(Output_calibrated)[1:5]<-c("Rainfall","PET","Q","Q_Sim","ET")
   
   summary(fitx)
   # Run validation period with optimized soil parameters
 
-  Output_all<-predict(fitx,newdata=HydroTestData,return_state =return_state)[,c("U","AET","uztwc","uzfwc" ,"lztwc" ,"lzfsc" ,"lzfpc")]
+   
+  Output_all<-predict(fitx,newdata=HydroTestData,return_state =return_state)[,exportVars]
 
   names(Output_all)[1:2]<-c("Q_Sim","ET")
   
