@@ -4598,132 +4598,101 @@ SnowMelt=function(JDay, precip_mm, Tmax_C, Tmin_C, lat_deg, slope=0, aspect=0, t
 	return(Results)
 },
 
-SoilParCal=function(data_in,Sim_year,stationname="",scale="daily",validation=TRUE,export=F){
-	
-	warmup<-365
-	
-	if(scale !="daily" ) warmup<-12
-	
+SoilParCal=function(data_in,Sim_year,stationname="",dailyScale=T,validation=TRUE,export=F){
+  
+  warmup<-365
+  dt<-1
+  #browser()
+  if(!dailyScale ) {
+    
+    warmup<-12
+    dt<-30
+  }
+  
   # Define values
-    Accu_cal<-NULL;Accu_val<-NULL
+  Accu_cal<-NULL;Accu_val<-NULL;out_Val<-NULL
+  
+  HydroTestData <- as.zooreg(zoo(data_in[c("P","E","Q")], order.by = data_in$Date))
+  
+  # select particular time period for calibration
+  da_cal<-window(HydroTestData,start = as.Date(Sim_year$Calibration[1])-years(1),end = Sim_year$Calibration[2])
 
-    HydroTestData <- as.zooreg(zoo(data_in[c("P","E","Q")], order.by = data_in$Date))
-
-    # select particular time period for calibration
-    index_cal<-which(data_in$Date<= Sim_year$Calibration[2] & data_in$Date >= Sim_year$Calibration[1])
-
-    # Fill missing data based on Warmup and get the calibration data
-    if(index_cal[1]<warmup){
-      da_cal<-HydroTestData[index_cal,]
-      da_add<-HydroTestData[1:warmup,]
-      index(da_add)<-index(da_add) %m-% years(1)
-      da_cal<-rbind(da_add,da_cal)
-    }else{
-      index_cal<-c((index_cal[1]-c(warmup:1)),index_cal)
-      da_cal<-HydroTestData[index_cal,]
-    }
-
-    da_cal$Period<-0
-
-    ## an unfitted model, with ranges of possible parameter values
-    modx <- hydromad(da_cal, sma = "sacramento",warmup=warmup,adimp = 0,pctim = 0)
-    ## now try to fit it
-	
-	hydromad.stats("viney" = function(Q, X, ...) {
+  ## an unfitted model, with ranges of possible parameter values
+  modx <- hydromad(da_cal, sma = "sacramento",warmup=warmup,adimp = 0,pctim = 0,dt=dt,return_state=T)
+ 
+   ## now try to fit it
+  
+  hydromad.stats("viney" = function(Q, X, ...) {
     hmadstat("r.squared")(Q, X, ...) -
       5*(abs(log(1+hmadstat("rel.bias")(Q,X)))^2.5)
-	})
+  })
+  
+  set.seed(0)
+  fitx <- fitByOptim(modx,objective=hmadstat("viney")) #,bjective=f_KGE
+  
+  Output_calibrated<-window(cbind(fitx$data,fitx$U),start = Sim_year$Calibration[1],end = Sim_year$Calibration[2])[,c("P","E","Q","U","AET","uztwc","uzfwc" ,"lztwc" ,"lzfsc" ,"lzfpc")]
+  
+  names(Output_calibrated)[1:5]<-c("Rainfall","PET","Q","Q_Sim","ET")
+  
+  summary(fitx)
+  # Run validation period with optimized soil parameters
 
-    set.seed(0)
-    fitx <- fitByOptim(modx,objective=hmadstat("viney")) #,objective=f_KGE
+  Output_all<-predict(fitx,newdata=HydroTestData,return_state =T)[,c("U","AET","uztwc","uzfwc" ,"lztwc" ,"lzfsc" ,"lzfpc")]
 
-    # Add simulated Q to calibratin data
-    da_cal$Q_sim<-fitx$U[,"U"]
+  names(Output_all)[1:2]<-c("Q_Sim","ET")
+  
 
-    da_all<-da_cal[-c(1:warmup),]
+  # get the validation data
+  if (validation ){
+    
+    out_Val<-window(cbind(HydroTestData,Output_all),start = Sim_year$Validation[1],end = Sim_year$Validation[2])
+    names(out_Val)[1:3]<-c("Rainfall","PET","Q")
+  }
+  
+  # Print information
+  #print(soil_pars)
+  Accu_cal<-funs_nl$f_acc(Output_calibrated$Q,Output_calibrated$Q_Sim)
+  print(Accu_cal)
+  
+  if(validation){
+    Accu_val<-funs_nl$f_acc(out_Val$Q,out_Val$Q_Sim)
+    print(Accu_val)
+  }
+  
+  # Getting the new numeric goodness of fit
+  for(pred in c("Calibration","Validation")){
 
-    # Run validation period with optimized soil parameters
-    soil_pars<-fitx$parlist
-
-    # write calibrated soil parameters
-    soil_par_dataframe<-t(as.data.frame(round(unlist(soil_pars),4)))
-    #rownames(soil_par_dataframe)<-stationname
-    write.csv(soil_par_dataframe,paste0("SoilPar_calibrated_",stationname,".csv"))
-
-    # get the validation data
-    if (validation ){
-
-      index_val<-which(data_in$Date<= Sim_year$Validation[2] & data_in$Date>= Sim_year$Validation[1])
-      index_val<-c((index_val[1]-c(warmup:1)),index_val)
-
-      da_val<-HydroTestData[index_val,]
-
-      # apply soil parameters to validation period
-      out<-hydromad::sacramento.sim(da_val,uztwm = soil_pars["uztwm"], uzfwm = soil_pars["uzfwm"], uzk = soil_pars["uzk"], pctim = soil_pars["pctim"], adimp = soil_pars["adimp"],
-                          zperc = soil_pars["zperc"], rexp = soil_pars["rexp"], lztwm = soil_pars["lztwm"], lzfsm = soil_pars["lzfsm"],
-                          lzfpm = soil_pars["lzfpm"], lzsk = soil_pars["lzsk"], lzpk = soil_pars["lzpk"], pfree = soil_pars["pfree"],return_state = T)
-
-      da_val$Q_sim<-out$U
-      da_val$Period<-1
-      da_val<-da_val[-c(1:warmup),]
-
-    # merge calibration and validation data
-      da_all<-rbind(da_all,da_val)
+    if(pred== "Validation" & (!validation | length(Observed)<24)) next()
+    
+    if(pred=="Calibration"){
+      Simulated<-Output_calibrated$Q_Sim
+      Observed<-Output_calibrated$Q  
+      da_dates<-index(Output_calibrated)
+    }else{
+      Simulated<-out_Val$Q_Sim
+      Observed<-out_Val$Q
+      da_dates<-index(out_Val)
     }
+    
+    if(dailyScale){
+      pdf(paste0("Q_",stationname,"_",pred,".pdf"),width = 9,height = 9)
+      ggof(sim=Simulated, obs=Observed,dates=da_dates,ylab = "Flow (mm)",main =stationname,ftype = "dma",FUN = "sum",gofs=c( "RMSE", "PBIAS", "NSE","KGE", "R2"))
+      dev.off()
 
-    # write calibration
-    df<-da_all%>%
-      as.data.frame()%>%
-      mutate(Date=as.Date(index(da_all)))%>%
-      mutate(Period=ifelse(Period>0,"Validation","Calibration"))
-
-    #write.csv(df,paste0("Q_",stationname,"_calibration.csv"),row.names = F)
-
-    p1<-df%>%
-      ggplot()+
-      geom_line(data =df,aes(x=Date,y=Q_sim,color="Simulated"))+
-      geom_line(data =df,aes(x=Date,y=Q,color="Observed"))+
-      facet_grid(Period~.)+
-      #theme_ning(size.axis = 8,size.title = 10)+
-      labs(y="Flow (mm/month)",colour ="Source")+
-      scale_x_date(date_breaks ="1 year",date_labels = "%Y")
-    print(p1)
-    ggsave(paste0("Q_",stationname,"_calibration.png"),p1,width = 6,height = 3)
-
-    # Print information
-    #print(soil_pars)
-	Accu_cal<-funs_nl$f_acc(df$Q[df$Period=="Calibration"],df$Q_sim[df$Period=="Calibration"])
-    print(Accu_cal)
-
-    if(validation){
-	  Accu_val<-funs_nl$f_acc(df$Q[df$Period=="Validation"],df$Q_sim[df$Period=="Validation"])
-      print(Accu_val)
-    }
-
-    # Getting the new numeric goodness of fit
-    for(pred in c("Calibration","Validation")){
-      Simulated<-df$Q_sim[df$Period==pred]
-      Observed<-df$Q[df$Period==pred]
-      if(pred== "Validation" & (!validation | length(Observed)<24)) next()
-
-      if((data_in$Date[2]-data_in$Date[1])==1){
-        pdf(paste0("Q_",stationname,"_",pred,".pdf"),width = 9,height = 9)
-        ggof(sim=Simulated, obs=Observed,dates=df$Date[df$Period==pred],ylab = "Flow (mm)",main =stationname,ftype = "dma",FUN = "sum",gofs=c( "RMSE", "PBIAS", "NSE","KGE", "R2"))
-        dev.off()
-
-      }else{
-        pdf(paste0("Q_",stationname,"_",pred,".pdf"),width = 9,height = 6)
-        ggof(sim=Simulated, obs=Observed,dates=df$Date[df$Period==pred],ylab = "Flow (mm)",main =stationname,ftype = "ma",FUN = "sum",gofs=c( "RMSE", "PBIAS", "NSE", "KGE","R2"))
-        dev.off()
-      }
+    }else{
+      pdf(paste0("Q_",stationname,"_",pred,".pdf"),width = 9,height = 6)
+      ggof(sim=Simulated, obs=Observed,dates=da_dates,ylab = "Flow (mm)",main =stationname,ftype = "ma",FUN = "sum",gofs=c( "RMSE", "PBIAS", "NSE", "KGE","R2"))
+      dev.off()
 
     }
-	if(export){
-	return(list("fig"=p1,"soil_pars"=soil_pars,"Accu_cal"=Accu_cal,"Accu_val"=Accu_val,data_input=HydroTestData,Simulated_result=out))
-	}else{
-    return(list("fig"=p1,"soil_pars"=soil_pars,"Accu_cal"=Accu_cal,"Accu_val"=Accu_val))
-	}
-  },
+    
+  }
+  if(export){
+    return(list("FitResult"=fitx,"SimulateResult"=Output_all,"Accu_cal"=Accu_cal,"Accu_val"=Accu_val,Output_calibrated=Output_calibrated))
+  }else{
+    return(list("Accu_cal"=Accu_cal,"Accu_val"=Accu_val))
+  }
+},
   
   RunWaSSI=function(data_in,soil_pars,forestType="DBF"){
 
