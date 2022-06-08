@@ -3344,9 +3344,9 @@ Predict_monthly=function(fitModel,newdata,forestType="DBF"){
 
   names(Output_all)[1:2]<-c("Q_sim","ET")
 
-  result_month<-cbind(data_in,Output_all)%>%
+  result_month<-cbind(newdata,Output_all)%>%
     mutate(Date=make_date(Year,Month,"01"))%>%
-    filter(Year>=data_in$Year[1]+1)
+    filter(Year>=newdata$Year[1]+1)
   
   if(forestType=="DBF"){
     result_month<-result_month%>%
