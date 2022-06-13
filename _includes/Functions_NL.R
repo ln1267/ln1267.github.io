@@ -3340,10 +3340,10 @@ Predict_monthly=function(fitModel,newdata,forestType="DBF"){
   
   HydroTestData <- as.zooreg(zoo(newdata[c("P","E","Q")], order.by = newdata$Date))
 
-  Output_all<-predict(fitModel,newdata=HydroTestData,return_state =T)[,c("U","AET","ssur","sif","bfp","bfs","bfcc","uztwc","uzfwc" ,"lztwc" ,"lzfsc" ,"lzfpc")]
+  Output_all<-predict(fitModel,newdata=HydroTestData,return_state =T)[,c("U","AET","ssur","sif","bfcc","uztwc","uzfwc" ,"lztwc" ,"lzfsc" ,"lzfpc")]
   Output_all$WYBase<-Output_all$bfcc # Baseflow
   Output_all$WYInter<-Output_all$sif	# Interflow
-  Output_all$WYSurface<-Output_all$roimp+Output_all$sdro+Output_all$ssur # Surface flow
+  Output_all$WYSurface<-Output_all$ssur # Surface flow
 
   names(Output_all)[1:2]<-c("Q_sim","ET")
 
