@@ -3342,7 +3342,8 @@ Predict_monthly=function(fitModel,newdata,forestType="DBF"){
 
   Output_all<-predict(fitModel,newdata=HydroTestData,return_state =T)[,c("U","AET","ssur","sif","bfp","bfs","bfcc","uztwc","uzfwc" ,"lztwc" ,"lzfsc" ,"lzfpc")]%>%
   mutate(WYBase = bfcc,                       # Baseflow and Interflow are considered as Ground inflow to the channel
-	WYSurface = roimp + sdro + ssur + sif  # Surface flow consists of Direct runoff and Surface inflow to the channel
+	WYInter=sif,	# Interflow
+	WYSurface = roimp + sdro + ssur  # Surface flow consists of Direct runoff and Surface inflow to the channel
 	)%>%
 	dplyr::select(-roimp,-sdro,-ssur,-sif,-bfcc)
   names(Output_all)[1:2]<-c("Q_sim","ET")
