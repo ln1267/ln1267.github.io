@@ -4659,7 +4659,7 @@ SnowMelt=function(JDay, precip_mm, Tmax_C, Tmin_C, lat_deg, slope=0, aspect=0, t
 	return(Results)
 },
 
-SoilParCal=function(data_in,Sim_year,stationname="",dailyScale=T,validation=TRUE,return_state=F,export=F,output_dir="./"){
+SoilParCal=function(data_in,Sim_year,stationname="",dailyScale=T,validation=TRUE,return_state=F,export=F,output_dir="./",init_ratio=1){
   
   warmup<-365
   dt<-1
@@ -4683,8 +4683,9 @@ SoilParCal=function(data_in,Sim_year,stationname="",dailyScale=T,validation=TRUE
   if(dailyScale & leap_year(as.Date(Sim_year$Calibration[1])-years(1))) warmup<-366
   
   ## an unfitted model, with ranges of possible parameter values
-  modx <- hydromad(da_cal, sma = "sacramento",warmup=warmup,adimp = 0,pctim = 0,dt=dt,return_state=return_state)
- 
+  modx <- hydromad(da_cal, sma = "sacramento",warmup=warmup,adimp = 0,pctim = 0,dt=dt,
+	uztwc_0=init_ratio,uzfwc_0=init_ratio,lztwc_0=init_ratio,lzfsc_0=init_ratio,lzfpc_0=init_ratio,return_state=return_state)
+	
    ## now try to fit it
   
   hydromad.stats("viney" = function(Q, X, ...) {
