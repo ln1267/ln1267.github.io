@@ -4978,13 +4978,13 @@ fn_GEE<-list(
 		
 	  da_LAI_8days<-funs_nl$read_GEE8DayLAI(paste0(dir,"LAI_8days_2000_2020_",siteName,".csv"))
 
-	  da_Soil<-read_csv(paste0(dir,"Soil_",siteName,".csv")) %>% dplyr::select(-"system:index",-".geo") 
+	  da_Soil<-read_csv(paste0(dir,"Soil_",siteName,".csv")) %>% dplyr::select(-"system:index",-".geo")%>% mutate(adimp=0,pctim=0) %>% as.list()
 	  da_Imp<-read_csv(paste0(dir,"Imp_",siteName,".csv")) %>% dplyr::select(-"system:index",-".geo") 
 	  
 	  da_LAI_S2<-funs_nl$read_GEE_S2(paste0(dir,"LAI_S2_",siteName,".csv")) 
 	  da_Albedo_S2<-funs_nl$read_GEE_S2(paste0(dir,"Albedo_S2_",siteName,".csv"),VarName = "Albedo") 
 	  
-	  return(list(Site=siteName,Climate_PRISM=da_PRISM,Climate_Daymet=da_Daymet,LAI_8days=da_LAI_8days,Impervious=da_Imp,LAI_S2=da_LAI_S2,Albedo_S2=da_Albedo_S2))
+	  return(list(Site=siteName,Climate_PRISM=da_PRISM,Climate_Daymet=da_Daymet,LAI_8days=da_LAI_8days,Impervious=da_Imp,SoilPar=da_Soil,LAI_S2=da_LAI_S2,Albedo_S2=da_Albedo_S2))
 	  
 	  },
 	  s2_DailyLAI=function(da){
