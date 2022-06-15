@@ -4963,30 +4963,47 @@ fn_GEE<-list(
 
 	read_all=function(siteName,WS_Field=NULL,dir="./"){
 	  require(readr)
-	  da_PRISM<-read_csv(paste0(dir,"Climate_",siteName,".csv")) %>% dplyr::select(-"system:index",-".geo") %>% mutate(Date=as.Date(as.character(date),"%Y%m%d"))
-	  da_Daymet<-read_csv(paste0(dir,"Climate_Daymet_daily_",siteName,".csv")) %>% 
-		dplyr::select(-"system:index",-".geo") %>%   
-		mutate(Date=as.Date(as.character(date),"%Y%m%d")) %>%
-		mutate(Rs=srad* dayl/1000000,n=dayl/60/60)%>% # MJ/m2/day
-		mutate(Tmax=tmax,Tmin=tmin)%>%
-		mutate(J=yday(Date),Year=year(Date),Month=month(Date),Day=day(Date))%>%
-		mutate(Date.daily=Date)%>%
-		mutate(va=vp/1000, #kpa
-			  vs_Tmax=0.6108 * exp(17.27 * Tmax/(Tmax +237.3)),
-			  vs_Tmin =0.6108 * exp(17.27 * Tmin/(Tmin +237.3)))%>%
-		mutate(vs=(vs_Tmax + vs_Tmin)/2,VPD=vs-va)
-		
-	  da_LAI_8days<-funs_nl$read_GEE8DayLAI(paste0(dir,"LAI_8days_2000_2020_",siteName,".csv"))
-
-	  da_Soil<-read_csv(paste0(dir,"Soil_",siteName,".csv")) %>% dplyr::select(-"system:index",-".geo")%>% mutate(adimp=0,pctim=0) %>% as.list()
-	  da_Imp<-read_csv(paste0(dir,"Imp_",siteName,".csv")) %>% dplyr::select(-"system:index",-".geo") 
 	  
-	  da_LAI_S2<-funs_nl$read_GEE_S2(paste0(dir,"LAI_S2_",siteName,".csv")) 
-	  da_Albedo_S2<-funs_nl$read_GEE_S2(paste0(dir,"Albedo_S2_",siteName,".csv"),VarName = "Albedo") 
+	  PRISM_name<-paste0(dir,"Climate_",siteName,".csv")
+	  Daymet_name<-paste0(dir,"Climate_Daymet_daily_",siteName,".csv")
+	  LAI_8days_name<-paste0(dir,"LAI_8days_2000_2020_",siteName,".csv")
+	  SoiPar_name<-paste0(dir,"Soil_",siteName,".csv")
+	  Imp_name<-paste0(dir,"Imp_",siteName,".csv")
+	  LAI_s2_name<-paste0(dir,"LAI_S2_",siteName,".csv")
+	  
+	  da_PRISM<-da_Daymet<-da_LAI_8days<-da_Soil<-da_Imp<-da_LAI_S2<-da_Albedo_S2<-NULL
+	  
+	  Albedo_s2_name<-paste0(dir,"Albedo_S2_",siteName,".csv")
+	  if(file.exists(PRISM_name)) da_PRISM<-read_csv(PRISM_name) %>% dplyr::select(-"system:index",-".geo") %>% mutate(Date=as.Date(as.character(date),"%Y%m%d"))
+	  
+	  if(file.exists(Daymet_name)){
+		  da_Daymet<-read_csv(Daymet_name) %>% 
+			dplyr::select(-"system:index",-".geo") %>%   
+			mutate(Date=as.Date(as.character(date),"%Y%m%d")) %>%
+			mutate(Rs=srad* dayl/1000000,n=dayl/60/60)%>% # MJ/m2/day
+			mutate(Tmax=tmax,Tmin=tmin)%>%
+			mutate(J=yday(Date),Year=year(Date),Month=month(Date),Day=day(Date))%>%
+			mutate(Date.daily=Date)%>%
+			mutate(va=vp/1000, #kpa
+				  vs_Tmax=0.6108 * exp(17.27 * Tmax/(Tmax +237.3)),
+				  vs_Tmin =0.6108 * exp(17.27 * Tmin/(Tmin +237.3)))%>%
+			mutate(vs=(vs_Tmax + vs_Tmin)/2,VPD=vs-va)
+		}
+		
+	   if(file.exists(LAI_8days_name)) da_LAI_8days<-funs_nl$read_GEE8DayLAI(LAI_8days_name)
+
+	  if(file.exists(SoiPar_name)) da_Soil<-read_csv(SoiPar_name) %>% dplyr::select(-"system:index",-".geo")%>% mutate(adimp=0,pctim=0) %>% as.list()
+	  
+	  if(file.exists(Imp_name)) da_Imp<-read_csv(Imp_name) %>% dplyr::select(-"system:index",-".geo") 
+	  
+  	 if(file.exists(LAI_s2_name)) da_LAI_S2<-funs_nl$read_GEE_S2(LAI_s2_name) 
+	  
+	  if(file.exists(Albedo_s2_name)) da_Albedo_S2<-funs_nl$read_GEE_S2(Albedo_s2_name,VarName = "Albedo") 
 	  
 	  return(list(Site=siteName,Climate_PRISM=da_PRISM,Climate_Daymet=da_Daymet,LAI_8days=da_LAI_8days,Impervious=da_Imp,SoilPar=da_Soil,LAI_S2=da_LAI_S2,Albedo_S2=da_Albedo_S2))
 	  
 	  },
+	  
 	  s2_DailyLAI=function(da){
 	   da%>% 
 		filter(LAI>0)%>%
