@@ -2010,7 +2010,7 @@ f_sta_shp_nc=function(ncfilename=NULL,da=NULL,basin,fun="mean",varname,zonal_fie
 #'
 #' @export
 
-f_zonal_TS<- function(data=NULL, shp=NULL, fun = "mean", varname="Value", zonal.field=NULL, start.date=NULL,
+f_zonal_TS= function(data=NULL, shp=NULL, fun = "mean", varname="Value", zonal.field=NULL, start.date=NULL,
                             ts.by = "1 day", weight = FALSE) {
   library(terra)
   library(dplyr)
