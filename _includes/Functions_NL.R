@@ -1983,7 +1983,76 @@ f_sta_shp_nc=function(ncfilename=NULL,da=NULL,basin,fun="mean",varname,zonal_fie
 
   sta_catchment
 },
+#' Extract zonal time-series from raster data using a shapefile
+#'
+#' @param data Raster data in terra format or a filename pointing to a terra raster data file
+#' @param shp SpatialPolygonsDataFrame shapefile containing the polygons for which time-series are required
+#' @param fun Function to be used for summarizing the values within each polygon. Default is "mean"
+#' @param varname Name of the variable that represents the values extracted from the raster
+#' @param zonal.field Name of the field in the shapefile to be used for grouping the time-series data
+#' @param start.date Starting date of the time-series. If not provided, the function uses the layer names in the raster data
+#' @param ts.by Temporal resolution of the time-series. Default is "1 day"
+#' @param weight Logical value indicating whether weights should be used for summarizing values within polygons. Default is FALSE
+#'
+#' @return A data frame containing the zonal time-series data for each polygon in the shapefile
+#'
+#' @importFrom terra rast extract nlyr
+#' @importFrom dplyr mutate pivot_longer filter setNames
+#' @importFrom tidyr starts_with
+#'
+#' @examples
+#' # load sample data
+#' data("global_pattern")
+#' # create a shapefile from sample data
+#' shp <- vect(global_pattern[1,], "tmp.shp")
+#' # extract zonal time-series
+#' f_zonal_TS(data = global_pattern, shp = shp, zonal.field = "CLASS", start.date = "2020-01-01")
+#'
+#' @export
 
+f_zonal_TS<- function(data=NULL, shp=NULL, fun = "mean", varname="Value", zonal.field=NULL, start.date=NULL,
+                            ts.by = "1 day", weight = FALSE) {
+  library(terra)
+  library(dplyr)
+  # library(tidyr)
+  if(!inherits(data,"SpatRaster") & ! inherits(data,"character")) stop("Either data filename or terra rast data beed be provided!")
+  if (inherits(data,"character")) data<-rast(data)
+  if(!is.null(start.date)){
+    dates <- seq(as.Date(start.date), by = ts.by, length.out = nlyr(data))
+    names(data)<-as.character(dates)
+  }else{
+    
+    dates<-paste0("rast_",1: nlyr(data))
+    names(data)<-as.character(dates)
+  }
+  # if(!is.null(shp)) data <- crop(data, shp)
+  
+  shp_att<-as.data.frame(shp)
+  
+  ex <- terra::extract(data, shp, fun = fun, na.rm = TRUE, weights = weight) 
+  # names(ex)<-c("ID",dates)
+  if(!is.null(start.date)) {
+    
+    da_all<-ex %>% 
+      mutate(ID=shp_att[,zonal_field]) %>% 
+      pivot_longer(cols = starts_with("X"),names_prefix = "X",names_to = "Date",values_to = "Var") %>%
+      mutate(Date=as.Date(Date,"%Y.%m.%d")) %>%
+      filter(!is.na(Var)) %>% 
+      setNames(c(zonal_field,"Date",varname))
+    
+  }else{
+
+    da_all<-ex %>% 
+      mutate(ID=shp_att[,zonal_field]) %>% 
+      pivot_longer(cols = starts_with("rast_"),names_prefix = "rast_",names_to = "Layer_ID",values_to = "Var") %>%
+      filter(!is.na(Var)) %>% 
+      setNames(c(zonal_field,"Layer_ID",varname))
+ 
+  }
+
+  return(da_all)
+  
+},
 ## Paste one to one for two vectors, matrixes or arrays----
 #' Paste by value one to one for two vectors, matrixes or arrays
 #' @param x The first object, which can be vector, matrix or array.
