@@ -1997,8 +1997,8 @@ f_sta_shp_nc=function(ncfilename=NULL,da=NULL,basin,fun="mean",varname,zonal_fie
 #' @return A data frame containing the zonal time-series data for each polygon in the shapefile
 #'
 #' @importFrom terra rast extract nlyr
-#' @importFrom dplyr mutate pivot_longer filter setNames
-#' @importFrom tidyr starts_with
+#' @importFrom dplyr mutate starts_with filter setNames
+#' @importFrom tidyr  pivot_longer
 #'
 #' @examples
 #' # load sample data
@@ -2034,19 +2034,19 @@ f_zonal_TS<- function(data=NULL, shp=NULL, fun = "mean", varname="Value", zonal.
   if(!is.null(start.date)) {
     
     da_all<-ex %>% 
-      mutate(ID=shp_att[,zonal_field]) %>% 
-      pivot_longer(cols = starts_with("X"),names_prefix = "X",names_to = "Date",values_to = "Var") %>%
+      mutate(ID=shp_att[,zonal.field]) %>% 
+      tidyr::pivot_longer(cols = starts_with("X"),names_prefix = "X",names_to = "Date",values_to = "Var") %>%
       mutate(Date=as.Date(Date,"%Y.%m.%d")) %>%
       filter(!is.na(Var)) %>% 
-      setNames(c(zonal_field,"Date",varname))
+      setNames(c(zonal.field,"Date",varname))
     
   }else{
 
     da_all<-ex %>% 
-      mutate(ID=shp_att[,zonal_field]) %>% 
-      pivot_longer(cols = starts_with("rast_"),names_prefix = "rast_",names_to = "Layer_ID",values_to = "Var") %>%
+      mutate(ID=shp_att[,zonal.field]) %>% 
+      tidyr::pivot_longer(cols = starts_with("rast_"),names_prefix = "rast_",names_to = "Layer_ID",values_to = "Var") %>%
       filter(!is.na(Var)) %>% 
-      setNames(c(zonal_field,"Layer_ID",varname))
+      setNames(c(zonal.field,"Layer_ID",varname))
  
   }
 
