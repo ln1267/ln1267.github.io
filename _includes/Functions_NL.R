@@ -4801,11 +4801,11 @@ SoilParCal=function(data_in,Sim_year,stationname="",dailyScale=T,validation=TRUE
     if(pred=="Calibration"){
       Simulated<-Output_calibrated$Q_Sim
       Observed<-Output_calibrated$Q  
-      da_dates<-index(Output_calibrated)
+      da_dates<-as.character(index(Output_calibrated))
     }else if(pred== "Validation" & validation){
       Simulated<-out_Val$Q_Sim
       Observed<-out_Val$Q
-      da_dates<-index(out_Val)
+      da_dates<-as.character(index(out_Val))
       if(length(Observed)<24) next()
     }
 
