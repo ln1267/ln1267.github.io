@@ -1802,7 +1802,7 @@ daily2annual=function (x, FUN, na.rm = TRUE, out.fmt = "%Y-%m-%d")
     if (length(which(!is.na(match(class(x), valid.class )))) <= 0)
       stop("Invalid argument: 'x' must be in c('xts', 'zoo')" )
 
-    out <- periodicity(x)$scale # xts::periodicity
+    out <- xts::periodicity(x)$scale # 
 
     if (out == "yearly") out <- "annual"
 
@@ -1853,7 +1853,7 @@ daily2monthly=function (x, FUN, na.rm = TRUE, ...)
     if (length(which(!is.na(match(class(x), valid.class )))) <= 0)
       stop("Invalid argument: 'x' must be in c('xts', 'zoo')" )
 
-    out <- periodicity(x)$scale # xts::periodicity
+    out <- xts::periodicity(x)$scale # xts::periodicity
 
     if (out == "yearly") out <- "annual"
 
