@@ -106,6 +106,49 @@ f_digits=function(x,n=2,format=F) {
   
 },
 
+#' Read EASI nc Raster
+#'
+#' This function reads a raster file in EASI nc format and converts it to a `terra` raster object.
+#'
+#' @param fname Character. File path of the input raster file.
+#' @param rname Character. File path of the output raster file (optional).
+#' @param outcrs Character. Coordinate reference system (CRS) for the output raster (default is "espg:4326").
+#'
+#' @return A `terra` raster object representing the converted raster.
+#'
+#' @importFrom terra rast
+#' @importFrom terra as.array
+#' @importFrom terra ext
+#' @importFrom terra time
+#' @importFrom terra crs
+#' @importFrom raster writeRaster
+#' @importFrom raster overwrite
+
+f_readEASInc = function(fname, rname = NULL, outcrs = "epsg:4326") {
+
+  # Read the EAS Inc raster
+  da_org <- terra::rast(fname)
+  
+  # Convert the raster array and reverse the y-axis
+  converted_raster <- terra::rast(terra::as.array(da_org)[dim(da_org)[1]:1,,])
+  
+  # Copy extent, time, and names attributes from the original raster
+  terra::ext(converted_raster) <- terra::ext(da_org)
+  terra::time(converted_raster) <- terra::time(da_org)
+  names(converted_raster) <- lubridate::date(terra::time(da_org))
+  
+  # Set the output CRS
+  terra::crs(converted_raster) <- outcrs
+  
+  # Write the converted raster to a file if rname is provided
+  if (!is.null(rname))
+    terra::writeRaster(converted_raster, rname, overwrite = TRUE)
+  
+  # Return the converted raster
+  converted_raster
+},
+
+
 #
 ## Function for clipping raster file by shapefile----
 #' @param daRaster A raster object.
