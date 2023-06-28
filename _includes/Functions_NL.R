@@ -4886,7 +4886,7 @@ SoilParCal=function(data_in,Sim_year,stationname="",dailyScale=T,validation=TRUE
 	result_month<-result_daily%>%
 	  mutate(Year=year(Date),Month=month(Date))%>%
 	  group_by(Year,Month)%>%
-	  summarise(across(c("Rainfall","Ei","Es","Ec","ET","WaYldTot","Q","Q_sim","GPP","GPP_SD"),.fns = sum,na.rm=T))%>%
+	  summarise(across(c("Rainfall","PT","Ei","Es","Ec","ET","WaYldTot","Q","Q_sim","GPP","GPP_SD"),.fns = sum,na.rm=T))%>%
 	  mutate(Date=make_date(Year,Month,"01"))
 
 	result_ann<-result_daily%>%
