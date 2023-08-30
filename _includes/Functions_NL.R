@@ -105,7 +105,78 @@ f_digits=function(x,n=2,format=F) {
   }
   
 },
-
+#' Read and Optionally Clip NetCDF File
+#'
+#' This function reads a NetCDF file and optionally clips it by a given shapefile.
+#' It returns a raster brick containing the specified variable from the NetCDF file.
+#'
+#' @param fname File name of the NetCDF file.
+#' @param shp Optional shapefile for clipping the data.
+#' @param dname Optional name of the variable in the NetCDF file to read.
+#' @param outfile Optional output file name to save the raster brick.
+#' @return A raster brick containing the data read from the NetCDF file.
+#' @importFrom ncdf4 nc_open ncvar_get
+#' @importFrom terra rast ext writeRaster
+#' @export
+f_readANUnc = function(fname, shp = NULL, dname = NULL, outfile = NULL) {
+  # Load required packages
+  require(ncdf4)
+  require(terra)
+  
+  # Open NetCDF file
+  lcnc <- nc_open(fname)
+  
+  # Print variable names in the NetCDF file
+  cat("Available variables in the NetCDF file:\n")
+  print(names(lcnc$var))
+  
+  # If dname is not provided, use the first variable
+  if (is.null(dname)) {
+    dname <- names(lcnc$var)[1]
+    cat("dname not provided. Using the first variable:", dname, "\n")
+  }
+  
+  # Extract dimensions
+  lat <- ncvar_get(lcnc, varid = "latitude")
+  lon <- ncvar_get(lcnc, varid = "longitude")
+  
+  # Get variable metadata
+  varsize <- lcnc$var[[dname]]$varsize
+  ndims <- lcnc$var[[dname]]$ndims
+  nt <- varsize[ndims]
+  
+  # Clip by region if shapefile is provided
+  if (!is.null(shp)) {
+    lat_ind <- which(lat >= ext(shp)$ymin & lat <= ext(shp)$ymax)
+    lon_ind <- which(lon >= ext(shp)$xmin & lon <= ext(shp)$xmax)
+    lc_array <- ncvar_get(lcnc, dname, start = c(lat_ind[1], lon_ind[1], 1), count = c(length(lat_ind), length(lon_ind), nt))
+  } else {
+    lc_array <- ncvar_get(lcnc, dname)
+  }
+  
+  # Create raster brick
+  lc_brick <- rast(lc_array, crs = "EPSG:4326", extent = ext(min(lon), max(lon), min(lat), max(lat)))
+  
+  # Name layers
+  times <- as.Date(lcnc$dim$time$vals, origin = "1800-01-01")
+  names(lc_brick) <- times
+  
+  # Save to disk or memory
+  if (!is.null(outfile)) {
+    writeRaster(lc_brick, filename = outfile, format = "GTiff", overwrite = TRUE)
+    cat("Raster brick saved to:", outfile, "\n")
+  } else {
+    # Check if the raster brick is too large to fit in memory
+    if (terra::ncell(lc_brick) * terra::nlyr(lc_brick) > 1e7) {  # Adjust the threshold as needed
+      tmpfile <- tempfile(fileext = ".tif")
+      writeRaster(lc_brick, filename = tmpfile, format = "GTiff", overwrite = TRUE)
+      cat("Raster brick is too large, saved to temporary file:", tmpfile, "\n")
+      return(tmpfile)
+    } else {
+      return(lc_brick)
+    }
+  }
+},
 #' Read EASI nc Raster
 #'
 #' This function reads a raster file in EASI nc format and converts it to a `terra` raster object.
