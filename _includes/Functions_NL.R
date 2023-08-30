@@ -163,13 +163,13 @@ f_readANUnc = function(fname, shp = NULL, dname = NULL, outfile = NULL) {
   
   # Save to disk or memory
   if (!is.null(outfile)) {
-    writeRaster(lc_brick, filename = outfile, format = "GTiff", overwrite = TRUE)
+    writeRaster(lc_brick,outfile,overwrite=T)
     cat("Raster brick saved to:", outfile, "\n")
   } else {
     # Check if the raster brick is too large to fit in memory
     if (terra::ncell(lc_brick) * terra::nlyr(lc_brick) > 1e7) {  # Adjust the threshold as needed
       tmpfile <- tempfile(fileext = ".tif")
-      writeRaster(lc_brick, filename = tmpfile, format = "GTiff", overwrite = TRUE)
+      writeRaster(lc_brick,outfile,overwrite=T)
       cat("Raster brick is too large, saved to temporary file:", tmpfile, "\n")
       return(tmpfile)
     } else {
