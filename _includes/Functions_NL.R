@@ -105,6 +105,41 @@ f_digits=function(x,n=2,format=F) {
   }
   
 },
+#' Create Cloud Optimized GeoTIFF (COG)
+#'
+#' This function converts a given raster file into a Cloud Optimized GeoTIFF (COG) format
+#' using the GDAL utility. It's particularly useful for preparing large geospatial datasets 
+#' for efficient web usage.
+#'
+#' @param input_raster Path to the input raster file.
+#' @param output_cog_path Path where the output COG file will be saved.
+#' @return Path to the created COG file.
+#' @export
+#' @examples
+#' create_cog("path/to/input/raster", "path/to/output/COG.tif")
+create_cog = function(input_raster, output_cog_path) {
+  # Check if GDAL is installed or load it using module
+  if (system("gdal_translate --version", ignore.stdout = TRUE, ignore.stderr = TRUE) != 0) {
+    # Attempt to load GDAL using module (common in HPC environments)
+    system("module load gdal", ignore.stdout = TRUE, ignore.stderr = TRUE)
+    # Check again if GDAL is available
+    if (system("gdal_translate --version", ignore.stdout = TRUE, ignore.stderr = TRUE) != 0) {
+      stop("GDAL is not installed or could not be loaded.")
+    }
+  }
+
+  # Construct the GDAL command to convert to COG
+  gdal_command <- sprintf("gdal_translate %s %s -of COG -co COMPRESS=DEFLATE -co BIGTIFF=YES", 
+                          input_raster, output_cog_path)
+
+  # Run the GDAL command
+  system(gdal_command)
+
+  # Return the path of the COG file
+  return(output_cog_path)
+},
+
+
 #' Read and Optionally Clip NetCDF File
 #'
 #' This function reads a NetCDF file and optionally clips it by a given shapefile.
