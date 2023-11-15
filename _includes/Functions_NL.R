@@ -117,7 +117,7 @@ f_digits=function(x,n=2,format=F) {
 #' @export
 #' @examples
 #' create_cog("path/to/input/raster", "path/to/output/COG.tif")
-create_cog = function(input_raster, output_cog_path) {
+create_cog = function(input_raster, output_cog_path=NULL) {
   # Check if GDAL is installed or load it using module
   if (system("gdal_translate --version", ignore.stdout = TRUE, ignore.stderr = TRUE) != 0) {
     # Attempt to load GDAL using module (common in HPC environments)
@@ -126,6 +126,19 @@ create_cog = function(input_raster, output_cog_path) {
     if (system("gdal_translate --version", ignore.stdout = TRUE, ignore.stderr = TRUE) != 0) {
       stop("GDAL is not installed or could not be loaded.")
     }
+  }
+  
+  # set the output file name if it is not set
+  if (is.null(output_cog_path)) {
+    # Extract the file extension
+    file_ext <- tools::file_ext(input_raster)
+    
+    # Remove the extension from the infile
+    base_name <- sub(paste0("\\.", file_ext, "$"), "", input_raster)
+    
+    # Add "_COG" before the extension
+    output_cog_path <- paste0(base_name, "_COG.", file_ext)
+    
   }
 
   # Construct the GDAL command to convert to COG
