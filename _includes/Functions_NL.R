@@ -127,29 +127,34 @@ create_cog = function(input_raster, output_cog_path=NULL) {
       stop("GDAL is not installed or could not be loaded.")
     }
   }
+    
+	# Extract the file extension
+	file_ext <- tools::file_ext(input_raster)
   
   # set the output file name if it is not set
   if (is.null(output_cog_path)) {
-    # Extract the file extension
-    file_ext <- tools::file_ext(input_raster)
     
     # Remove the extension from the infile
     base_name <- sub(paste0("\\.", file_ext, "$"), "", input_raster)
     
     # Add "_COG" before the extension
-    output_cog_path <- paste0(base_name, "_COG.", file_ext)
+    output_cog_file <- paste0(base_name, "_cog.", file_ext)
     
+  }else{
+  
+    output_cog_file <- paste0(output_cog_path,"/",sub(paste0("\\.", file_ext, "$"), "", basename(input_raster)), "_cog.", file_ext)
   }
+  
 
   # Construct the GDAL command to convert to COG
   gdal_command <- sprintf("gdal_translate %s %s -of COG -co COMPRESS=DEFLATE -co BIGTIFF=YES", 
-                          input_raster, output_cog_path)
-
+                          input_raster, output_cog_file)
+  
   # Run the GDAL command
   system(gdal_command)
-
+  
   # Return the path of the COG file
-  return(output_cog_path)
+  return(output_cog_file)
 },
 
 
