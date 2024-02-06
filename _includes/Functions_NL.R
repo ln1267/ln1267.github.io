@@ -106,6 +106,59 @@ f_digits=function(x,n=2,format=F) {
   
 },
 
+#' Fetch Climate Data from API
+#'
+#' This function fetches climate data from a specified API using latitude, longitude, and date range.
+#' The data is returned in a dataframe with added calculations for VPD, Rainfall, and PET.
+#'
+#' @param lat Numeric, latitude for the data point of interest.
+#' @param long Numeric, longitude for the data point of interest.
+#' @param start_date String, start date for the data in 'YYYYMMDD' format.
+#' @param end_date String, end date for the data in 'YYYYMMDD' format.
+#' @param username String, email address for the API access.
+#' @return A dataframe containing the fetched climate data with additional calculated fields.
+#' @importFrom httr GET
+#' @importFrom readr read_csv
+#' @examples
+#' data <- fetchSILOClimate(lat = -27.5, long = 153.0, 
+#'                          start_date = '20000101', end_date = '20221231', 
+#'                          username = 'example@email.com')
+fetchSILOClimate = function(lat, long, start_date, end_date, username) {
+    # Define the base API URL
+    api_url <- 'https://www.longpaddock.qld.gov.au/cgi-bin/silo/DataDrillDataset.php'
+
+    # Set up the parameters for the API request
+    params <- list(
+        format = 'csv',
+        comment = 'RXNWDJ',
+        lat = lat,
+        lon = long,
+        start = start_date,
+        finish = end_date,
+        username = username,
+        password = "apirequest"
+    )
+
+    # Make the GET request to the API
+    response <- httr::GET(url = api_url, query = params)
+
+    # Check if the request was successful
+    if (httr::http_status(response)$category == "Success") {
+        # Read the content of the response and perform transformations
+        data_climate <- readr::read_csv(text = httr::content(response, "text")) %>%
+            dplyr::mutate(
+                Date = as.Date(YYYY.MM.DD, "%Y-%m-%d"),
+                VPD = vp_deficit / 10,
+                Rainfall = daily_rain,
+                PET = et_morton_wet
+            )
+    } else {
+        stop("Request failed")
+    }
+    return(data_climate)
+},
+
+
 #' Fetch and Process Leaf Area Index (LAI) Data from OzWALD
 #'
 #' url:https://dapds00.nci.org.au/thredds/catalog/ub8/au/OzWALD/8day/catalog.html
