@@ -146,7 +146,7 @@ fetchSILOClimate = function(lat, long, vars='RXNWDJ', start_date = '20000101', e
     # Check if the request was successful
     if (httr::http_status(response)$category == "Success") {
         # Read the content of the response and perform transformations
-        data_climate <- readr::read_csv(text = httr::content(response, "text")) %>%
+        data_climate <- read.csv(text = httr::content(response, "text")) %>%
             dplyr::mutate(
                 Date = as.Date(YYYY.MM.DD, "%Y-%m-%d"),
                 VPD = vp_deficit / 10,
