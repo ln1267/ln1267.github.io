@@ -105,6 +105,62 @@ f_digits=function(x,n=2,format=F) {
   }
   
 },
+#' Extract and Average Soil Data from Raster for Point or Polygon
+#'
+#' This function extracts soil data from a specified raster file at given coordinates, 
+#' which can be a point, a set of coordinates defining a polygon, or a SpatVector polygon. 
+#' For polygons, it calculates the average of the extracted data.
+#'
+#' @param raster_path String, path to the raster file.
+#' @param input Either a data frame for point coordinates, a matrix or data frame for raw polygon coordinates, or a SpatVector polygon.
+#' @param type String, type of the input ('point', 'polygon', or 'vect_polygon').
+#' @return A numeric value or vector containing the extracted (and averaged, if applicable) soil data.
+#' @importFrom terra rast, vect, extract, as.polygons
+#' @examples
+#' # For point
+#' soil_data_point <- extractSoilData(raster_path = "path/to/Soil_WaSSI_stacks.tif", 
+#'                                   input = data.frame(long = -80.4, lat = 25.8), 
+#'                                   type = "point")
+#' # For raw polygon coordinates
+#' polygon_coords <- matrix(c(-80.4, 25.8, -80.5, 25.9, -80.6, 25.7), ncol = 2, byrow = TRUE)
+#' soil_data_polygon <- extractSoilData(raster_path = "path/to/Soil_WaSSI_stacks.tif", 
+#'                                      input = polygon_coords, 
+#'                                      type = "polygon")
+#' # For SpatVector polygon
+#' # Assume my_polygon is a SpatVector polygon
+#' soil_data_vect_polygon <- extractSoilData(raster_path = "path/to/Soil_WaSSI_stacks.tif", 
+#'                                           input = my_polygon, 
+#'                                           type = "vect_polygon")
+extractSoilData = function(raster_path, input, type = "point") {
+  # Load the raster data
+  soil_stack <- terra::rast(raster_path)
+  
+  # Process based on the type of input
+  if (type == "point") {
+    # For point - assume input is a data frame with 'long' and 'lat' columns
+    point <- terra::vect(input, geom = names(input), crs = "epsg:4326")
+    extracted_data <- terra::extract(soil_stack, point)
+  } else if (type == "polygon") {
+    # For raw polygon coordinates - assume input is a matrix or data frame
+    polygon <- terra::as.polygons(x = input, crs = "epsg:4326")
+    extracted_data <- terra::extract(soil_stack, polygon, fun = mean, na.rm = TRUE)
+  } else if (type == "vect_polygon") {
+    # For SpatVector polygon - assume input is already a SpatVector polygon
+    extracted_data <- terra::extract(soil_stack, input, fun = mean, na.rm = TRUE)
+  } else {
+    stop("Invalid type. Please specify 'point', 'polygon', or 'vect_polygon'.")
+  }
+  
+  # Extract the data from the raster at the specified point
+  extracted_data["dt"] <- 1
+  extracted_data["return_state"] <- 1
+  extracted_data["adimp"] <- 0
+  extracted_data["pctim"] <- 0
+  
+  
+  # Return the extracted data
+  return(extracted_data)
+},
 
 #' Fetch Climate Data from API
 #'
@@ -149,9 +205,9 @@ fetchSILOClimate = function(lat, long, vars='RXNWDJ', start_date = '20000101', e
         data_climate <- read.csv(text = httr::content(response, "text")) %>%
             dplyr::mutate(
                 Date = as.Date(YYYY.MM.DD, "%Y-%m-%d"),
-                VPD = vp_deficit / 10,
-                Rainfall = daily_rain,
-                PET = et_morton_wet
+                VPD = vp_deficit / 10, # Kpa
+                Rainfall = daily_rain, # mm
+                PET = et_morton_wet # mm
             )
     } else {
         stop("Request failed")
