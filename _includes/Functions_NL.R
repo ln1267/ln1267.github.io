@@ -150,7 +150,17 @@ ts_validation = function(df) {
         ggplot2::theme_bw()
 
     # Additional plots (p2, p3, p4) are similar to p1 with different data and aesthetics
+	p2<-result_month%>%
+	  ggplot(aes(x=Obs,y=Sim))+ggplot2::geom_point()+ggplot2::geom_smooth(method = "lm")+ggplot2::coord_equal()+ggplot2::labs(x="Obs Observed",y="Obs Simulated")+ggplot2::theme_bw()
 
+	p3<-result_month%>%
+	  ggplot2::ggplot(aes(x=Date))+ggplot2::geom_line(aes(y=Obs,color="Observed"))+
+	  ggplot2::geom_line(aes(y=Sim,color="Simulated"))+ggplot2::scale_color_manual(name="Legend",values = c("black","red"),breaks=c("Observed","Simulated"))+ggplot2::scale_x_date(date_breaks ="1 year",date_labels = "%Y")+ggplot2::labs(x="Date",y="Value")+ggplot2::theme_bw()
+
+	p4<-result_ann%>%
+	  ggplot2::ggplot(aes(x=Year))+ggplot2::geom_line(aes(y=Obs,color="Observed"))+
+	  ggplot2::geom_line(aes(y=Sim,color="Simulated"))+ggplot2::scale_color_manual(name="Legend",values = c("black","red"),breaks=c("Observed","Simulated"))+ggplot2::labs(x="Year",y="Value")+ggplot2::scale_x_continuous(breaks = c(seq(1980,2022,1)))+ggplot2::theme_bw()
+	  
     # Monthly and Annual Averages
     Monthly_avg <- result_month %>%
         dplyr::ungroup() %>%
