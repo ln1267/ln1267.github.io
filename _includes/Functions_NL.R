@@ -113,6 +113,7 @@ f_digits=function(x,n=2,format=F) {
 #'
 #' @param lat Numeric, latitude for the data point of interest.
 #' @param long Numeric, longitude for the data point of interest.
+#' @param vars String, variables to extract, https://www.longpaddock.qld.gov.au/silo/about/climate-variables/ .
 #' @param start_date String, start date for the data in 'YYYYMMDD' format.
 #' @param end_date String, end date for the data in 'YYYYMMDD' format.
 #' @param username String, email address for the API access.
@@ -123,14 +124,14 @@ f_digits=function(x,n=2,format=F) {
 #' data <- fetchSILOClimate(lat = -27.5, long = 153.0, 
 #'                          start_date = '20000101', end_date = '20221231', 
 #'                          username = 'example@email.com')
-fetchSILOClimate = function(lat, long, start_date, end_date, username) {
+fetchSILOClimate = function(lat, long, vars='RXNWDJ', start_date = '20000101', end_date = '20221231', username='example@email.com') {
     # Define the base API URL
     api_url <- 'https://www.longpaddock.qld.gov.au/cgi-bin/silo/DataDrillDataset.php'
 
     # Set up the parameters for the API request
     params <- list(
         format = 'csv',
-        comment = 'RXNWDJ',
+        comment = vars,
         lat = lat,
         lon = long,
         start = start_date,
