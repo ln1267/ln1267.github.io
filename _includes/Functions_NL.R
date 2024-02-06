@@ -105,6 +105,87 @@ f_digits=function(x,n=2,format=F) {
   }
   
 },
+
+#' Fetch and Process Leaf Area Index (LAI) Data from OzWALD
+#'
+#' url:https://dapds00.nci.org.au/thredds/catalog/ub8/au/OzWALD/8day/catalog.html
+#' This function downloads and processes Leaf Area Index (LAI) data for a specified range of years and geographical coordinates.
+#' The data is sourced from a specified URL and involves downloading NetCDF files, extracting LAI values, and aggregating them into a dataframe.
+#'
+#' @param lat Numeric, latitude for the data point of interest.
+#' @param long Numeric, longitude for the data point of interest.
+#' @param buffer Numeric, the buffer size around the latitude and longitude coordinates (in degrees).
+#' @param start_year Integer, starting year of the data (inclusive). Default is 2000.
+#' @param end_year Integer, ending year of the data (inclusive). Default is 2022.
+#' @return A dataframe containing the LAI data aggregated across the specified years. Each row represents an LAI measurement with its corresponding date.
+#' @importFrom ncdf4 nc_open ncvar_get nc_close
+#' @importFrom utils download.file
+#' @examples
+#' # Replace with actual latitude, longitude, and buffer values
+#' lat_value <- YOUR_LATITUDE
+#' long_value <- YOUR_LONGITUDE
+#' buffer_value <- 0.02  # Example buffer size
+#' lai_data <- fetchANULAI(lat = lat_value, long = long_value, buffer = buffer_value)
+fetchANULAI = function(lat, long, buffer = 0.02, start_year = 2000, end_year = 2022) {
+    # Validate input parameters
+    if (!is.numeric(lat) || !is.numeric(long) || !is.numeric(buffer)) {
+        stop("Latitude, longitude, and buffer must be numeric.")
+    }
+    if (start_year > end_year) {
+        stop("Start year must be less than or equal to end year.")
+    }
+
+    # Initialize the dataframe to store LAI data
+    all_lai_data <- data.frame(Date = as.Date(character()), LAI = numeric(), stringsAsFactors = FALSE)
+
+    # Function to process data for a single year
+    process_year_data <- function(year, lat, long, buffer) {
+        # Construct the URL for the data
+        url <- paste0("https://dapds00.nci.org.au/thredds/ncss/ub8/au/OzWALD/8day/LAI/OzWALD.LAI.", year, 
+                      ".nc?var=LAI&north=", lat + buffer, "&west=", long - buffer, 
+                      "&east=", long + buffer, "&south=", lat - buffer, 
+                      "&horizStride=1&time_start=", year, "-01-01T00%3A00%3A00Z&time_end=", year, 
+                      "-12-26T00%3A00%3A00Z&timeStride=1")
+
+        # Create a temporary file for the download
+        temp_file <- tempfile(fileext = ".nc")
+        download.file(url, temp_file, mode = "wb")
+        on.exit(unlink(temp_file))
+
+        # Open the NetCDF file
+        nc_data <- nc_open(temp_file)
+        on.exit(nc_close(nc_data), add = TRUE)
+
+        # Extract the LAI variable
+        lai_data <- ncvar_get(nc_data, "LAI")
+        # Calculate mean LAI if data has more than one row
+        if (nrow(lai_data) > 1) lai_data <- apply(lai_data, 2, mean, na.rm = TRUE)
+
+        # Convert NetCDF time to dates
+        base_date <- as.Date("1800-01-01")
+        lai_dates <- base_date + ncvar_get(nc_data, "time")
+
+        # Return the data as a dataframe
+        data.frame(Date = lai_dates, LAI = lai_data)
+
+    }
+
+    # Loop through the specified years
+    for (yr in start_year:end_year) {
+        da_lai <- tryCatch({
+            process_year_data(yr, lat, long, buffer)
+        }, error = function(e) {
+            message("Error processing data for year ", yr, ": ", e$message)
+            NULL
+        })
+        if (!is.null(da_lai)) {
+            all_lai_data <- rbind(all_lai_data, da_lai)
+        }
+    }
+
+    return(all_lai_data)
+},
+
 #' ts_validation function
 #'
 #' Processes a dataframe containing time series data (with dates, observations, and simulations),
