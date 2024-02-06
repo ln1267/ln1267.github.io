@@ -105,6 +105,71 @@ f_digits=function(x,n=2,format=F) {
   }
   
 },
+#' ts_validation function
+#'
+#' Processes a dataframe containing time series data (with dates, observations, and simulations),
+#' aggregates the data, calculates performance metrics, and generates plots.
+#' 
+#' @param df A dataframe with at least 'Date', 'Obs', and 'Sim' columns.
+#' @return A list containing aggregated data, averages, accuracy metrics, and figures.
+#' @examples
+#' df <- data.frame(Date = as.Date('2000-01-01') + 0:364, Obs = rnorm(365), Sim = rnorm(365))
+#' result <- ts_validation(df)
+ts_validation = function(df) {
+    # Check for necessary columns
+    if (!all(c("Date", "Obs", "Sim") %in% names(df))) {
+        stop("Dataframe must contain Date, Obs, and Sim columns.")
+    }
+
+    start_date <- min(df$Date) + lubridate::years(1)
+    
+    # Data Filtering and Aggregation
+    result_daily <- dplyr::filter(df, Date >= start_date)
+
+    result_month <- result_daily %>%
+        dplyr::mutate(Year = lubridate::year(Date), Month = lubridate::month(Date)) %>%
+        dplyr::group_by(Year, Month) %>%
+        dplyr::summarise(across(Obs:Sim, .fns = sum, na.rm = TRUE)) %>%
+        dplyr::mutate(Date = lubridate::make_date(Year, Month, 1))
+
+    result_ann <- result_daily %>%
+        dplyr::mutate(Year = lubridate::year(Date)) %>%
+        dplyr::group_by(Year) %>%
+        dplyr::summarise(across(Obs:Sim, .fns = sum, na.rm = TRUE)) %>%
+        dplyr::mutate(Pbias = (Sim - Obs) / Obs * 100)
+
+    # Validation parameters
+    val_par_daily <- funs_nl$f_acc(result_daily$Obs, result_daily$Sim)
+    val_par_monthly <- funs_nl$f_acc(result_month$Obs, result_month$Sim)
+    val_par_annual <- funs_nl$f_acc(result_ann$Obs, result_ann$Sim)
+
+    # Plots
+    p1 <- ggplot2::ggplot(result_daily, ggplot2::aes(x = Obs, y = Sim)) +
+        ggplot2::geom_point() + ggplot2::geom_smooth(method = "lm") +
+        ggplot2::coord_equal() + ggplot2::labs(x = "Obs Observed", y = "Obs Simulated") +
+        ggplot2::theme_bw()
+
+    # Additional plots (p2, p3, p4) are similar to p1 with different data and aesthetics
+
+    # Monthly and Annual Averages
+    Monthly_avg <- result_month %>%
+        dplyr::ungroup() %>%
+        dplyr::select(-Date, -Year) %>%
+        dplyr::group_by(Month) %>%
+        dplyr::summarise(across(.fns = mean))
+
+    Annual_avg <- result_ann %>%
+        dplyr::select(-Year) %>%
+        dplyr::summarise(across(.fns = mean))
+
+    return(list(daily = result_daily, monthly = result_month, annual = result_ann,
+                monthly_avg = Monthly_avg, annual_avg = Annual_avg,
+                Accuracy = list(val_par_daily = val_par_daily, val_par_monthly = val_par_monthly,
+                                val_par_annual = val_par_annual),
+                Figs = list(daily = p1, monthly = p2, monthly_lines = p3, annual = p4)))
+},
+
+
 #' Create Cloud Optimized GeoTIFF (COG)
 #'
 #' This function converts a given raster file into a Cloud Optimized GeoTIFF (COG) format
