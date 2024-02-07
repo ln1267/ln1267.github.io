@@ -270,7 +270,8 @@ fetchANULAI = function(lat, long, buffer = 0.02, start_year = 2000, end_year = 2
         lai_data <- ncvar_get(nc_data, "LAI")
         # Calculate mean LAI if data has more than one row
         if (is.matrix(lai_data)) lai_data <- apply(lai_data, 2, mean, na.rm = TRUE)
-
+		if (is.array(lai_data)) lai_data <- apply(lai_data, 3, mean, na.rm = TRUE)
+		
         # Convert NetCDF time to dates
         base_date <- as.Date("1800-01-01")
         lai_dates <- base_date + ncvar_get(nc_data, "time")
