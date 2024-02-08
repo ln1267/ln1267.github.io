@@ -569,6 +569,24 @@ f_crop_roi=function(daRaster,ROI,.mask=FALSE,.plot=FALSE){
     cor(da$obs,da$sim) ^ 2
 
   },
+  #rRMSE
+ # The relative root mean squared error (rRMSE) which indicate magnitude of error relative to the mean, with rRMSE < 0.1 indicating excellent accuracy, and 0.2 ≤ rRMSE ≤ 0.3 indicating good accuracy. 
+ f_rRMSE = function(observed, predicted) {
+  # Ensure that the observed and predicted vectors have the same length
+  if(length(observed) != length(predicted)) {
+    stop("The observed and predicted vectors must have the same length.")
+  }
+  
+  # Calculate the RMSE
+  rmse <- sqrt(mean((observed - predicted)^2))
+  
+  # Calculate the average of the observed values
+  mean_observed <- mean(observed)
+  
+  # Calculate and return the rRMSE
+  rrmse <- rmse / mean_observed
+  return(rrmse)
+},
 ## RMSE
 f_RMSD=function(obs,sim){
 	da<-data.frame(obs=obs,sim=sim)
@@ -613,9 +631,9 @@ f_Pbias=function(obs,sim){
 f_acc=function(obs,sim){
   #require("hydroGOF")
   
-  acc_result<-c(funs_nl$f_R2(obs,sim),funs_nl$f_RMSE(obs,sim),funs_nl$f_Pbias(obs,sim),funs_nl$f_NSE(obs,sim),funs_nl$f_KGE(obs,sim))
+  acc_result<-c(funs_nl$f_R2(obs,sim),funs_nl$f_RMSE(obs,sim),funs_nl$f_rRMSE(obs,sim),funs_nl$f_Pbias(obs,sim),funs_nl$f_NSE(obs,sim),funs_nl$f_KGE(obs,sim))
   acc_result<-round(acc_result,3)
-  names(acc_result)<-c("R2","RMSE","Pbias","NSE","KGE")
+  names(acc_result)<-c("R2","RMSE","rRMSE","Pbias","NSE","KGE")
   #print(acc_result)
   acc_result
 },
