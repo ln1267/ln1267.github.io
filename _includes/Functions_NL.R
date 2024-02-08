@@ -307,7 +307,7 @@ fetchANULAI = function(lat, long, buffer = 0.02, start_year = 2000, end_year = 2
 #' @examples
 #' df <- data.frame(Date = as.Date('2000-01-01') + 0:364, Obs = rnorm(365), Sim = rnorm(365))
 #' result <- ts_validation(df)
-ts_validation = function(df) {
+ts_validation = function(df,fun="sum") {
     # Check for necessary columns
     if (!all(c("Date", "Obs", "Sim") %in% names(df))) {
         stop("Dataframe must contain Date, Obs, and Sim columns.")
@@ -321,13 +321,13 @@ ts_validation = function(df) {
     result_month <- result_daily %>%
         dplyr::mutate(Year = lubridate::year(Date), Month = lubridate::month(Date)) %>%
         dplyr::group_by(Year, Month) %>%
-        dplyr::summarise(across(Obs:Sim, .fns = sum, na.rm = TRUE)) %>%
+        dplyr::summarise(across(Obs:Sim, .fns = fun, na.rm = TRUE)) %>%
         dplyr::mutate(Date = lubridate::make_date(Year, Month, 1))
 
     result_ann <- result_daily %>%
         dplyr::mutate(Year = lubridate::year(Date)) %>%
         dplyr::group_by(Year) %>%
-        dplyr::summarise(across(Obs:Sim, .fns = sum, na.rm = TRUE)) %>%
+        dplyr::summarise(across(Obs:Sim, .fns = fun, na.rm = TRUE)) %>%
         dplyr::mutate(Pbias = (Sim - Obs) / Obs * 100)
 
     # Validation parameters
