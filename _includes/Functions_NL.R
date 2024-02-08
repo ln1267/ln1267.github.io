@@ -321,13 +321,13 @@ ts_validation = function(df,fun="sum") {
     result_month <- result_daily %>%
         dplyr::mutate(Year = lubridate::year(Date), Month = lubridate::month(Date)) %>%
         dplyr::group_by(Year, Month) %>%
-        dplyr::summarise(across(Obs:Sim, .fns = fun, na.rm = TRUE)) %>%
+        dplyr::summarise(across(Obs:Sim, .fns = mean, na.rm = TRUE)) %>%
         dplyr::mutate(Date = lubridate::make_date(Year, Month, 1))
 
     result_ann <- result_daily %>%
         dplyr::mutate(Year = lubridate::year(Date)) %>%
         dplyr::group_by(Year) %>%
-        dplyr::summarise(across(Obs:Sim, .fns = fun, na.rm = TRUE)) %>%
+        dplyr::summarise(across(Obs:Sim, .fns = mean, na.rm = TRUE)) %>%
         dplyr::mutate(Pbias = (Sim - Obs) / Obs * 100)
 
     # Validation parameters
