@@ -135,11 +135,15 @@ extractSoilData = function(raster_path, input, type = "point") {
   # Load the raster data
   soil_stack <- terra::rast(raster_path)
   
+  NAflag(soil_stack)<- -999.0000
+  
   # Process based on the type of input
   if (type == "point") {
     # For point - assume input is a data frame with 'long' and 'lat' columns
     point <- terra::vect(input, geom = names(input), crs = "epsg:4326")
-    extracted_data <- terra::extract(soil_stack, point)
+    buffered_point <- buffer(point, width = 1000) # width is in meters
+    extracted_data <- terra::extract(soil_stack, buffered_point, fun = mean, na.rm = TRUE)
+	
   } else if (type == "polygon") {
     # For raw polygon coordinates - assume input is a matrix or data frame
     polygon <- terra::as.polygons(x = input, crs = "epsg:4326")
