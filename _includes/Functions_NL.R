@@ -131,7 +131,7 @@ f_digits=function(x,n=2,format=F) {
 #' soil_data_vect_polygon <- extractSoilData(raster_path = "path/to/Soil_WaSSI_stacks.tif", 
 #'                                           input = my_polygon, 
 #'                                           type = "vect_polygon")
-extractSoilData = function(raster_path, input, type = "point") {
+extractSoilData = function(raster_path, input, type = "point",.width=1) {
   # Load the raster data
   soil_stack <- terra::rast(raster_path)
   
@@ -141,7 +141,7 @@ extractSoilData = function(raster_path, input, type = "point") {
   if (type == "point") {
     # For point - assume input is a data frame with 'long' and 'lat' columns
     point <- terra::vect(input, geom = names(input), crs = "epsg:4326")
-    buffered_point <- buffer(point, width = 1000) # width is in meters
+    buffered_point <- buffer(point, width = .width) # width is in meters
     extracted_data <- terra::extract(soil_stack, buffered_point, fun = mean, na.rm = TRUE)
 	
   } else if (type == "polygon") {
