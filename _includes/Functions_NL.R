@@ -300,6 +300,101 @@ fetchANULAI = function(lat, long, buffer = 0.02, start_year = 2000, end_year = 2
 
     return(all_lai_data)
 },
+#' Combine Two Raster Layers into One with New Classifications
+#'
+#' This function combines two raster layers, each potentially classified into different factors,
+#' into a single layer with a unique classification for each combination of input classes.
+#' It can optionally return detailed information about the new classification.
+#'
+#' @param r1 A terra RasterLayer object, representing the first raster.
+#' @param r2 A terra RasterLayer object, representing the second raster.
+#' @param withClass Logical, indicating whether to return a detailed classification table.
+#' @param sep_combine A string specifying the separator to use when combining class names.
+#' @return A list containing the combined raster and, optionally, a data frame with classification details.
+#' @examples
+#' # r1 and r2 should be terra RasterLayer objects with categorical data.
+#' # See test examples provided in the original explanation for usage.
+#' @import terra
+#' @importFrom dplyr %>% mutate select left_join arrange
+#' @export
+twoClass = function(r1, r2,withClass=FALSE,sep_combine="_") {
+  
+  # Set the names of r1 and r2 to r1_name and r2_name respectively.
+  r1_name<-names(r1);r2_name<-names(r2)
+  
+  if(!terra::is.factor(r1)) {r1 <- terra::as.factor(r1)}
+  if(!terra::is.factor(r2)) {r2 <- terra::as.factor(r2)}
+  
+  # Create new levels for r1
+  lev_r1 <-
+    terra::levels(r1)[[1]] %>%
+    setNames(c("ID","Class1")) %>%
+    dplyr::mutate(id_1 = dplyr::row_number(),r1_id=ID) %>%
+    dplyr::select(r1_id, id_1,Class1)
+  
+  # Get the multiple factor based on the number of characters of the maximum ID in lev_r1
+  multiple_factor<-10^nchar(max(lev_r1$id_1))
+  
+  # Reclassify r1
+  r1<-terra::classify(r1,as.matrix(lev_r1[,1:2]))
+  
+  # Create new levels for r2
+  lev_r2 <- terra::levels(r2)[[1]]  %>%
+    setNames(c("ID","Class2")) %>%
+    mutate(id_2=row_number()*multiple_factor,r2_id=ID)%>%
+    dplyr::select(r2_id, id_2,Class2)
+  
+  # Reclassify r2
+  r2<-terra::classify(r2,as.matrix(lev_r2[,1:2]))
+  
+  # Create the new r1+r2 raster
+  r1_r2<-r1+r2
+  
+  # Get the combined levels and the frequency
+  newlevels <- terra::freq(r1_r2)[,-1] %>%
+    dplyr::mutate(id_1=value%%multiple_factor,
+                  id_2=floor(value/multiple_factor)*multiple_factor) %>%
+    dplyr::rename(value_old=value) %>%
+    dplyr::mutate(Value=dplyr::row_number()) %>%
+    dplyr::left_join(lev_r1, by = "id_1") %>%
+    dplyr::left_join(lev_r2, by = "id_2") %>%
+    dplyr::mutate(cls1_cls2 = paste(Class1, Class2, sep = sep_combine)) %>%
+    dplyr::select(value_old,Value,"cls1_cls2","count","r1_id","r2_id","Class1","Class2") %>% #
+    dplyr::arrange(Value)
+  
+  # Reclassify r1_r2
+  r1_r2 <- terra::classify(r1_r2,as.matrix(newlevels[,1:2]))
+  
+  if(withClass){
+    # Return the combined classes
+    # If names of r1 and r2 are not NULL, rename columns in newlevels data frame using paste with the specified separator
+    if(r2_name=="") r1_name<-"rast1"
+    if(r2_name=="") r2_name<-"rast2"
+    if(r1_name==r2_name) {r1_name<-paste0(r1_name,".1");r2_name<-paste0(r1_name,".2")}
+    name_combine<-paste(r1_name, r2_name, sep = sep_combine)
+    names(newlevels)[c(3:8)] <- c(name_combine,"count",paste0(c(r1_name,r2_name),"_id"),r1_name, r2_name)
+    
+    # Add the join levels
+    levels(r1_r2)<-newlevels[,-1]
+    
+    names(r1_r2)<-name_combine
+    
+    return(r1_r2)
+    
+  }else{
+    # Rename raster
+    names(r1_r2) = "id"
+    
+    dt<-newlevels %>%
+      dplyr::mutate(V1=r1_id,V2=r2_id,id=Value) %>%
+      dplyr::select(V1,V2,id)
+    
+    # Return the new raster object.
+    return(list(r1_r2,dt))
+  }
+  
+},
+
 
 #' ts_validation function
 #'
