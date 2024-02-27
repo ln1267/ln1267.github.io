@@ -300,6 +300,66 @@ fetchANULAI = function(lat, long, buffer = 0.02, start_year = 2000, end_year = 2
 
     return(all_lai_data)
 },
+#' Create Summary Table for sf Object Attributes
+#'
+#' Generates a summary table for each attribute in an sf object. For character attributes, 
+#' it lists unique classes, limiting to the first 10 if there are more than 10 and providing a range for numeric attributes. 
+#' Attributes that are entirely NA are ignored.
+#'
+#' @param sf_object An sf object containing the spatial features and attributes to summarize.
+#'
+#' @return A data frame with one row per attribute, including the attribute name, type (Character, Numeric, or Other), 
+#' and a summary that varies by type: for character attributes, a list of unique values or a note if more than 10 unique 
+#' values exist; for numeric attributes, the range of values; and a general note for other types.
+#'
+#' @examples
+#' # Assuming sf_data is a pre-loaded sf object
+#' # summary_table <- create_summary_table(sf_data)
+#' # View(summary_table)
+#'
+#' @importFrom dplyr "%>%"
+#' @export
+#'
+#' @importFrom sf st_read
+#' @importFrom writexl write_xlsx
+create_summary_table = function(sf_object) {
+   summaries <- lapply(names(sf_object), function(attribute) {
+    if (attribute == "geometry") return(NULL) # Skip geometry column
+    
+    data <- na.omit(sf_object[[attribute]]) # Omit NA values
+    
+    if (length(data) == 0) return(NULL) # Skip if all values are NA
+    
+    if (is.character(data)) {
+      unique_values <- unique(data)
+      if (length(unique_values) > 10) {
+        summary_text <- paste("Classes >10, here are the first 10:", toString(unique_values[1:10]))
+      } else {
+        summary_text <- toString(unique_values)
+      }
+      return(data.frame(Attribute = attribute,
+                        Type = "Character",
+                        Summary = summary_text))
+    } else if (is.numeric(data)) {
+      return(data.frame(Attribute = attribute,
+                        Type = "Numeric",
+                        Summary = paste("Range:", min(data), "-", max(data))))
+    } else {
+      return(data.frame(Attribute = attribute,
+                        Type = "Other",
+                        Summary = "Special handling may be required"))
+    }
+  })
+  
+  # Combine all non-NULL summaries into a single data frame
+  summary_table <- do.call(rbind, summaries[!sapply(summaries, is.null)])
+  row.names(summary_table) <- NULL # Reset row names to avoid duplicate row name warnings
+  
+  return(summary_table)
+},
+
+
+
 #' Combine Two Raster Layers into One with New Classifications
 #'
 #' This function combines two raster layers, each potentially classified into different factors,
