@@ -401,7 +401,7 @@ twoClass = function(r1, r2,withClass=FALSE,sep_combine="_") {
   # Create new levels for r2
   lev_r2 <- terra::levels(r2)[[1]]  %>%
     setNames(c("ID","Class2")) %>%
-    mutate(id_2=row_number()*multiple_factor,r2_id=ID)%>%
+    dplyr::mutate(id_2=row_number()*multiple_factor,r2_id=ID)%>%
     dplyr::select(r2_id, id_2,Class2)
   
   # Reclassify r2
