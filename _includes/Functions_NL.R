@@ -358,7 +358,59 @@ create_summary_table = function(sf_object) {
   return(summary_table)
 },
 
+#' Create a Mosaic from TIFF Files
+#'
+#' This function creates a mosaic from TIFF files in a specified directory that match a given prefix.
+#' It offers the option to save the generated mosaic to disk, either using a specified filename or
+#' a default naming scheme based on the directory and file prefix. The function utilizes the
+#'
+#' @param da_folder A string specifying the directory path where the TIFF files are located.
+#' Default is the user's home directory.
+#' @param file_Prefix A string specifying the prefix used to identify relevant TIFF files for the mosaic.
+#' @param save A logical parameter indicating whether the mosaic should be saved to disk.
+#' If TRUE and an output filename is provided, the mosaic is saved with that filename.
+#' Otherwise, a default filename combining the directory, prefix, and ".tif" extension is used.
+#' Default is FALSE.
+#' @param output_filename An optional string specifying the custom output filename (including path)
+#' for saving the mosaic. If not provided and saving is enabled, a default filename is used.
+#' Default is NULL.
+#' @param ...	additional for writeRaster
+#' @return A RasterLayer object representing the mosaic.
+#' @importFrom terra rast
+#' @importFrom terra mosaic
+#' @examples
+#' # Assuming TIFF files prefixed with "landscape" in the "~/data/" directory
+#' # Create a mosaic without saving
+#' mosaic1 <- f_mosaic("~/data/", "landscape", save = FALSE)
+#'
+#' # Create and save the mosaic with a default filename
+#' mosaic2 <- f_mosaic("~/data/", "landscape", save = TRUE)
+#'
+#' # Create and save the mosaic with a custom filename
+#' mosaic3 <- f_mosaic("~/data/", "landscape", save = TRUE, output_filename = "~/data/custom_mosaic.tif")
+#' @export
+f_mosaic = function(file_Prefix, da_folder = "~/", save = FALSE, output_filename = NULL,...) {
 
+  # List TIFF files matching the prefix
+  tif_files <- dir(path = da_folder, pattern = paste0(file_Prefix, ".*\\.tif$"), full.names = TRUE)
+  
+  # Create Raster objects
+  rlist <- lapply(tif_files, terra::rast) # Assuming `raster` is the correct function
+  rsrc <- terra::sprc(rlist) # Assuming `stack` or `brick` is intended instead of `sprc`
+  
+  # Create and optionally save the mosaic
+  if (save) {
+    if (is.null(output_filename)) {
+      output_filename <- paste0(da_folder, file_Prefix, ".tif")
+    }
+    mosaic_raster <- terra::mosaic(rsrc, filename = output_filename, overwrite = TRUE,...)
+  } else {
+    mosaic_raster <- terra::mosaic(rsrc)
+  }
+  
+  print(mosaic_raster)
+  return(mosaic_raster)
+},
 
 #' Combine Two Raster Layers into One with New Classifications
 #'
