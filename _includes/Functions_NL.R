@@ -459,6 +459,54 @@ split_raster_bands= function(raster_path, output_names,scaleFactor=1) {
   }
 },
 
+#' Process TIFF Files and Organize into COG Subdirectories
+#'
+#' This function automates the processing of TIFF files located within a specified parent directory.
+#' It sources a script with necessary functions, processes a subset of TIFF files to create COG (Cloud Optimized GeoTIFF),
+#' and organizes these files into 'COG' subdirectories within their respective locations.
+#'
+#' @param parent_directory The base directory containing TIFF files and subdirectories.
+#' @param cores Number of cores to use for parallel processing.
+#' @importFrom doParallel registerDoParallel mclapply
+#' @examples
+#' tiff_to_cog(parent_directory = "../TIFS/",
+#'                     cores = 15)
+#' @export
+tiff_to_cog = function(parent_directory, cores = 15) {
+  # Source the external script with functions
+  source("https://raw.githubusercontent.com/ln1267/ln1267.github.io/master/_includes/Functions_NL.R")
+  
+  # Assuming funs_nl$create_cog is defined in the sourced script
+  # List a subset of '.tif' files
+  tif_files <- list.files(path = parent_directory, pattern = "\\.tif$", full.names = TRUE, recursive = TRUE)
+  
+  # Parallel processing setup
+  library(doParallel)
+  
+  # Process files in parallel
+  mclapply(tif_files, funs_nl$create_cog, mc.cores = cores)
+  
+  # List subdirectories to organize processed files
+  subdirectories <- list.dirs(path = parent_directory, full.names = TRUE, recursive = TRUE)[-1]
+  
+  # Organize files into 'COG' subdirectories
+  for(subdir in subdirectories) {
+    cog_path <- file.path(subdir, "COG")
+    
+    if(!dir.exists(cog_path)) {
+      dir.create(cog_path)
+    }
+    
+    # Move processed files
+    cong_files <- list.files(path = subdir, pattern = "_cog\\.tif$", full.names = TRUE)
+    for(file_path in cong_files) {
+      new_file_path <- file.path(cog_path, basename(file_path))
+      file.rename(from = file_path, to = new_file_path)
+    }
+  }
+},
+
+
 #' Combine Two Raster Layers into One with New Classifications
 #'
 #' This function combines two raster layers, each potentially classified into different factors,
