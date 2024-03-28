@@ -381,35 +381,82 @@ create_summary_table = function(sf_object) {
 #' @examples
 #' # Assuming TIFF files prefixed with "landscape" in the "~/data/" directory
 #' # Create a mosaic without saving
-#' mosaic1 <- f_mosaic("~/data/", "landscape", save = FALSE)
+#' mosaic1 <- f_MergeTiles("~/data/", "landscape", save = FALSE)
 #'
 #' # Create and save the mosaic with a default filename
-#' mosaic2 <- f_mosaic("~/data/", "landscape", save = TRUE)
+#' mosaic2 <- f_MergeTiles("~/data/", "landscape", save = TRUE)
 #'
 #' # Create and save the mosaic with a custom filename
-#' mosaic3 <- f_mosaic("~/data/", "landscape", save = TRUE, output_filename = "~/data/custom_mosaic.tif")
+#' mosaic3 <- f_MergeTiles("~/data/", "landscape", save = TRUE, output_filename = "~/data/custom_mosaic.tif")
 #' @export
-f_mosaic = function(file_Prefix, da_folder = "~/", save = FALSE, output_filename = NULL,...) {
+f_MergeTiles = function(file_Prefix, da_folder = "~/", save = FALSE, output_filename = NULL,NAValue=NULL,...) {
 
   # List TIFF files matching the prefix
   tif_files <- dir(path = da_folder, pattern = paste0(file_Prefix, ".*\\.tif$"), full.names = TRUE)
   
-  # Create Raster objects
-  rlist <- lapply(tif_files, terra::rast) # Assuming `raster` is the correct function
-  rsrc <- terra::sprc(rlist) # Assuming `stack` or `brick` is intended instead of `sprc`
+  # Create vrt objects
+  rsrc<-terra::vrt(tif_files)
+	
+   if(!is.null(NAValue)) NAflag(rsrc)<-NAValue
+   names(rsrc)<-names(rast(tif_files[[1]]))
+
   
   # Create and optionally save the mosaic
   if (save) {
     if (is.null(output_filename)) {
       output_filename <- paste0(da_folder, file_Prefix, ".tif")
     }
-    mosaic_raster <- terra::mosaic(rsrc, filename = output_filename, overwrite = TRUE,...)
-  } else {
-    mosaic_raster <- terra::mosaic(rsrc)
+	writeRaster(rsrc,filename=output_filename, overwrite = TRUE,...)
+
   }
   
-  print(mosaic_raster)
-  return(mosaic_raster)
+  print(rsrc)
+  return(rsrc)
+},
+
+#' Split Multi-band Raster into Individual Band Images
+#'
+#' Takes a multi-band raster file and writes each band as a separate image file,
+#' using provided names for these files. This function uses the `terra` package to
+#' handle raster operations efficiently.
+#'
+#' @param raster_path A string specifying the path to the multi-band raster file.
+#' @param output_names A character vector of names for the output files. Each name
+#' should correspond to a band in the raster, and the files will be saved in the
+#' same directory as the original raster. The '.tif' extension will be appended to
+#' each name automatically.
+#' @importFrom terra rast writeRaster
+#' @examples
+#' # Assuming 'multiband_raster.tif' is a raster with 3 bands in your working directory
+#' raster_path <- "multiband_raster.tif"
+#' output_names <- c("band1", "band2", "band3")
+#' split_raster_bands(raster_path, output_names)
+#' @export
+split_raster_bands= function(raster_path, output_names) {
+  # Ensure the terra library is available
+  library(terra)
+  
+  # Load the multi-band raster
+  rast <- rast(raster_path)
+  
+  # Check if the number of output names matches the number of bands
+  if (length(output_names) != nlyr(rast)) {
+    stop("The number of output names must match the number of bands in the raster.")
+  }
+  
+  # Split and write each band
+  for (i in seq_len(nlyr(rast))) {
+    # Extract the ith band
+    band <- rast[[i]]
+    
+    # Construct the output file name
+    output_file_name <- sprintf("%s/%s.tif", dirname(raster_path), output_names[i])
+    
+    # Write the band to a new file
+    writeRaster(band, filename = output_file_name, overwrite = TRUE)
+    
+    cat("Written band", i, "to:", output_file_name, "\n")
+  }
 },
 
 #' Combine Two Raster Layers into One with New Classifications
