@@ -432,31 +432,38 @@ f_MergeTiles = function(file_Prefix, da_folder = "~/", save = FALSE, output_file
 #' output_names <- c("band1", "band2", "band3")
 #' split_raster_bands(raster_path, output_names)
 #' @export
-split_raster_bands= function(raster_path, output_names,scaleFactor=1) {
-  # Ensure the terra library is available
-  library(terra)
+split_raster_bands = function(raster_path, output_names, data_type = "Float32", compression = "LZW") {
+  # Check for GDAL's presence
+  if (system("gdalinfo --version", ignore.stdout = TRUE, ignore.stderr = TRUE) != 0) {
+    stop("GDAL is not installed or not added to PATH.")
+  }
   
-  # Load the multi-band raster
+  # Determine the number of bands in the raster
+  library(terra)
   rast <- rast(raster_path)
+  num_bands <- nlyr(rast)
   
   # Check if the number of output names matches the number of bands
-  if (length(output_names) != nlyr(rast)) {
+  if (length(output_names) != num_bands) {
     stop("The number of output names must match the number of bands in the raster.")
   }
   
-  # Split and write each band
-  for (i in seq_len(nlyr(rast))) {
-    # Extract the ith band
-    band <- rast[[i]]*scaleFactor
-    
+  # Use GDAL to split and write each band, specifying the data type and compression
+    f_split<-function(i){
     # Construct the output file name
     output_file_name <- sprintf("%s/%s.tif", dirname(raster_path), output_names[i])
     
-    # Write the band to a new file
-    writeRaster(band, filename = output_file_name, overwrite = TRUE)
+    # Construct and execute GDAL command with data type and compression
+    gdal_cmd <- sprintf("gdal_translate -of GTiff -ot %s -co COMPRESS=%s -b %d %s %s", 
+                        data_type, compression, i, shQuote(raster_path), shQuote(output_file_name))
+    system(gdal_cmd)
     
-    cat("Written band", i, "to:", output_file_name, "\n")
-  }
+    cat("Written band", i, "to:", output_file_name, 
+        "with data type", data_type, "and", compression, "compression\n")
+    }
+	num_cores<-3
+    if(num_cores<num_bands & num_bands<=16) num_cores<-num_bands
+    parallel::mclapply(seq_len(num_bands),f_split,mc.cores = num_cores)
 },
 
 #' Process TIFF Files and Organize into COG Subdirectories
