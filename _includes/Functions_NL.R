@@ -432,7 +432,7 @@ f_MergeTiles = function(file_Prefix, da_folder = "~/", save = FALSE, output_file
 #' output_names <- c("band1", "band2", "band3")
 #' split_raster_bands(raster_path, output_names)
 #' @export
-split_raster_bands= function(raster_path, output_names) {
+split_raster_bands= function(raster_path, output_names,scaleFactor=1) {
   # Ensure the terra library is available
   library(terra)
   
@@ -447,7 +447,7 @@ split_raster_bands= function(raster_path, output_names) {
   # Split and write each band
   for (i in seq_len(nlyr(rast))) {
     # Extract the ith band
-    band <- rast[[i]]
+    band <- rast[[i]]*scaleFactor
     
     # Construct the output file name
     output_file_name <- sprintf("%s/%s.tif", dirname(raster_path), output_names[i])
