@@ -413,6 +413,81 @@ f_MergeTiles = function(file_Prefix, da_folder = "~/", save = FALSE, output_file
   print(rsrc)
   return(rsrc)
 },
+#' Create Soil parameters Mosaic from TIFF Files exported from GEE
+#'
+#' @param da_folder A string specifying the directory path where the TIFF files are located.
+#' Default is the user's home directory.
+#' @param output_filename An optional string specifying the custom output filename (including path)
+#' for saving the mosaic. If not provided and saving is enabled, a default filename is used.
+#' Default is NULL.
+#' @param NAValue	set this value to NA
+#' @param ...	additional for writeRaster
+#' @importFrom terra rast
+#' @examples
+#' # Assuming TIFF files prefixed with "landscape" in the "~/data/" directory
+#' # Create a mosaic without saving
+#' mosaic1 <- f_MergeSOIL_GEE("~/data/", "landscape")
+#'
+f_MergeSOIL_GEE = function(da_folder = "~/", output_folder = NULL,NAValue=NULL,...) {
+  
+  # Define attribute tables
+  HSG_table <- data.frame(
+    Value = 1:4,
+    HSG = LETTERS[1:4],
+    Description = c("HSG-A: low runoff potential (>90% sand and <10% clay) ", 
+                    "HSG-B: moderately low runoff potential (50-90% sand and 10-20% clay)", 
+                    "HSG-C: moderately high runoff potential (<50% sand and 20-40% clay)", 
+                    "HSG-D: high runoff potential (<50% sand and >40% clay)"),
+    SoilTexture=c("Sand",
+                  "Sandy loam, Loamy sand",
+                  "Clay loam, Silty clay loam, Sandy clay loam, Loam, Silty loam, Silt",
+                  "Clay, Silty clay, Sandy clay")
+  )
+  
+  # function to check its exist
+  f_checkFileExist<-function(da_folder,file_Prefix){
+    
+    # Pattern to search for in file names
+    search_pattern <- paste0(file_Prefix,".*\\.tif$")
+    
+    # List all files that match the pattern
+    matching_files <- list.files(path = da_folder, pattern = search_pattern, full.names = TRUE)
+    
+    length(matching_files)
+  }
+  
+  if(is.null(output_folder)) output_folder<-da_folder
+  
+  ## Load HSG
+  if(f_checkFileExist(da_folder,"HSG")){
+    
+    da_whole<-funs_nl$f_MergeTiles("HSG",da_folder,save = F,NAValue=NAValue)
+    
+    levels(da_whole)<-HSG_table
+    writeRaster(da_whole,filename = paste0(output_folder,"HSG_merged.tif"),datatype="INT2U",overwrite=T)
+    print(paste0("Finished Merge HSG!"))
+    
+  }
+  ## Load Others
+  
+  vars<-c("Ks_Saxton","Ks_Rawls1998","Ks_Ahuja1989","Ks_Cosby1984","Soil_parameters")
+  
+  for(var in vars){
+    
+    if(f_checkFileExist(da_folder,var)>1){
+      
+      da_whole<-funs_nl$f_MergeTiles(var,da_folder,save = F,NAValue=NAValue)
+      
+      da_whole<-10^(da_whole/10000)-1
+      writeRaster(da_whole,filename=paste0(output_folder,var,"_merged.tif"),overwrite=T)
+      
+      print(paste0("Finished Merge ",var,"!"))
+      
+    }	
+    
+  }
+  
+},
 
 #' Split Multi-band Raster into Individual Band Images
 #'
