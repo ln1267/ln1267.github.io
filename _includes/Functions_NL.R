@@ -105,6 +105,39 @@ f_digits=function(x,n=2,format=F) {
   }
   
 },
+
+
+#' Read and Process Data Downloaded from Google Earth Engine
+#'
+#' This function reads a CSV file exported from Google Earth Engine, processes
+#' the date conversion, and performs numeric transformations on the data. It converts
+#' the `system.time_start` column from a string to a Date object and scales
+#' numeric columns by a specified factor.
+#'
+#' @param file_path A string specifying the path to the CSV file to be read.
+#' @param scale A numeric value by which all numeric values in the data are multiplied.
+#'        Default is 1 (no scaling).
+#' @return A data frame with the processed data where the Date column is added,
+#'         `system.time_start` is removed, and all numeric data is scaled.
+#' @import dplyr
+#' @examples
+#' processed_data <- read_and_process_gee_data("path/to/your/GPP.csv", scale = 0.01)
+#' print(processed_data)
+read_and_process_gee_data = function(file_path, scale = 1) {
+  # Read the CSV file
+  data <- read.csv(file_path)
+  library(dplyr)
+  # Process the data
+  data <- data %>%
+    mutate(Date = as.Date(system.time_start, format = "%b %d, %Y")) %>%
+    select(Date, everything(), -system.time_start) %>%
+    mutate(across(-Date, function(x) as.numeric(gsub(",", "", x)) * scale))
+  
+  # Return the processed data
+  return(data)
+},
+
+
 #' Extract and Average Soil Data from Raster for Point or Polygon
 #'
 #' This function extracts soil data from a specified raster file at given coordinates, 
