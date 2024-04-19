@@ -5804,7 +5804,7 @@ SoilParCal=function(data_in,Sim_year,stationname="",dailyScale=T,validation=TRUE
 	  
 	return(list(daily=result_daily,monthly=result_month,annual=result_ann,monthly_avg=Monthly_avg,
 		  annual_avg=Annual_avg,
-		  Accuarcy=list(val_par_daily=val_par_daily,val_par_monthly=val_par_monthly,val_par_annual=val_par_annual),
+		  Accuracy=list(val_par_daily=val_par_daily,val_par_monthly=val_par_monthly,val_par_annual=val_par_annual),
 		  Figs=list(daily=p1,monthly=p2,monthly_lines=p3,annual=p4)))
 	  }
 
