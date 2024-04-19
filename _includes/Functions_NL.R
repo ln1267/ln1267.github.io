@@ -136,6 +136,49 @@ read_and_process_gee_data = function(file_path, scale = 1) {
   # Return the processed data
   return(data)
 },
+#' Write Simulation Information to README
+#'
+#' This function appends details about a simulation run to a README file in a specified folder.
+#' It records who ran the simulation, the exact date and time of the run, and a brief description
+#' of the simulation setup.
+#'
+#' @param folder_path The path to the folder where the README file is located or will be created.
+#' @param description A brief description of what the simulation involved or its purpose.
+#' @param who A string indicating who ran the simulation (default: "Ning Liu").
+#'
+#' @return None This function does not return anything but writes directly to a file.
+#' @examples
+#' \dontrun{
+#'   output_dir <- "path/to/your/folder"
+#'   write_simulation_info_to_readme(output_dir, "This is for testing. \n Model input is at sssj.yxy")
+#' }
+#' @export
+write_simulation_info_to_readme = function(folder_path, description, who = "Ning Liu; Ning.Liu@csiro.au") {
+  # Validate the input
+  if (!dir.exists(folder_path)) {
+    stop("The specified folder does not exist.")
+  }
+  
+  # Construct the file path for the readme.txt file
+  readme_path <- file.path(folder_path, "readme.txt")
+  
+  # Get current date and time
+  current_time <- Sys.time()
+  
+  # Create the string with simulation information
+  info_to_append <- sprintf("\nData process details:\n- Run by: %s\n- Date and Time: %s\n- Description: %s\n",
+                            who, format(current_time, "%Y-%m-%d %H:%M:%S"), description)
+  
+  # Check if the readme.txt exists; if not, create it
+  if (!file.exists(readme_path)) {
+    file.create(readme_path)
+  }
+  
+  # Append the information to the file
+  writeLines(info_to_append, readme_path, useBytes = TRUE)
+  
+  cat("Information appended to", readme_path, "\n")
+},
 
 
 #' Extract and Average Soil Data from Raster for Point or Polygon
