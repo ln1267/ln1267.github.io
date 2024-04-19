@@ -153,7 +153,7 @@ read_and_process_gee_data = function(file_path, scale = 1) {
 #'   write_simulation_info_to_readme(output_dir, "This is for testing. \n Model input is at sssj.yxy")
 #' }
 #' @export
-write_simulation_info_to_readme = function(folder_path, description, who = "Ning Liu; Ning.Liu@csiro.au") {
+write_processInfo_to_readme = function(folder_path, description, who = "Ning Liu; Ning.Liu@csiro.au") {
   # Validate the input
   if (!dir.exists(folder_path)) {
     stop("The specified folder does not exist.")
