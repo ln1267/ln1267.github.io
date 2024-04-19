@@ -4842,7 +4842,7 @@ WaSSI=function(da_daily,soil_pars,kc=0.6,GSjdays=c(128,280),forest="DBF",...){
 		mutate(Year=year(Date),Month=month(Date))%>%
 		mutate(Ec=aetTot,Es=ESoilTot)%>%
 		mutate(AET=Ec+Es+Ei)%>%
-		dplyr::select(Date,Rainfall,VPD,Fc,PT,PET_Ec,PET_Es,Ei_pot,Ei,Es,Ec,AET,WaYldTot,aetUZT,aetUZF,WYSurface,WYInter,WYBase,uztwc,lztwc)%>%
+		dplyr::select(Date,Rainfall,VPD,LAI,Fc,PT,PET_Ec,PET_Es,Ei_pot,Ei,Es,Ec,AET,WaYldTot,aetUZT,aetUZF,WYSurface,WYInter,WYBase,uztwc,lztwc)%>%
 		dplyr::rename(ET=AET)%>%
 		mutate(WaSSI_Tr=Ec/PET_Ec,WaSSI=ET/PT)%>%
 		mutate(WaSSI_Tr=if_else(PET_Ec==0,1,WaSSI_Tr),WaSSI=if_else(PT==0,1,WaSSI))%>%
