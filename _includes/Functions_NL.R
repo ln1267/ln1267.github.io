@@ -106,6 +106,102 @@ f_digits=function(x,n=2,format=F) {
   
 },
 
+#' Compare Two Time Series Datasets
+#'
+#' This function takes two time series datasets and optionally a time index and group identifier. It calculates and returns descriptive statistics for each dataset individually, as well as comparative statistics, and generates visualizations to help assess the differences and distributions within each dataset or group.
+#'
+#' @param data1 Numeric vector, the first set of time series data to compare.
+#' @param data2 Numeric vector, the second set of time series data to compare.
+#' @param time_index Optional; a vector that matches the length of `data1` and `data2`. If not provided, a sequence along `data1` is used. Intended to represent the time points or indices for the data points.
+#' @param group_by Optional; a vector of the same length as `data1` and `data2` that represents the grouping of data points. Each group is analyzed separately.
+#'
+#' @return A list containing the following elements:
+#' \itemize{
+#'   \item \code{Statistics}: a data frame of descriptive and comparative statistics for each group or the entire dataset if no grouping is provided.
+#'   \item \code{Boxplot}: a ggplot object showing box plots of `data1` and `data2` for each group.
+#'   \item \code{ScatterPlot}: a ggplot object showing scatter plots of `data1` versus `data2` for each group with a line of equality.
+#' }
+#'
+#' @examples
+#' \dontrun{
+#'   data1 <- rnorm(100)
+#'   data2 <- rnorm(100, mean = 0.5)
+#'   time_index <- 1:100
+#'   group_by <- rep(c("Group1", "Group2"), each = 50)
+#'   results <- compare_time_series(data1, data2, time_index, group_by)
+#'   print(results$Statistics)
+#'   print(results$Boxplot)
+#'   print(results$ScatterPlot)
+#' }
+#'
+#' @export
+#' 
+compare_time_series = function(data1, data2, time_index = NULL, group_by = NULL) {
+  library(ggplot2)
+  library(dplyr)
+  library(tidyr)  
+# Check data lengths and assign default time index if not provided
+  if (is.null(time_index)) {
+    time_index <- seq_along(data1)
+  }
+  
+  if (length(data1) != length(data2) || length(data1) != length(time_index)) {
+    stop("Data vectors and time index must be of the same length.")
+  }
+  
+  # Create a data frame for analysis
+  comparison_df <- data.frame(Time = time_index, Data1 = data1, Data2 = data2, stringsAsFactors = FALSE)
+  
+  # Incorporate group if specified
+  if (!is.null(group_by)) {
+    if (length(group_by) != length(data1)) {
+      stop("Grouping variable must be of the same length as data vectors.")
+    }
+    comparison_df$Group <- group_by
+  } else {
+    comparison_df$Group <- "All Data"  # Assign all data to one group if no grouping provided
+  }
+  
+  # Compute differences and summarize
+  comparison_stats <- comparison_df %>%
+    group_by(Group) %>%
+    summarise(
+      MeanData1 = mean(Data1, na.rm = TRUE),
+      SdData1 = sd(Data1, na.rm = TRUE),
+      MinData1 = min(Data1, na.rm = TRUE),
+      MaxData1 = max(Data1, na.rm = TRUE),
+      MeanData2 = mean(Data2, na.rm = TRUE),
+      SdData2 = sd(Data2, na.rm = TRUE),
+      MinData2 = min(Data2, na.rm = TRUE),
+      MaxData2 = max(Data2, na.rm = TRUE),
+      MeanDifference = mean(Data1 - Data2, na.rm = TRUE),
+      SDDifference = sd(Data1 - Data2, na.rm = TRUE),
+      MeanPercentDifference = mean((Data1 - Data2) / Data1 * 100, na.rm = TRUE),
+      Count = n(),
+      .groups = 'drop'
+    )
+  
+  print(comparison_stats)
+  
+  # Boxplot to compare distributions within groups
+  long_comparison_df <- pivot_longer(comparison_df, cols = c("Data1", "Data2"), names_to = "Variable", values_to = "Values")
+  p_box <- ggplot(long_comparison_df, aes(x = Variable, y = Values, fill = Variable)) +
+    geom_boxplot() +
+    facet_wrap(~Group) +
+    theme_minimal() +
+    labs(title = "Boxplot Comparing Data Distributions by Group", x = "Variable", y = "Values")
+  
+  # Scatter plot with line of equality for each group
+  p_scatter <- ggplot(comparison_df, aes(x = Data1, y = Data2)) +
+    geom_point(alpha = 0.5) +
+    geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "red") +
+    facet_wrap(~Group) +
+    theme_minimal() +
+    labs(title = "Scatter Plot of Data1 vs Data2 by Group", x = "Data1", y = "Data2")
+  
+  # Return plots and statistics
+  list(Statistics = comparison_stats, Boxplot = p_box, ScatterPlot = p_scatter)
+},
 
 #' Read and Process Data Downloaded from Google Earth Engine
 #'
