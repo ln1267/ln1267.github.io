@@ -824,14 +824,14 @@ f_checkTif = function(da_path) {
 #' out_dir <- "~/cog/"
 #' file_status <- f_check_processed_files(parent_dir, out_dir)
 #' print(file_status)
-f_check_processed_cog_files = function(parent_directory, out_path = NULL) {
+f_check_processed_cog_files = function(parent_directory, out_path = NULL,nameAppendix="") {
   # Create a function to check for the existence of the corresponding '_cog' file in the output directory
   check_processed_files <- function(file_path, out_path) {
     # Extract the base file name without the directory path and extension
     file_name <- tools::file_path_sans_ext(basename(file_path))
     
     # Append '_cog.tif' to the file name
-    cog_file_name <- paste0(file_name, "_cog.tif")
+    cog_file_name <- paste0(file_name, nameAppendix,".tif")
     
     # Create the full path to the cog file in the output directory
     cog_file_path <- file.path(out_path, cog_file_name)
