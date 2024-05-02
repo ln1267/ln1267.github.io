@@ -811,6 +811,52 @@ f_checkTif = function(da_path) {
 
   return(comprehensive_check_result_terra)
 },
+#' Check for Processed Files
+#' 
+#' This function checks for the existence of corresponding '_cog' files in the output directory for each TIFF file in the parent directory.
+#' 
+#' @param parent_directory A character string specifying the directory path where the TIFF files are located.
+#' @param out_path A character string specifying the directory path where the corresponding '_cog' files are expected to be found. If NULL, it defaults to the parent_directory.
+#' @return A data frame indicating the processed status of each TIFF file.
+#' @export
+#' @examples
+#' parent_dir <- "~/"
+#' out_dir <- "~/cog/"
+#' file_status <- f_check_processed_files(parent_dir, out_dir)
+#' print(file_status)
+f_check_processed_cog_files = function(parent_directory, out_path = NULL) {
+  # Create a function to check for the existence of the corresponding '_cog' file in the output directory
+  check_processed_files <- function(file_path, out_path) {
+    # Extract the base file name without the directory path and extension
+    file_name <- tools::file_path_sans_ext(basename(file_path))
+    
+    # Append '_cog.tif' to the file name
+    cog_file_name <- paste0(file_name, "_cog.tif")
+    
+    # Create the full path to the cog file in the output directory
+    cog_file_path <- file.path(out_path, cog_file_name)
+    
+    # Check if the cog file exists
+    file.exists(cog_file_path)
+  }
+  
+  # List all files ending with '.tif' in the specified directory
+  tif_files <- list.files(path = parent_directory, pattern = "\\.tif$", full.names = TRUE, recursive = FALSE)
+  
+  # If out_path is NULL, set it to parent_directory
+  if (is.null(out_path)) out_path <- parent_directory
+  
+  # Apply the function to each TIFF file and create a logical vector indicating processed status
+  processed_status <- sapply(tif_files, check_processed_files, out_path = out_path)
+  
+  # Optionally, print out the status for each file
+  file_check_result <- data.frame(Original_File = basename(tif_files), Processed = processed_status)
+  
+  # To find files that have not been processed yet
+  unprocessed_files <- tif_files[!processed_status]
+
+  return(file_check_result)
+},
 
 
 #' Combine Two Raster Layers into One with New Classifications
