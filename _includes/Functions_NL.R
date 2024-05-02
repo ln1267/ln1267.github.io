@@ -825,7 +825,7 @@ f_checkTif = function(da_path) {
 #' out_dir <- "~/cog/"
 #' file_status <- f_check_processed_files(parent_dir, out_dir)
 #' print(file_status)
-f_check_processed_files = function(parent_directory, out_path = NULL,nameExt="") {
+f_check_processed_files = function(parent_directory, out_path = NULL,nameExt=".tif") {
   # Create a function to check for the existence of the corresponding '_cog' file in the output directory
   check_processed_files <- function(file_path, out_path) {
     # Extract the base file name without the directory path and extension
