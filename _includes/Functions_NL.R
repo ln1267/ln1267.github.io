@@ -730,7 +730,7 @@ split_raster_bands = function(raster_path, output_names, data_type = "Float32", 
 #' tiff_to_cog(parent_directory = "../TIFS/",
 #'                     cores = 15)
 #' @export
-tiff_to_cog = function(parent_directory, cores = 15) {
+tiff_to_cog = function(parent_directory,output_path=NULL, cores = 15) {
   # Source the external script with functions
   source("https://raw.githubusercontent.com/ln1267/ln1267.github.io/master/_includes/Functions_NL.R")
   
@@ -742,7 +742,7 @@ tiff_to_cog = function(parent_directory, cores = 15) {
   library(doParallel)
   
   # Process files in parallel
-  mclapply(tif_files, funs_nl$create_cog, mc.cores = cores)
+  mclapply(tif_files, funs_nl$create_cog,output_cog_path=output_path, mc.cores = cores)
   
   # List subdirectories to organize processed files
   subdirectories <- list.dirs(path = parent_directory, full.names = TRUE, recursive = TRUE)[-1]
@@ -762,6 +762,54 @@ tiff_to_cog = function(parent_directory, cores = 15) {
       file.rename(from = file_path, to = new_file_path)
     }
   }
+},
+
+#' Check Validity of TIF Files in Directory
+#'
+#' This function scans a specified directory for TIF files and checks each one for validity using the terra package.
+#' It returns a data frame listing all invalid TIF files.
+#'
+#' @param da_path A character string specifying the directory path where TIF files are stored.
+#' @return A data frame with names of TIF files that are invalid.
+#' @export
+#' @examples
+#' da_path <- "~/"
+#' invalid_tifs <- f_checkTif(da_path)
+#' print(invalid_tifs)
+f_checkTif = function(da_path) {
+  # Check and load the magrittr package for the pipe operator
+  if (!requireNamespace("magrittr", quietly = TRUE)) {
+    install.packages("magrittr", dependencies = TRUE)
+  }
+  require(magrittr)  # For the pipe operator %>% 
+
+  # Function to check if a TIF file is valid
+  tif_valid <- function(file_path) {
+    tryCatch({
+      # Attempt to read the file using rast() from terra
+      r <- terra::rast(file_path)
+      # If no error and the object is not empty, return TRUE
+      !is.null(r)
+    }, error = function(e) {
+      # On error, return FALSE
+      FALSE
+    })
+  }
+
+  # List all .tif files in the directory
+  tif_files <- dir(da_path, pattern = "\\.tif$", full.names = TRUE)
+
+  # Apply the validity check
+  comprehensive_status_terra <- sapply(tif_files, tif_valid)
+
+  # Report: Create a data frame with results and filter out valid files
+  comprehensive_check_result_terra <- data.frame(
+    Original_File = basename(tif_files),
+    Processed_And_Valid = comprehensive_status_terra
+  ) %>% 
+    dplyr::filter(!Processed_And_Valid)
+
+  return(comprehensive_check_result_terra)
 },
 
 
