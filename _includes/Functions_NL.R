@@ -858,6 +858,49 @@ f_check_processed_files = function(parent_directory, out_path = NULL,nameExt=".t
 
   return(file_check_result)
 },
+#' Plot Raster Data as PNG 
+#'
+#' This function generates a high-resolution PNG plot of raster data.
+#' It creates a directory for the plot if it does not exist and saves the plot in the specified output folder.
+#' The plot dimensions are calculated to maintain the aspect ratio based on the raster dimensions.
+#'
+#' @param outname A character string specifying the path to the raster file to be plotted.
+#' @param outfolder A character string specifying the output directory where the plot will be saved.
+#' @import terra
+#' @export
+#' @examples
+#' f_plot_tifs("path/to/raster.tif", "path/to/output/")
+f_plot_tifs = function(outname, outfolder) {
+  # Ensure the terra package is loaded
+  if (!requireNamespace("terra", quietly = TRUE)) {
+    stop("The 'terra' package is not installed. Please install it to use this function.")
+  }
+
+  # Create directory for plots if it does not exist
+  plot_dir <- file.path(outfolder, "maps")
+  if (!dir.exists(plot_dir)) {
+    dir.create(plot_dir, recursive = TRUE)
+  }
+
+  # Load the raster data
+  da_masked <- terra::rast(outname)
+  if (is.null(da_masked)) {
+    stop("Failed to load the raster data.")
+  }
+
+  # Calculate plot dimensions to maintain aspect ratio
+  plot_ratio <- ncol(da_masked) / nrow(da_masked)
+  file_name <- tools::file_path_sans_ext(basename(outname))
+  png_filename <- file.path(plot_dir, paste0(file_name, ".png"))
+
+  # Set up PNG device
+  png(filename = png_filename, res = 300, width = 6 * plot_ratio, height = 6, units = "in")
+  # Create plot
+  plot(da_masked, main = file_name)
+  # Close the plotting device
+  dev.off()
+
+},
 
 
 #' Combine Two Raster Layers into One with New Classifications
