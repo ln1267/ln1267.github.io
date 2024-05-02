@@ -850,10 +850,10 @@ f_check_processed_cog_files = function(parent_directory, out_path = NULL) {
   processed_status <- sapply(tif_files, check_processed_files, out_path = out_path)
   
   # Optionally, print out the status for each file
-  file_check_result <- data.frame(Original_File = basename(tif_files), Processed = processed_status)
+  file_check_result <- data.frame(Original_File=tif_files,FileName = basename(tif_files), Processed = processed_status)
   
   # To find files that have not been processed yet
-  unprocessed_files <- tif_files[!processed_status]
+  #unprocessed_files <- tif_files[!processed_status]
 
   return(file_check_result)
 },
