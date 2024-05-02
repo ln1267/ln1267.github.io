@@ -816,7 +816,8 @@ f_checkTif = function(da_path) {
 #' This function checks for the existence of corresponding '_cog' files in the output directory for each TIFF file in the parent directory.
 #' 
 #' @param parent_directory A character string specifying the directory path where the TIFF files are located.
-#' @param out_path A character string specifying the directory path where the corresponding '_cog' files are expected to be found. If NULL, it defaults to the parent_directory.
+#' @param out_path A character string specifying the directory path where the corresponding files are expected to be found. If NULL, it defaults to the parent_directory.
+#' @param nameAppendix A character string specifying the appendix name that corresponding files are expected to be found.
 #' @return A data frame indicating the processed status of each TIFF file.
 #' @export
 #' @examples
@@ -824,7 +825,7 @@ f_checkTif = function(da_path) {
 #' out_dir <- "~/cog/"
 #' file_status <- f_check_processed_files(parent_dir, out_dir)
 #' print(file_status)
-f_check_processed_cog_files = function(parent_directory, out_path = NULL,nameAppendix="") {
+f_check_processed_files = function(parent_directory, out_path = NULL,nameAppendix="") {
   # Create a function to check for the existence of the corresponding '_cog' file in the output directory
   check_processed_files <- function(file_path, out_path) {
     # Extract the base file name without the directory path and extension
