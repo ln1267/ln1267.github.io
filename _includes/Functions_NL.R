@@ -902,6 +902,64 @@ f_plot_tifs = function(outname, outfolder) {
 
 },
 
+#' Scatter Plot with Linear Regression Line and 1:1 Line
+#'
+#' @param data A data frame containing the variables for the plot.
+#' @param x_var The name of the x variable as a string.
+#' @param y_var The name of the y variable as a string.
+#' @param plot_title The title of the plot. Default is "Scatter Plot with Linear Regression Line and 1:1 Line".
+#' @param x_label The label for the x-axis. Default is "X-axis Label".
+#' @param y_label The label for the y-axis. Default is "Y-axis Label".
+#' @param filename The name of the file to save the plot. If NULL, the plot is not saved to a file. Default is NULL.
+#' @return A ggplot object.
+#' @examples
+#' set.seed(123)
+#' df <- data.frame(
+#'   x = rnorm(100),
+#'   y = rnorm(100)
+#' )
+#' scatter_plot_with_regression(df, "x", "y")
+scatter_plot_with_regression = function(data, x_var, y_var, plot_title = "Scatter Plot with Linear Regression Line and 1:1 Line", x_label = "X-axis Label", y_label = "Y-axis Label", filename = NULL) {
+  library(ggplot2)
+  # Fit linear model
+  fit <- lm(as.formula(paste(y_var, "~", x_var)), data = data)
+  summary_fit <- summary(fit)
+  
+  # Extract regression statistics
+  intercept <- coef(summary_fit)[1, 1]
+  slope <- coef(summary_fit)[2, 1]
+  r_squared <- summary_fit$r.squared
+  p_value <- coef(summary_fit)[2, 4]
+  
+  # Create labels for the plot
+  eq_label <- paste("y = ", round(intercept, 2), " + ", round(slope, 2), "x", sep = "")
+  r2_label <- paste("R² = ", round(r_squared, 2), sep = "")
+  p_label <- paste("p = ", format.pval(p_value, digits = 2))
+  
+  # Calculate the width of the longest label
+  longest_label <- max(nchar(c(eq_label, r2_label, p_label)))
+  
+  # Create scatter plot with linear regression line, 1:1 line, and display statistics
+  p <- ggplot(data, aes_string(x = x_var, y = y_var)) +
+    geom_point() +
+    geom_smooth(method = "lm", se = FALSE, color = "blue") +
+    geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "black") +
+    annotate("text", x = Inf, y = Inf, label = eq_label, hjust = 1.1, vjust = 2, size = 5, color = "red") +
+    annotate("text", x = Inf, y = Inf, label = r2_label, hjust = 1.1, vjust = 4, size = 5, color = "red") +
+    annotate("text", x = Inf, y = Inf, label = p_label, hjust = 1.1, vjust = 6, size = 5, color = "red") +
+    labs(title = plot_title, x = x_label, y = y_label)
+  
+  if (!is.null(filename)) {
+    # Open PNG device
+    png(filename = filename, res = 300, width = 6 + longest_label / 10, height = 6, units = "in")
+    print(p)
+    # Close the plotting device
+    dev.off()
+  } else {
+    print(p)
+  }
+},
+
 
 #' Combine Two Raster Layers into One with New Classifications
 #'
@@ -944,7 +1002,7 @@ twoClass = function(r1, r2,withClass=FALSE,sep_combine="_") {
   # Create new levels for r2
   lev_r2 <- terra::levels(r2)[[1]]  %>%
     setNames(c("ID","Class2")) %>%
-    dplyr::mutate(id_2=row_number()*multiple_factor,r2_id=ID)%>%
+    dplyr::mutate(id_2=dplyr::row_number()*multiple_factor,r2_id=ID)%>%
     dplyr::select(r2_id, id_2,Class2)
   
   # Reclassify r2
