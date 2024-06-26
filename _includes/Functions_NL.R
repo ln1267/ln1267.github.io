@@ -534,6 +534,81 @@ create_summary_table = function(sf_object) {
   return(summary_table)
 },
 
+#' Summarize Data Frame, sf, or terra SpatVector
+#'
+#' This function summarizes the columns of a data frame, sf object, or terra SpatVector. 
+#' For numeric columns, summary statistics are computed. For character or factor columns, 
+#' unique class counts and percentages are calculated.
+#'
+#' @param da A data frame, sf object, or terra SpatVector to summarize.
+#' @param write_to_excel Logical. If TRUE, the summary is written to an Excel file. Default is FALSE.
+#' @param Metadata Character. Metadata to include in the Excel file. Default is an empty string.
+#' @param file_path Character. The file path for the Excel file if write_to_excel is TRUE. Default is "summary.xlsx".
+#' 
+#' @return A list containing the summary of each column.
+#' @importFrom writexl write_xlsx
+#' @importFrom sf st_drop_geometry
+#' @importFrom terra vect
+#' @examples
+#' # Example usage with different data types
+#' df <- data.frame(x = 1:10, y = letters[1:10])
+#' sf_obj <- sf::st_as_sf(df, coords = c("x", "y"), crs = 4326)
+#' terra_vect <- terra::vect(df, geom = c("x", "y"))
+#' 
+#' # Summarize and write to Excel
+#' summarize_df(df, write_to_excel = TRUE, Metadata = "Sample Metadata", file_path = "summary_df.xlsx")
+#' summarize_df(sf_obj, write_to_excel = TRUE, Metadata = "Sample Metadata", file_path = "summary_sf.xlsx")
+#' summarize_df(terra_vect, write_to_excel = TRUE, Metadata = "Sample Metadata", file_path = "summary_vect.xlsx")
+#' 
+#' @export
+summarize_df = function(da, write_to_excel = FALSE, Metadata = "", file_path = "summary.xlsx") {
+  library(writexl)
+  library(sf)
+  library(terra)
+  
+  # Check the type of input and extract the data frame
+  if (inherits(da, "data.frame")) {
+    df <- da
+  } else if (inherits(da, "sf")) {
+    df <- st_drop_geometry(da)
+  } else if (inherits(da, "SpatVector")) {
+    df <- as.data.frame(da)
+  } else {
+    stop("Unsupported data type. Please provide a data frame, sf object, or terra SpatVector.")
+  }
+  
+  summary_list <- lapply(df, function(column) {
+    if (is.numeric(column)) {
+      # Summary statistics for numerical columns
+      summary_stats <- summary(column)
+      return(as.data.frame(t(summary_stats)))
+    } else if (is.character(column) || is.factor(column)) {
+      # Unique classes and their counts and percentages for character/factor columns
+      class_count <- table(column)
+      class_pct <- prop.table(class_count) * 100
+      class_summary <- data.frame(
+        class = names(class_count),
+        count = as.vector(class_count),
+        percentage = round(as.vector(class_pct), 2)
+      )
+      class_summary <- class_summary[order(-class_summary$count), ]
+      return(class_summary)
+    } else {
+      return(NULL)
+    }
+  })
+  
+  # If write_to_excel is TRUE, write the summary to an Excel file
+  if (write_to_excel) {
+    sheets <- setNames(summary_list, names(df))
+    sheets[["Metadata"]] <- list(Metadata)
+    sheets <- sheets[sapply(sheets, function(x) (!is.null(x) && is.data.frame(x) && nrow(x) > 1) || is.character(x))]
+    write_xlsx(sheets, path = file_path)
+  }
+  
+  return(summary_list)
+},
+
 #' Create a Mosaic from TIFF Files
 #'
 #' This function creates a mosaic from TIFF files in a specified directory that match a given prefix.
