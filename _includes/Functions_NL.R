@@ -939,42 +939,51 @@ f_check_processed_files = function(parent_directory, out_path = NULL,nameExt=".t
 #' It creates a directory for the plot if it does not exist and saves the plot in the specified output folder.
 #' The plot dimensions are calculated to maintain the aspect ratio based on the raster dimensions.
 #'
-#' @param outname A character string specifying the path to the raster file to be plotted.
-#' @param outfolder A character string specifying the output directory where the plot will be saved.
+#' @param root_folder A character string specifying the path to the raster file to be plotted.
 #' @import terra
 #' @export
 #' @examples
-#' f_plot_tifs("path/to/raster.tif", "path/to/output/")
-f_plot_tifs = function(outname, outfolder) {
+#'  f_plot_tifs("path/to/root_folder")
+f_plot_tifs = function(root_folder) {
   # Ensure the terra package is loaded
   if (!requireNamespace("terra", quietly = TRUE)) {
     stop("The 'terra' package is not installed. Please install it to use this function.")
   }
-
-  # Create directory for plots if it does not exist
-  plot_dir <- file.path(outfolder, "maps")
-  if (!dir.exists(plot_dir)) {
-    dir.create(plot_dir, recursive = TRUE)
+  
+  # Function to process each tif file
+  process_tif <- function(tif_path) {
+    # Load the raster data
+    da_masked <- terra::rast(tif_path)
+    if (is.null(da_masked)) {
+      stop("Failed to load the raster data.")
+    }
+    
+    # Calculate plot dimensions to maintain aspect ratio
+    plot_ratio <- ncol(da_masked) / nrow(da_masked)
+    file_name <- tools::file_path_sans_ext(basename(tif_path))
+    
+    # Determine output folder and create it if necessary
+    subfolder <- dirname(tif_path)
+    plot_dir <- file.path(subfolder, "maps")
+    if (!dir.exists(plot_dir)) {
+      dir.create(plot_dir, recursive = TRUE)
+    }
+    
+    png_filename <- file.path(plot_dir, paste0(file_name, ".png"))
+    
+    # Set up PNG device
+    png(filename = png_filename, res = 300, width = 6 * plot_ratio, height = 6, units = "in")
+    # Create plot
+    plot(da_masked, main = file_name)
+    # Close the plotting device
+    dev.off()
   }
-
-  # Load the raster data
-  da_masked <- terra::rast(outname)
-  if (is.null(da_masked)) {
-    stop("Failed to load the raster data.")
-  }
-
-  # Calculate plot dimensions to maintain aspect ratio
-  plot_ratio <- ncol(da_masked) / nrow(da_masked)
-  file_name <- tools::file_path_sans_ext(basename(outname))
-  png_filename <- file.path(plot_dir, paste0(file_name, ".png"))
-
-  # Set up PNG device
-  png(filename = png_filename, res = 300, width = 6 * plot_ratio, height = 6, units = "in")
-  # Create plot
-  plot(da_masked, main = file_name)
-  # Close the plotting device
-  dev.off()
-
+  
+  # Get list of all .tif files in root_folder and subfolders
+  tif_files <- list.files(root_folder, pattern = "\\.tif$", recursive = TRUE, full.names = TRUE)
+  
+  # Process each .tif file
+  lapply(tif_files, process_tif)
 },
 
 #' Scatter Plot with Linear Regression Line and 1:1 Line
