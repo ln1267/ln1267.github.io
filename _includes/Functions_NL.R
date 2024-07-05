@@ -839,6 +839,64 @@ tiff_to_cog = function(parent_directory,output_path=NULL, cores = 15) {
   }
 },
 
+#' Write a Cloud Optimized GeoTIFF (COG)
+#'
+#' This function writes a Cloud Optimized GeoTIFF (COG) from a given raster object or filename.
+#' It applies appropriate compression and data type settings based on whether the data is categorical.
+#'
+#' @param input A filename (character string) or a `SpatRaster` object.
+#' @param output_path A character string specifying the path to save the output COG.
+#' @param is_category A logical value indicating if the data is categorical. Default is FALSE.
+#'
+#' @return A `SpatRaster` object of the written COG.
+#' @export
+#'
+#' @examples
+#' # Create a sample raster (for demonstration purposes)
+#' r <- rast(ncol = 10, nrow = 10)
+#' values(r) <- 1:100
+#'
+#' # Define output paths
+#' output_path_category <- "path_to_output_category_raster.tif"
+#' output_path_continuous <- "path_to_output_continuous_raster.tif"
+#'
+#' # Write COGs using raster object
+#' write_cog(r, output_path_category, is_category = TRUE)
+#' write_cog(r, output_path_continuous, is_category = FALSE)
+#'
+#' # Write COGs using filename
+#' # (Assuming "input_raster.tif" is an existing raster file in the working directory)
+#' write_cog("input_raster.tif", output_path_category, is_category = TRUE)
+#' write_cog("input_raster.tif", output_path_continuous, is_category = FALSE)
+#'
+#' # Verify the output (optional)
+#' cat_raster <- rast(output_path_category)
+#' cont_raster <- rast(output_path_continuous)
+#'
+#' plot(cat_raster, main = "Category Data Raster")
+#' plot(cont_raster, main = "Continuous Data Raster")
+write_cog <- function(input, output_path, is_category = FALSE) {
+  # Check if the input is a filename or a raster object
+  if (is.character(input)) {
+    raster <- terra::rast(input)
+  } else if (inherits(input, "SpatRaster")) {
+    raster <- input
+  } else {
+    stop("Input must be a filename or a SpatRaster object.")
+  }
+  
+  # Define the write options
+  if (is_category) {
+    wopt <- list(gdal = c("COMPRESS=DEFLATE", "of=COG"), datatype = "INT2U")
+  } else {
+    wopt <- list(gdal = c("COMPRESS=DEFLATE", "of=COG"))
+  }
+  
+  # Write the raster with the specified options
+  terra::writeRaster(raster, output_path, wopt = wopt, overwrite = TRUE)
+},
+
+
 #' Check Validity of TIF Files in Directory
 #'
 #' This function scans a specified directory for TIF files and checks each one for validity using the terra package.
