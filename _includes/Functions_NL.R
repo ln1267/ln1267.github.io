@@ -1023,7 +1023,7 @@ f_plot_tifs = function(root_folder,overwrite=FALSE) {
     png_filename <- file.path(plot_dir, paste0(file_name, ".png"))
   
     # Check if the PNG file already exists
-	  if (file_exists(png_filename) && !force) {
+	  if (file.exists(png_filename) && !force) {
 		cat("PNG file already exists and force overwrite is not set. Skipping processing for", png_filename, "\n")
 		return(NULL)
 	  }
