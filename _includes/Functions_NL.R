@@ -1002,23 +1002,16 @@ f_check_processed_files = function(parent_directory, out_path = NULL,nameExt=".t
 #' @export
 #' @examples
 #'  f_plot_tifs("path/to/root_folder")
-f_plot_tifs = function(root_folder) {
+f_plot_tifs = function(root_folder,overwrite=FALSE) {
   # Ensure the terra package is loaded
   if (!requireNamespace("terra", quietly = TRUE)) {
     stop("The 'terra' package is not installed. Please install it to use this function.")
   }
   
   # Function to process each tif file
-  process_tif <- function(tif_path) {
-    # Load the raster data
-    da_masked <- terra::rast(tif_path)
-    if (is.null(da_masked)) {
-      stop("Failed to load the raster data.")
-    }
-    
-    # Calculate plot dimensions to maintain aspect ratio
-    plot_ratio <- ncol(da_masked) / nrow(da_masked)
-    file_name <- tools::file_path_sans_ext(basename(tif_path))
+  process_tif <- function(tif_path,force=FALSE) {
+  
+  file_name <- tools::file_path_sans_ext(basename(tif_path))
     
     # Determine output folder and create it if necessary
     subfolder <- dirname(tif_path)
@@ -1028,6 +1021,20 @@ f_plot_tifs = function(root_folder) {
     }
     
     png_filename <- file.path(plot_dir, paste0(file_name, ".png"))
+  
+    # Check if the PNG file already exists
+	  if (file_exists(png_filename) && !force) {
+		cat("PNG file already exists and force overwrite is not set. Skipping processing for", png_filename, "\n")
+		return(NULL)
+	  }
+    # Load the raster data
+    da_masked <- terra::rast(tif_path)
+    if (is.null(da_masked)) {
+      stop("Failed to load the raster data.")
+    }
+    
+    # Calculate plot dimensions to maintain aspect ratio
+    plot_ratio <- ncol(da_masked) / nrow(da_masked)
     
     # Set up PNG device
     png(filename = png_filename, res = 300, width = 6 * plot_ratio, height = 6, units = "in")
@@ -1041,7 +1048,7 @@ f_plot_tifs = function(root_folder) {
   tif_files <- list.files(root_folder, pattern = "\\.tif$", recursive = TRUE, full.names = TRUE)
   
   # Process each .tif file
-  lapply(tif_files, process_tif)
+  lapply(tif_files, process_tif,force=overwrite)
 },
 
 #' Scatter Plot with Linear Regression Line and 1:1 Line
