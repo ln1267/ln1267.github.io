@@ -1238,8 +1238,8 @@ accountByRegion = function(da_raster, region = NULL, mask = NULL, aggmethod = "m
   if (!requireNamespace("data.table", quietly = TRUE) || !requireNamespace("terra", quietly = TRUE)) {
     stop("Required packages 'data.table', or 'terra' are not installed.")
   }
-
-  
+	require("data.table")
+	require("terra")
   if(is.factor(region))  {
       df_region<-levels(region)[[1]]
     }else{
@@ -1279,7 +1279,7 @@ accountByRegion = function(da_raster, region = NULL, mask = NULL, aggmethod = "m
     dt$Region <- dt[[names(df_region)[2]]]
     dt$Class <- dt[[names(df_da)[2]]]
     
-    dt<-bind_rows(dt,dt_global)
+    dt<-dplyr::bind_rows(dt,dt_global)
     
     dt[, Region := factor(Region, levels = c(df_region[[names(df_region)[2]]], "Total"))]
     dt[, Class := factor(Class, levels = df_da[[names(df_da)[2]]])]
@@ -1331,7 +1331,7 @@ accountByRegion = function(da_raster, region = NULL, mask = NULL, aggmethod = "m
     # Combine global and regional data
     dt$Region <- dt[[names(df_region)[2]]]
     
-    dt<-bind_rows(dt,dt_global)
+    dt<-dplyr::bind_rows(dt,dt_global)
       
     dt[, Region := factor(Region, levels = c(df_region[[names(df_region)[2]]], "Total"))]
     if (!is.null(mask)) {
