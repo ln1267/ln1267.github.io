@@ -1352,15 +1352,15 @@ accountByRegion = function(da_raster,varname=NULL, region = NULL, mask = NULL, a
       # Reshape the data.tables
       dt_value <- dcast(dt, Region ~ mask, value.var = "value") |> setorder(Region)
       dt_N <- dcast(dt, Region ~ mask, value.var = "N") |> setorder(Region)
-	  setnames(dt_value,names(df_region)[2],varname)
-	  setnames(dt_N,names(df_region)[2],varname)
+      setnames(dt_value,c(names(df_region)[2],varname))
+      setnames(dt_N,c(names(df_region)[2],varname))
     } else {
       # Reshape the data.tables
       dt_value <- dt[,c("Region","value")] |> setorder(Region)
       dt_N <- dt[,c("Region","N")] |> setorder(Region)
 	  
-	  setnames(dt_value,names(df_region)[2],varname)
-	  setnames(dt_N,names(df_region)[2],varname)
+      setnames(dt_value,c(names(df_region)[2],varname))
+      setnames(dt_N,c(names(df_region)[2],varname))
     }
 
     # Return the results
