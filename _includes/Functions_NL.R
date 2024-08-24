@@ -1204,7 +1204,165 @@ twoClass = function(r1, r2,withClass=FALSE,sep_combine="_") {
   }
   
 },
+#' Aggregate Raster Data by Region with Optional Masking
+#'
+#' This function aggregates raster data based on a specified region and an optional mask.
+#' The aggregation can be performed using different methods (e.g., mean, sum). The function returns 
+#' a list containing the aggregated values and counts by region and mask status.
+#'
+#' @param da_raster A raster object containing the data to be aggregated.
+#' @param region A raster object containing the region classifications.
+#' @param mask An optional raster object to apply as a mask. If NULL, all data is considered valid.
+#' @param aggmethod A string specifying the aggregation method (e.g., "mean", "sum", "median"). Default is "mean".
+#'
+#' @return A list with two data tables when the data is numerical data: 
+#' \item{value}{A data.table containing the aggregated values by region and mask status.}
+#' \item{N}{A data.table containing the counts by region and mask status.}
+#'
+#'#' @return A data.table when the data is categorical data: 
+#' \item{N}{A data.table containing the counts by region and mask status.}
+#'
+#' @examples
+#' \dontrun{
+#' # Assuming `raster_data`, `mask_data`, and `region_data` are predefined raster objects
+#' result <- accountByRegion(raster_data, region = region_data, mask = mask_data,  aggmethod = "mean")
+#' print(result$value)
+#' print(result$N)
+#' }
+#'
+#' @import data.table
+#' @import terra
+#' @export
+accountByRegion = function(da_raster, region = NULL, mask = NULL, aggmethod = "mean") {
+  # Ensure required packages are loaded
+  if (!requireNamespace("data.table", quietly = TRUE) || !requireNamespace("terra", quietly = TRUE)) {
+    stop("Required packages 'data.table', or 'terra' are not installed.")
+  }
 
+  
+  if(is.factor(region))  {
+      df_region<-levels(region)[[1]]
+    }else{
+      df_region<-data.frame("value"=sort(unlist(unique(region)))) |> 
+        mutate("UID"=as.character(value))
+      
+    }
+  
+  if(is.factor(da_raster))  {
+    
+    df_da<-levels(da_raster)[[1]]
+
+    # Create a data.table with region and raster values, handle NULL mask
+    if (is.null(mask)) {
+      dt <- data.table(Region = values(region), value = values(da_raster))
+      dt[, mask := 1]  # Set mask to 1 (Valid) if mask is NULL
+    } else {
+      dt <- data.table(Region = values(region), value = values(da_raster), mask = values(mask))
+    }
+    
+    setnames(dt, c("Region", "value", "mask"))
+    dt <- dt[!is.na(Region), ]
+    
+    # Global aggregation
+    dt_global <- dt[, .(N = .N), by = .(value,mask)]
+    dt_global[, Region := "Total"]
+    dt_global <- merge(dt_global, df_da, by.x = "value", by.y = names(df_da)[1], all.x = TRUE)
+    dt_global$Class <- dt_global[[names(df_da)[2]]]
+    
+    # Regional aggregation
+    dt <- dt[, .(N = .N), by = .(Region,value, mask)]
+    
+    dt <- merge(dt, df_region, by.x = "Region", by.y = names(df_region)[1], all.x = TRUE)
+    dt <- merge(dt, df_da, by.x = "value", by.y = names(df_da)[1], all.x = TRUE)
+    
+    # Combine global and regional data
+    dt$Region <- dt[[names(df_region)[2]]]
+    dt$Class <- dt[[names(df_da)[2]]]
+    
+    dt<-bind_rows(dt,dt_global)
+    
+    dt[, Region := factor(Region, levels = c(df_region[[names(df_region)[2]]], "Total"))]
+    dt[, Class := factor(Class, levels = df_da[[names(df_da)[2]]])]
+    
+    if (!is.null(mask)) {
+      dt[, mask := factor(mask, 0:1, c("Masked", "Valid"))]
+    } else {
+      dt[, mask := factor(mask, levels = 1, labels = "Valid")]
+    }
+    
+    # Ensure all combinations of Region and mask are present
+    dt <- dt[CJ(Region = levels(dt$Region), Class = levels(dt$Class), mask = levels(dt$mask), unique = TRUE), on = .(Region,Class, mask)]
+    
+    dt[, Region := factor(Region, levels = c(df_region[[names(df_region)[2]]], "Total"))]
+    dt[, Class := factor(Class, levels =  df_da[[names(df_da)[2]]])]
+    
+    if (!is.null(mask)) {
+      dt[, mask := factor(mask,c("Masked", "Valid"))]
+      dt_N <- dcast(dt, Region ~ Class+mask, value.var = "N") |> setorder(Region)
+      
+    } else {
+      dt_N <- dcast(dt, Region ~ Class, value.var = "N") |> setorder(Region)
+    }
+    setnames(dt_N,1,names(df_region)[2])
+    # Return the results
+    return(dt_N)
+    
+  }else{
+    
+    # Create a data.table with region and raster values, handle NULL mask
+    if (is.null(mask)) {
+      dt <- data.table(Region = values(region), value = values(da_raster))
+      dt[, mask := 1]  # Set mask to 1 (Valid) if mask is NULL
+    } else {
+      dt <- data.table(Region = values(region), value = values(da_raster), mask = values(mask))
+    }
+    setnames(dt, c("Region", "value", "mask"))
+    dt <- dt[!is.na(Region), ]
+    
+    # Global aggregation
+    agg_fun <- match.fun(aggmethod)  # Match the aggregation method
+    dt_global <- dt[, .(value = agg_fun(value, na.rm = TRUE), N = .N), by = .(mask)]
+    dt_global[, Region := "Total"]
+    
+    # Regional aggregation
+    dt <- dt[, .(value = agg_fun(value, na.rm = TRUE), N = .N), by = .(Region, mask)]
+    dt <- merge(dt, df_region, by.x = "Region", by.y = names(df_region)[1], all.x = TRUE)
+    
+    # Combine global and regional data
+    dt$Region <- dt[[names(df_region)[2]]]
+    
+    dt<-bind_rows(dt,dt_global)
+      
+    dt[, Region := factor(Region, levels = c(df_region[[names(df_region)[2]]], "Total"))]
+    if (!is.null(mask)) {
+      dt[, mask := factor(mask, 0:1, c("Masked", "Valid"))]
+    } else {
+      dt[, mask := factor(mask, levels = 1, labels = "Valid")]
+    }
+    
+    # Ensure all combinations of Region and mask are present
+    dt <- dt[CJ(Region = levels(dt$Region), mask = levels(dt$mask), unique = TRUE), on = .(Region, mask)]
+    
+    dt[, Region := factor(Region, levels = c(df_region[[names(df_region)[2]]], "Total"))]
+  
+    if (!is.null(mask)) {
+      dt[, mask := factor(mask,c("Masked", "Valid"))]
+      # Reshape the data.tables
+      dt_value <- dcast(dt, Region ~ mask, value.var = "value") |> setorder(Region)
+      dt_N <- dcast(dt, Region ~ mask, value.var = "N") |> setorder(Region)
+    } else {
+      # Reshape the data.tables
+      dt_value <- dt[,c("Region","value")] |> setorder(Region)
+      dt_N <- dt[,c("Region","N")] |> setorder(Region)
+    }
+    
+    setnames(dt_value,1,names(df_region)[2])
+    setnames(dt_N,1,names(df_region)[2])
+
+    # Return the results
+    return(list(value = dt_value, N = dt_N))
+  }
+},
 
 #' ts_validation function
 #'
