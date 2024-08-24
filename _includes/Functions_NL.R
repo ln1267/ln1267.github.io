@@ -1233,7 +1233,7 @@ twoClass = function(r1, r2,withClass=FALSE,sep_combine="_") {
 #' @import data.table
 #' @import terra
 #' @export
-accountByRegion = function(da_raster, region = NULL, mask = NULL, aggmethod = "mean") {
+accountByRegion = function(da_raster,varname=NULL, region = NULL, mask = NULL, aggmethod = "mean") {
   # Ensure required packages are loaded
   if (!requireNamespace("data.table", quietly = TRUE) || !requireNamespace("terra", quietly = TRUE)) {
     stop("Required packages 'data.table', or 'terra' are not installed.")
@@ -1247,8 +1247,9 @@ accountByRegion = function(da_raster, region = NULL, mask = NULL, aggmethod = "m
         mutate("UID"=as.character(value))
       
     }
+	if(is.null(varname)) varname<-names(da_raster)
   
-  if(is.factor(da_raster))  {
+  if(is.factor(da_raster)))  {
     
     df_da<-levels(da_raster)[[1]]
 
@@ -1302,6 +1303,7 @@ accountByRegion = function(da_raster, region = NULL, mask = NULL, aggmethod = "m
       
     } else {
       dt_N <- dcast(dt, Region ~ Class, value.var = "N") |> setorder(Region)
+	  
     }
     setnames(dt_N,1,names(df_region)[2])
     # Return the results
@@ -1350,14 +1352,16 @@ accountByRegion = function(da_raster, region = NULL, mask = NULL, aggmethod = "m
       # Reshape the data.tables
       dt_value <- dcast(dt, Region ~ mask, value.var = "value") |> setorder(Region)
       dt_N <- dcast(dt, Region ~ mask, value.var = "N") |> setorder(Region)
+	  setnames(dt_value,names(df_region)[2],varname)
+	  setnames(dt_N,names(df_region)[2],varname)
     } else {
       # Reshape the data.tables
       dt_value <- dt[,c("Region","value")] |> setorder(Region)
       dt_N <- dt[,c("Region","N")] |> setorder(Region)
+	  
+	  setnames(dt_value,names(df_region)[2],varname)
+	  setnames(dt_N,names(df_region)[2],varname)
     }
-    
-    setnames(dt_value,1,names(df_region)[2])
-    setnames(dt_N,1,names(df_region)[2])
 
     # Return the results
     return(list(value = dt_value, N = dt_N))
