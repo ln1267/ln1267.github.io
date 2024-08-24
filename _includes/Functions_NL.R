@@ -1368,6 +1368,85 @@ accountByRegion = function(da_raster,varname=NULL, region = NULL, mask = NULL, a
   }
 },
 
+
+#' Perform Parallel Time Series Accounting by Region
+#'
+#' This function calculates time series accounting for spatial data by region, 
+#' automatically choosing the appropriate parallel processing method based on the operating system.
+#'
+#' @param dafnames A vector of file paths or SpatRaster objects representing the datasets to be processed.
+#' @param zfname A file path or SpatRaster object representing the zone or region raster.
+#' @param varnames A vector of variable names corresponding to `dafnames`. If NULL, variable names are inferred from the datasets. Default is NULL.
+#' @param ncore The number of cores to use for parallel processing. Default is `parallel::detectCores() - 1`.
+#' @return A list containing two data frames: 
+#' \itemize{
+#'   \item \code{result_value}: A data frame with the aggregated values by region.
+#'   \item \code{result_N}: A data frame with the counts by region.
+#' }
+#' @import doParallel
+#' @import terra
+#' @import foreach
+#' @export
+#' @examples
+#' \dontrun{
+#' dafnames <- list("data1.tif", "data2.tif")
+#' zfname <- "zones.tif"
+#' result <- parallelAccountByRegion(dafnames, zfname, varnames = c("Var1", "Var2"), ncore = 4)
+#' }
+parallelAccountByRegion = function(dafnames, zfname, varnames = NULL, ncore = parallel::detectCores() - 1) {
+  # Load necessary libraries
+  library(doParallel)
+  library(terra)
+  library(foreach)
+  
+  # Infer variable names if not provided
+  if (is.null(varnames)) varnames <- names(rast(dafnames))
+  
+  # Adjust ncore to not exceed the number of variables
+  ncore <- min(ncore, length(dafnames))
+  
+  source("https://raw.githubusercontent.com/ln1267/ln1267.github.io/master/_includes/Functions_NL.R")
+
+  # Detect the operating system
+  sys_name <- Sys.info()["sysname"]
+  
+  if (sys_name == "Windows") {
+    # Set up parallel backend for Windows
+    cl <- makeCluster(ncore)
+    registerDoParallel(cl)
+    
+    # Parallel processing using foreach for Windows
+    agglist <- foreach(x = seq_along(dafnames), .packages = c("terra")) %dopar% {
+      source("https://raw.githubusercontent.com/ln1267/ln1267.github.io/master/_includes/Functions_NL.R")
+      raster_data <- rast(dafnames[x])
+      region_data <- rast(zfname)
+      funs_nl$accountByRegion(raster_data, region = region_data, varname = varnames[x])
+    }
+    
+    stopCluster(cl) # Stop the cluster after processing
+    
+  } else {
+    # Parallel processing for Unix-like systems using mclapply
+    agglist <- mclapply(seq_along(dafnames), function(x) {
+      raster_data <- rast(dafnames[x])
+      region_data <- rast(zfname)
+      funs_nl$accountByRegion(raster_data, region = region_data, varname = varnames[x])
+    }, mc.cores = ncore)
+  }
+  
+  # Get zone/region data frame from the raster levels
+  z_df <- levels(rast(zfname))[[1]]
+  
+  # Merge the results for values by region
+  result_value <- Reduce(function(x, y) merge(x, y, by = names(z_df)[2], all = TRUE), lapply(agglist, `[[`, 1))
+  
+  # Merge the results for counts by region
+  result_N <- Reduce(function(x, y) merge(x, y, by = names(z_df)[2], all = TRUE), lapply(agglist, `[[`, 2))
+  
+  # Return the results as a list
+  return(list(result_value = result_value, result_N = result_N))
+},
+
 #' ts_validation function
 #'
 #' Processes a dataframe containing time series data (with dates, observations, and simulations),
