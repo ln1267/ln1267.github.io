@@ -1249,7 +1249,7 @@ accountByRegion = function(da_raster,varname=NULL, region = NULL, mask = NULL, a
     }
 	if(is.null(varname)) varname<-names(da_raster)
   
-  if(is.factor(da_raster)))  {
+  if(is.factor(da_raster)) {
     
     df_da<-levels(da_raster)[[1]]
 
