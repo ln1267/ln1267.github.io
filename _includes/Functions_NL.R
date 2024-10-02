@@ -1002,7 +1002,7 @@ f_check_processed_files = function(parent_directory, out_path = NULL,nameExt=".t
 #' @export
 #' @examples
 #'  f_plot_tifs("path/to/root_folder")
-f_plot_tifs = function(root_folder,overwrite=FALSE) {
+f_plot_tifs = function(root_folder,overwrite=FALSE,mc=1) {
   # Ensure the terra package is loaded
   if (!requireNamespace("terra", quietly = TRUE)) {
     stop("The 'terra' package is not installed. Please install it to use this function.")
@@ -1042,13 +1042,20 @@ f_plot_tifs = function(root_folder,overwrite=FALSE) {
     plot(da_masked, main = file_name)
     # Close the plotting device
     dev.off()
+	
+	message("Processed ",file_name)
   }
   
   # Get list of all .tif files in root_folder and subfolders
   tif_files <- list.files(root_folder, pattern = "\\.tif$", recursive = TRUE, full.names = TRUE)
   
   # Process each .tif file
+  if(mc==1){
   lapply(tif_files, process_tif,force=overwrite)
+  }else{
+  library(doParallel)
+  mclapply(tif_files, process_tif,force=overwrite,mc.cores=mc)
+  }
 },
 
 #' Scatter Plot with Linear Regression Line and 1:1 Line
