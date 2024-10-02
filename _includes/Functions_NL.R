@@ -1007,6 +1007,7 @@ f_plot_tifs = function(root_folder,overwrite=FALSE,mc=1) {
   if (!requireNamespace("terra", quietly = TRUE)) {
     stop("The 'terra' package is not installed. Please install it to use this function.")
   }
+  library(terra)
   
   # Function to process each tif file
   process_tif <- function(tif_path,force=FALSE) {
