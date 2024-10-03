@@ -991,6 +991,287 @@ f_check_processed_files = function(parent_directory, out_path = NULL,nameExt=".t
 
   return(file_check_result)
 },
+
+#' Make Tiles for Spatial Data
+#' This code is revised from Roozbeh Valavi's original code for making virtual tiles.
+#' This function creates virtual tiles by splitting spatial data (either `SpatRaster` or matrix) into a specified number of tiles. The tiles can be balanced based on data values or equally sized.
+#' It supports both weighted and unweighted splitting and can handle both categorical and continuous raster data.
+#' Optionally, the tiles can be spatially plotted on the raster data using `ggplot2`.
+#' 
+#' @param data A `SpatRaster` or matrix object containing the spatial data to be tiled.
+#' @param n_tiles The number of tiles to split the data into.
+#' @param balanced Logical, if `TRUE` (default), tiles are balanced based on data values. If `FALSE`, tiles are split equally.
+#' @param method A character vector indicating the splitting method. Choices are "best", "row", "col", "both", or "equal". Default is "best".
+#' @param exact Logical, if `TRUE` (default), the exact number of tiles specified by `n_tiles` will be created.
+#' @param weighted Logical, if `TRUE` (default), tiles are created based on the cell values (i.e., the sum of values in each tile is approximately balanced).
+#' @param spatial Logical, if `TRUE`, the output is a spatial object (`SpatVector`) of the tiles. If `FALSE`, tile extents are returned.
+#' @param extent A spatial extent for the data. Required if the input `data` is a matrix. If `data` is a `SpatRaster`, it will automatically derive the extent.
+#' @param max_cells The maximum number of cells allowed in the raster before aggregation is applied to reduce its size. Default is 1,000,000.
+#' @param plotTiles Logical, if `TRUE`, tiles are plotted on the raster data using `ggplot2`. Default is `TRUE`.
+#' 
+#' @return If `spatial = TRUE`, returns a `SpatVector` of the tiles. Otherwise, returns a matrix of tile extents.
+#' 
+#' @examples 
+#' # Example 1: With a SpatRaster object
+#' library(terra)
+#' r <- rast(nrows=100, ncols=100)
+#' values(r) <- runif(ncell(r))
+#' make_tiles(r, n_tiles = 5)
+#' 
+#' # Example 2: With a matrix and extent
+#' mat <- matrix(runif(100*100), 100, 100)
+#' ext <- c(0, 100, 0, 100)
+#' make_tiles(mat, n_tiles = 4, extent = ext)
+#' 
+#' @export
+make_tiles = function(data, 
+                       n_tiles,
+                       balanced = TRUE,
+                       method = c("best", "row", "col", "both"),
+                       exact = TRUE,
+                       weighted = TRUE,
+                       spatial = FALSE, 
+                       extent = NULL, max_cells = 1000000, plotTiles = TRUE) {
+  
+  # Define the choice of splitting method
+  method <- match.arg(method[1], choices = c("best", "row", "col", "both", "equal"))
+  
+  # Internal function to get the extent of each tile
+  get_tile_extent <- function(x) {
+    nr <- nrow(x)
+    out <- matrix(0, nrow = nr, ncol = 4)
+    colnames(out) <- c("xmin", "xmax", "ymin", "ymax")
+    for(i in 1:nr) {
+      out[i, ] <- terra::ext(x[i, ])[1:4]
+    }
+    return(out)
+  }
+  
+  # Function to create equally sized tiles
+  equi_tiles <- function(r, n, sp = FALSE) {
+    nc <- ifelse(n %% 2 == 1, 1, floor(sqrt(n / 2)))
+    nr <- floor(n / nc)
+    w <- terra::rast(terra::ext(r), nrows = nr, ncols = nc)
+    
+    if (sp) {
+      return(terra::as.polygons(w))
+    } else {
+      return(terra::getTileExtents(r, w))
+    }
+  }
+  
+  # Handle unbalanced tile creation
+  if (!balanced) {
+    if (any(methods::is(data, "SpatRaster"))) {
+      return(equi_tiles(r = data, n = n_tiles, sp = spatial))
+    } else {
+      stop("Equal-sized tiles only work with rasters.")
+    }
+  }
+  
+  # Data preparation: Ensure data is a raster or matrix
+  if (any(methods::is(data, "SpatRaster"))) {
+    if (ncell(data) > max_cells) {
+      aggregation_factor <- sqrt(ncell(data) / max_cells)
+      
+      # Check if raster data is categorical or continuous
+      if (is.factor(data)) {
+        cat("Data is categorical. Using 'majority' for aggregation.\n")
+        data <- aggregate(data, fact = aggregation_factor, fun = "modal", na.rm = TRUE)
+      } else {
+        cat("Data is continuous. Using 'mean' for aggregation.\n")
+        data <- aggregate(data, fact = aggregation_factor, fun = mean, na.rm = TRUE)
+      }
+      cat("Raster aggregated by factor:", round(aggregation_factor, 2), "\n")
+    }
+    x <- terra::as.matrix(data, wide = TRUE)
+  } else if (any(is(data, "matrix"))) {
+    x <- data
+  } else {
+    stop("'data' must be a matrix or SpatRaster!")
+  }
+  
+  # Equalize weighting of cells
+  if (!weighted) {
+    x <- ifelse(is.na(x), x, 1)
+  }
+  
+  # Define internal functions for splitting
+  split_point <- function(x, byrow = TRUE, diff = FALSE) {
+    dimsum <- if (byrow) rowSums(x, na.rm = TRUE) else colSums(x, na.rm = TRUE)
+    ave <- sum(dimsum, na.rm = TRUE) / 2
+    cs <- cumsum(dimsum) - ave
+    pt <- which.min(abs(cs))
+    if (diff) {
+      return(abs(sum(dimsum[1:pt], na.rm = TRUE) - sum(dimsum[(pt+1):length(dimsum)], na.rm = TRUE)))
+    }
+    return(pt)
+  }
+
+  # Split by rows or columns
+	by_rows <- function(x, by = "best") {
+    if (by == "best") {
+      brow <- split_point(x = x, byrow = TRUE, diff = TRUE)
+      bcol <- split_point(x = x, byrow = FALSE, diff = TRUE)
+      # if difference in node stats are higher in by-column, then choose by-rows
+      return(
+        ifelse(bcol >= brow, TRUE, FALSE)
+      )
+    } else if (by == "row") {
+      return(
+        TRUE
+      )
+    } else if (by == "col") {
+      return(
+        FALSE
+      )
+    } else {
+      return(
+        ifelse(nrow(x) >= ncol(x), TRUE, FALSE)
+      )
+    }
+  }
+  # filter the matrix based on lookup
+  filter_mat <- function(mat, lookup, i) {
+    r1 <- lookup[i, "r1"]
+    r2 <- lookup[i, "r2"]
+    c1 <- lookup[i, "c1"]
+    c2 <- lookup[i, "c2"]
+    return(
+      mat[r1:r2, c1:c2, drop = FALSE]
+    )
+  }
+  # calculate the sums
+  sum_mat <- function(mat, lookup, i) {
+    r1 <- lookup[i, "r1"]
+    r2 <- lookup[i, "r2"]
+    c1 <- lookup[i, "c1"]
+    c2 <- lookup[i, "c2"]
+    return(
+      sum(mat[r1:r2, c1:c2], na.rm = TRUE)
+    )
+  }
+  
+  n_rows <- nrow(x)
+  n_cols <- ncol(x)
+  result <- matrix(1, n_rows, n_cols)
+  
+  total_sum <- sum(x, na.rm = TRUE)
+  target_sum <- total_sum / n_tiles
+  
+  # initial row/col id
+  row_start <- 1
+  col_start <- 1
+  row_end <- n_rows
+  col_end <- n_cols
+  id <- 1
+  
+  lookup <- data.frame(
+    id = 1, 
+    r1 = row_start, 
+    r2 = row_end, 
+    c1 = col_start, 
+    c2 = col_end,
+    wt = total_sum
+  )
+  
+  # find the splits
+  while(max(lookup$wt) > target_sum && ifelse(exact, nrow(lookup) < n_tiles, TRUE)) {
+    r <- which.max(lookup$wt)
+    sub_mat <- filter_mat(x, lookup, r)
+    split_row <- by_rows(sub_mat, by = method)
+    # update lookup table    
+    if (split_row) {
+      id <- id + 1
+      pnt <- split_point(x = sub_mat, byrow = TRUE)
+      new_end_row <- (lookup[r, "r1"] + pnt - 1)
+      row_start <- min(new_end_row + 1, n_rows)
+      row_end <- lookup[r, "r2"] # first update this
+      col_start <- lookup[r, "c1"]
+      col_end <- lookup[r, "c2"]
+      lookup[r, "r2"] <- new_end_row
+      lookup[nrow(lookup) + 1, ] <- c(id, row_start, row_end, col_start, col_end, 0)
+      lookup[nrow(lookup), "wt"] <- sum_mat(x, lookup, nrow(lookup))
+      lookup[r, "wt"] <- sum_mat(x, lookup, r)
+    } else {
+      id <- id + 1
+      pnt <- split_point(x = sub_mat, byrow = FALSE)
+      new_end_col <- (lookup[r, "c1"] + pnt - 1)
+      row_start <- lookup[r, "r1"]
+      row_end <- lookup[r, "r2"]
+      col_start <- min(new_end_col + 1, n_cols)
+      col_end <- lookup[r, "c2"]
+      lookup[r, "c2"] <- new_end_col
+      lookup[nrow(lookup) + 1, ] <- c(id, row_start, row_end, col_start, col_end, 0)
+      lookup[nrow(lookup), "wt"] <- sum_mat(x, lookup, nrow(lookup))
+      lookup[r, "wt"] <- sum_mat(x, lookup, r)
+    }
+    
+    result[row_start:row_end, col_start:col_end] <- id
+  }
+  
+  # get the ext and make it a polygon
+  if (any(is(data, "SpatRaster"))) {
+    if (is.null(extent)) {
+      extent <- terra::ext(data)
+    }
+  } else {
+    if (is.null(extent)) {
+      stop("For matrix 'data' you need to provide the 'extent'.")
+    }
+  }
+  
+  outpoly <- as.polygons(
+    terra::rast(result, extent = extent)
+  )
+  
+  
+  if (spatial) {
+    if (any(methods::is(data, "SpatRaster"))) {
+      terra::crs(outpoly) <- terra::crs(data)
+    }
+    
+    if(plotTiles){
+      # plot(data)
+      # plot(outpoly,add=T)
+      
+      library(sf)
+      library(ggplot2)
+      # We'll convert it to a data frame
+      raster_df <- as.data.frame(data, xy = TRUE)
+      colnames(raster_df) <- c("x", "y", "value")  # Rename columns for clarity
+      
+      # Convert sf object to data frame for ggplot2
+      vector_df <- st_as_sf(outpoly)
+      
+      # Create the plot
+      p1<-ggplot() +
+        geom_raster(data = raster_df, aes(x = x, y = y, fill = value)) +
+        scale_fill_viridis_c() +  # Use a color scale; requires viridis package
+        # Overlay the shapefile
+        geom_sf(data = vector_df, color = "red", fill = NA, size = 0.7) +
+        # Add labels
+        geom_sf_text(data = vector_df, aes(label = lyr.1), size = 3, nudge_y = 0.1,color="red") +  # Replace 'Name' with your label attribute
+        # Add titles and theme
+        labs(title = "Raster overview with created tiles (Labeled by tile ID)",
+             fill = "Raster Value") +
+        theme_minimal()
+      
+      print(p1)
+      
+    }
+    
+    return(
+      outpoly
+    )
+  } else {
+    return(
+      get_tile_extent(outpoly)
+    )
+  }
+},
+
+
 #' Plot Raster Data as PNG 
 #'
 #' This function generates a high-resolution PNG plot of raster data.
