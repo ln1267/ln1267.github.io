@@ -963,11 +963,6 @@ global_raster_agg = function(fnames, agg_func = sum, mc_cores = 5, na_rm = TRUE)
   return(results_df)
 },
 
-# Example usage
-fnames<-sprintf("IrrigatedAgriculturalWaterUse_250m_%s.tif",format_to_fiscal_year(2000:2022))
-result <- global_raster_agg(fnames, agg_func = sum, mc_cores = 5, na_rm = TRUE)
-print(result)
-
 #' Check Validity of TIF Files in Directory
 #'
 #' This function scans a specified directory for TIF files and checks each one for validity using the terra package.
