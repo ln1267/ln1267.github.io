@@ -106,6 +106,31 @@ f_digits=function(x,n=2,format=F) {
   
 },
 
+#' Convert calendar year(s) to fiscal year format (YYYY-YY)
+#'
+#' This function converts one or more calendar years into a fiscal year format (e.g., 2015 -> "2015-16").
+#' It ensures that the input is valid and handles a range of years appropriately.
+#'
+#' @param years A numeric vector of one or more calendar years.
+#'
+#' @return A character vector of fiscal years in the format "YYYY-YY".
+Year2FY= function(years) {
+  # Ensure input is numeric and valid
+  if (!is.numeric(years)) {
+   years<- as.integer(as.character(years))
+  }
+  
+  # Convert to integers to avoid decimal years
+  years <- as.integer(years)
+  
+  # Apply the fiscal year conversion
+  next_year_short <- substr(years + 1, 3, 4)  # Extract last two digits of the next year
+  fiscal_years<-paste0(years, "-", next_year_short)
+  
+  return(fiscal_years)
+},
+
+
 #' Compare Two Time Series Datasets
 #'
 #' This function takes two time series datasets and optionally a time index and group identifier. It calculates and returns descriptive statistics for each dataset individually, as well as comparative statistics, and generates visualizations to help assess the differences and distributions within each dataset or group.
@@ -895,7 +920,53 @@ write_cog <- function(input, output_path, is_category = FALSE) {
   # Write the raster with the specified options
   terra::writeRaster(raster, output_path, wopt = wopt, overwrite = TRUE)
 },
+#' Perform global aggregation on a list of raster files
+#'
+#' This function applies a global aggregation (e.g., sum, mean) to a list of raster files in parallel.
+#' It allows the user to specify the aggregation method and manages row names by attaching file names to results.
+#'
+#' @param fnames A character vector of file paths to raster files.
+#' @param agg_func A function to use for aggregation (default is `sum`).
+#' @param mc_cores The number of cores to use for parallel processing (default is 5).
+#' @param na_rm Logical. Should missing values (NA) be removed? Default is TRUE.
+#'
+#' @return A data frame with the global aggregation results and file names as row identifiers.
+global_raster_agg = function(fnames, agg_func = sum, mc_cores = 5, na_rm = TRUE) {
+  require(terra)
+  require(dplyr)
+  require(parallel)
+  
+  # Define a helper function to apply global aggregation to each raster file
+  raster_agg <- function(file, agg_func, na_rm) {
+    tryCatch({
+      # Load the raster file
+      raster_data <- rast(file)
+      
+      # Perform global aggregation
+      result <- global(raster_data, fun = agg_func, na.rm = na_rm)
+      
+      # Return the result as a data frame with the file name
+      return(data.frame(FileName = basename(file), Value = result))
+    }, error = function(e) {
+      # Handle errors by returning NA for the failed file
+      warning(paste("Error processing file:", file, " - ", e$message))
+      return(data.frame(FileName = basename(file), Value = NA))
+    })
+  }
+  
+  # Apply the raster aggregation function to all files in parallel
+  results_list <- mclapply(fnames, FUN = function(x) raster_agg(x, agg_func, na_rm), mc.cores = mc_cores)
+  
+  # Bind the results into a single data frame
+  results_df <- bind_rows(results_list)
+  
+  return(results_df)
+},
 
+# Example usage
+fnames<-sprintf("IrrigatedAgriculturalWaterUse_250m_%s.tif",format_to_fiscal_year(2000:2022))
+result <- global_raster_agg(fnames, agg_func = sum, mc_cores = 5, na_rm = TRUE)
+print(result)
 
 #' Check Validity of TIF Files in Directory
 #'
