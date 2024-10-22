@@ -4214,6 +4214,72 @@ f_2nc=function(filename=NULL,da=NULL,ncfname,varname,start_date=NULL,scale="1 ye
   }
 },
 
+#' Aggregate 8-day interval data to monthly weighted averages
+#'
+#' This function takes a dataframe with date, year, and value columns, groups the data into 8-day intervals, 
+#' calculates the weights for days that overlap into different months, and aggregates the values into monthly
+#' weighted averages.
+#'
+#' @param df A dataframe containing at least a 'date' column (Date type) and 'value' column (numeric) to be aggregated.
+#' @return A dataframe containing the aggregated weighted values for each month, along with the corresponding year and month names.
+#' @import dplyr
+#' @import lubridate
+#' @export
+#' @examples
+#' df <- data.frame(
+#'   date = seq(as.Date("2023-01-01"), as.Date("2023-12-31"), by = "day"),
+#'   value = rnorm(365)
+#' )
+#' result <- f_8days_to_month_df(df)
+#' print(result)
+f_8days_to_month_df = function(df) {
+  library(dplyr)
+  library(lubridate)
+  
+  # Ensure that df contains a 'date' and 'value' column, then extract 'month', 'year', and 'day_of_year'
+  df <- df |>
+    mutate(
+      month = month(date),       # Extract month
+      year = year(date),         # Extract year
+      day_of_year = yday(date)   # Extract day of year
+    )
+  
+  # Create an 8-day period identifier for weighting
+  df <- df |>
+    arrange(date) |>
+    mutate(week_8day = ceiling(day_of_year / 8))  # 8-day period identifier
+  
+  # Compute the number of days per month within each 8-day period
+  ndays_per_month <- df |>
+    group_by(year, week_8day, month) |>
+    summarize(days_in_month = n(), .groups = "drop")
+  
+  # Calculate the total number of days in each 8-day period
+  ndays_total_8day <- df |>
+    group_by(year, week_8day) |>
+    summarize(total_days = n(), .groups = "drop")
+  
+  # Join the calculated days in month and total days to the main dataframe
+  df <- df |>
+    left_join(ndays_per_month, by = c("year", "week_8day", "month")) |>
+    left_join(ndays_total_8day, by = c("year", "week_8day")) |>
+    mutate(weight = days_in_month / total_days)  # Calculate weights as proportion of days in the period
+  
+  # Apply the weights to the values and aggregate by month
+  monthly_aggregated <- df |>
+    group_by(year, month) |>
+    summarize(
+      weighted_value = sum(value * weight, na.rm = TRUE) / sum(weight, na.rm = TRUE),  # Weighted average
+      .groups = "drop"
+    )
+  
+  # Optionally, add the month names for better readability
+  monthly_aggregated <- monthly_aggregated |>
+    mutate(month_name = month.abb[month])
+  
+  return(monthly_aggregated)
+},
+
 
 ## Covert 8days brick to monthly brick----
 #' @param year The calender year for this 8days brick file.
