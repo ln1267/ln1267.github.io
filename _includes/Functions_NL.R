@@ -3196,7 +3196,302 @@ theme_grid = function(base_size = 12, base_family = "Times"){
 
     )
 },
+#' Detect Change Points in Time Series Data
+#'
+#' This function detects change points in both mean/variance and trend in a time series data using 
+#' non-parametric and segmented regression methods. The change points are detected for both mean/variance and trend.
+#' The function returns various metrics, including change point locations, segment means, p-values, and segment slopes.
+#'
+#' @param Iw A numeric vector representing the time series data to analyze for change points.
+#' @param minseglen An integer indicating the minimum segment length for the change point detection. Default is 3.
+#' @param max_change_points An integer indicating the maximum number of change points to detect. Default is 3.
+#' @param sig.level A numeric value indicating the significance level for filtering p-values of the detected change points. Default is 0.05.
+#' @param ndigts An integer specifying the number of decimal places to round the output values. Default is 4.
+#' @param plot A logical value indicating whether to plot the results of the change point analysis. Default is FALSE.
+#'
+#' @return A named vector containing the following elements:
+#' \describe{
+#'   \item{MeanVar_CP1, MeanVar_CP2, ..., MeanVar_CPn}{The detected change points in mean/variance (up to `max_change_points`).}
+#'   \item{MeanVar_SegmentMean1, ..., MeanVar_SegmentMean(n+1)}{The mean values for each segment defined by the change points.}
+#'   \item{MeanVar_pValue1, ..., MeanVar_pValue(n)}{The p-values for the detected mean/variance change points.}
+#'   \item{Trend_CP1, Trend_CP2, ..., Trend_CPn}{The detected change points in trend.}
+#'   \item{Trend_SegmentSlope1, ..., Trend_SegmentSlope(n+1)}{The slopes for each segment defined by the trend change points.}
+#'   \item{Trend_pValue1, ..., Trend_pValue(n)}{The p-values for the trend change points.}
+#' }
+#'
+#' @details
+#' The function uses two main techniques for detecting change points:
+#' \itemize{
+#'   \item \strong{Mean/Variance Change Points:} Detected using the `changepoint.np` package with the MBIC penalty.
+#'   \item \strong{Trend Change Points:} Detected using the `segmented` package, which fits a segmented linear regression to the time series.
+#' }
+#' The detected change points are filtered based on the significance level (`sig.level`), and results are returned with rounded values for better interpretability.
+#'
+#' @note
+#' If no significant change points are detected for mean/variance or trend, `NA` values will be returned for those metrics.
+#'
+#' @importFrom segmented segmented segmented.lm
+#' @importFrom changepoint.np cpt.np
+#' @importFrom changepoint cpts
+#' @importFrom ggplot2 ggplot geom_point geom_line geom_vline geom_segment theme_bw
+#' @importFrom stats t.test lm
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' # Example usage
+#' set.seed(123)
+#' ts_data <- c(rnorm(100, mean = 0), rnorm(100, mean = 1))
+#' detect_change_points(ts_data, plot = TRUE)
+#' }
+#' 
+detect_change_points = function(Iw, minseglen=3 ,max_change_points = 3,sig.level=0.05,ndigts=4, plot = FALSE) {
+  # Check if Iw is numeric
+  if (!is.numeric(Iw)) {
+    stop("Input Iw must be a numeric vector.")
+  }
+  require("segmented")
+  require("changepoint.np")
+  require("changepoint")
+  require("ggplot2")
+  
+  n <- length(Iw)
+  
+  ### 1. Detect Mean and Variance Change Points using cpt.np ###
+  cpt_np <- cpt.np(Iw, penalty = "MBIC", class = TRUE,minseglen=minseglen)  # No Q argument
+  
+  # Extract change points
+  cp_mean_var <- cpts(cpt_np)
+  cp_mean_var <- cp_mean_var[cp_mean_var < n]  # Exclude the last point if present
+  
+  # Calculate p-values using t-test between consecutive segments
+  num_cp_mean_var <- length(cp_mean_var)
+  
+  # If no change points detected, set to NA
+  if (num_cp_mean_var == 0) {
+    
+    cp_mean_var <- rep(NA, max_change_points)
+    segment_means <- c(mean(Iw), rep(NA, max_change_points - num_cp_mean_var))
+    p_values_mean_var <- rep(NA, max_change_points)
+    
+  } else {
+    
+    if(num_cp_mean_var==1){
+      p_values_mean_var <- t.test(Iw[1:cp_mean_var], Iw[(cp_mean_var + 1):n])$p.value
+      
+    }else{
+      p_values_mean_var <- sapply(1:(length(cp_mean_var)), function(i) {
+        if (i == 1) {
+          t_test <- t.test(Iw[1:cp_mean_var[i]], Iw[(cp_mean_var[i] + 1):cp_mean_var[i+1]])
+        } else if (i < length(cp_mean_var)) {
+          t_test <- t.test(Iw[(cp_mean_var[i-1] + 1):cp_mean_var[i]], Iw[(cp_mean_var[i] + 1):cp_mean_var[i+1]])
+        } else {
+          t_test <- t.test(Iw[(cp_mean_var[i - 1] + 1):cp_mean_var[i]], Iw[(cp_mean_var[i] + 1):n])
+        }
+        return(t_test$p.value)
+      })
+    }
+    
+    # filter sig points
+    cp_mean_var<-cp_mean_var[p_values_mean_var<sig.level]
+    
+    num_cp_mean_var <- length(cp_mean_var)
+    
+    if (num_cp_mean_var == 0) {
+      
+      cp_mean_var <- rep(NA, max_change_points)
+      segment_means <- c(mean(Iw), rep(NA, max_change_points - num_cp_mean_var))
+      p_values_mean_var <- rep(NA, max_change_points)
+      
+    } else {
+      
+      p_values_mean_var<-p_values_mean_var[p_values_mean_var<sig.level]
+      
+      if(max_change_points<num_cp_mean_var) {
+        message("Numer of change points is set to ", num_cp_mean_var," from ",max_change_points," due to more significant change points are detected.")
+        max_change_points=num_cp_mean_var
+      }
+      
+      # Calculate segment means
+      segment_means <- sapply(1:(length(cp_mean_var)+1), function(i) {
+        if (i == 1) {
+          mean(Iw[1:cp_mean_var[i]])
+        } else if (i <= length(cp_mean_var)) {
+          mean(Iw[(cp_mean_var[i-1]+1):cp_mean_var[i]])
+        } else {
+          mean(Iw[(cp_mean_var[i-1]+1):n])
+        }
+      })
+      
+      # If less p-values than max_change_points, pad with NA
+      if (num_cp_mean_var < max_change_points) {
+        cp_mean_var<-c(cp_mean_var, rep(NA, max_change_points - num_cp_mean_var))
+        segment_means<-c(segment_means, rep(NA, max_change_points - num_cp_mean_var))
+        p_values_mean_var <- c(p_values_mean_var, rep(NA, max_change_points - num_cp_mean_var))
+      }
 
+    }
+    }
+
+  ### 2. Detect Trend Change Points using segmented ###
+  dati<-data.frame(x=1:length(Iw),y=Iw)
+  out.lm<-lm(y~x,data=dati)
+  
+  # Try to fit segmented model with max_change_points and minimum segment length
+  # seg_fit <- try(segmented(out.lm, npsi = min(num_cp_mean_var+1,max_change_points)), silent = TRUE)
+  max_change_points_trend<-max_change_points
+  
+  ## Auto set number of ch points
+  seg_fit <- try(segmented.lm(out.lm,seg.Z=~x,psi=list(x=NA),
+                  control=seg.control(fix.npsi=FALSE, n.boot=0, tol=1e-7, it.max = 50, K=5, display=F)), silent = TRUE)
+
+  if (class(seg_fit)[1] == "try-error"|| is.null(seg_fit$psi)) {
+    # If segmented fails, set all trend change metrics to NA
+    cp_trend <- rep(NA, max_change_points)
+    segment_slopes <- rep(NA, max_change_points + 1)
+    p_values_trend <- rep(NA, max_change_points)
+    segment_means_trend <- rep(NA, max_change_points + 1)
+  } else {
+    # Extract breakpoints
+    cp_trend <- round(seg_fit$psi[, "Est."],0)  # Estimated breakpoints
+    cp_trend <- sort(cp_trend)
+    cp_trend <- cp_trend[cp_trend < length(Iw)]  # Exclude final point if detected
+    num_cp_trend <- length(cp_trend)
+    
+    if (num_cp_trend == 0) {
+      cp_trend <- rep(NA, max_change_points)
+      segment_slopes <- coef(lm(Iw ~ 1:length(Iw)))[2]  # Slope of the overall linear fit
+      p_values_trend <- rep(NA, max_change_points)
+      segment_means_trend <- mean(Iw)
+    } else {
+      # Extract slopes for each segment
+      seg_slopes <- slope(seg_fit)$x[, "Est."]
+      
+      # Calculate segment means for the detected breakpoints
+      segment_means_trend <- sapply(1:(num_cp_trend + 1), function(i) {
+        if (i == 1) {
+          mean(Iw[1:cp_trend[i]])  # First segment
+        } else if (i <= num_cp_trend) {
+          mean(Iw[(cp_trend[i-1] + 1):cp_trend[i]])  # Middle segments
+        } else {
+          mean(Iw[(cp_trend[i-1] + 1):length(Iw)])  # Last segment
+        }
+      })
+
+      # Extract p-values for slopes from the segmented fit summary
+      p_values_trend <- rep(NA, num_cp_trend)
+      slope_pvals <- summary(seg_fit)$coefficients[, "Pr(>|t|)"]  # Get p-values from the summary
+      
+      # P-values start from the second row (first is the intercept)
+      if (length(slope_pvals) > 1) {
+        p_values_trend[1:num_cp_trend] <- slope_pvals[2:(1 + num_cp_trend)]
+      }
+      
+      # Pad results with NA if fewer change points than max_change_points
+      if (num_cp_trend < max_change_points_trend) {
+        cp_trend <- c(cp_trend, rep(NA, max_change_points_trend - num_cp_trend))
+        seg_slopes <- c(seg_slopes, rep(NA, max_change_points_trend - num_cp_trend))
+        segment_means_trend <- c(segment_means_trend, rep(NA, max_change_points_trend - num_cp_trend))
+        p_values_trend <- c(p_values_trend, rep(NA, max_change_points_trend - num_cp_trend))
+      } else if (num_cp_trend >= max_change_points_trend) {
+        max_change_points_trend<-num_cp_trend
+        # Trim excess points if more than max_change_points
+        cp_trend <- cp_trend[1:max_change_points_trend]
+        seg_slopes <- seg_slopes[1:(max_change_points_trend+1)]
+        segment_means_trend <- segment_means_trend[1:(max_change_points_trend+1)]
+        p_values_trend <- p_values_trend[1:max_change_points_trend]
+      }
+      
+      # Final segment slopes and means
+      segment_slopes <- seg_slopes
+    }
+  }
+  
+  ### 3. Combine Results ###
+  
+  # Create result vector
+  result <- c(
+    # Mean and Variance Change Points
+    cp_mean_var,
+    segment_means,
+    p_values_mean_var,
+    # Trend Change Points
+    cp_trend,
+    # segment_means_trend,
+    segment_slopes,
+    p_values_trend
+  ) |> round(ndigts)
+  
+  # Name the elements
+  names(result) <- c(
+    paste0("MeanVar_CP", 1:max_change_points),
+    paste0("MeanVar_SegmentMean", 1:(max_change_points+1)),
+    paste0("MeanVar_pValue", 1:max_change_points),
+    paste0("Trend_CP", 1:max_change_points_trend),
+    # paste0("Trend_SegmentMean", 1:(max_change_points_trend +1)),
+    paste0("Trend_SegmentSlope", 1:(max_change_points_trend +1)),
+    paste0("Trend_pValue", 1:max_change_points_trend)
+  )
+  
+  ### 4. Optional Plotting ###
+  if (plot) {
+    plot_df <- dati
+    
+    p <- ggplot(plot_df, aes(x = x, y = y)) +
+      geom_point(color = "black") +
+      geom_line(color = "#377eb8") +
+      labs(title = "Change Point Detection", x = "Index", y = "Value")+theme_bw()
+    
+    # Add mean lines for mean/variance change points
+    if (any(!is.na(cp_mean_var))) {
+      cp_mean_var<-cp_mean_var[!is.na(cp_mean_var)]
+      segment_means<-segment_means[!is.na(segment_means)]
+      # Define the start and end of each segment
+      segments_mv <- data.frame(
+        start = c(1, cp_mean_var + 1),  # Start at 1, then at each change point + 1
+        end = c(cp_mean_var, n),  # End at each change point, and at the end of the data
+        mean = segment_means[1:(sum(!is.na(cp_mean_var)) + 1)]  # Means of each segment
+      )
+      
+      # Add mean lines for each segment
+      for (i in 1:nrow(segments_mv)) {
+        p <- p + geom_segment(
+          x = segments_mv$start[i],
+          y = segments_mv$mean[i],
+          xend = segments_mv$end[i],
+          yend = segments_mv$mean[i],
+          color = "red", linetype = "dashed"
+        )
+      }
+      
+      
+      # Add vertical lines for change points
+      p <- p + geom_vline(xintercept = cp_mean_var, color = "red", linetype = "dotted")
+      
+    }
+    
+    # Display the plot
+    print(p)
+    
+    # Add trend lines for trend change points
+    if (class(seg_fit)[[1]] != "try-error" && any(!is.na(cp_trend))) {
+      # Add trend lines for each segment
+      # Create a new data frame for segmented regression lines
+      seg_fit_data <- data.frame(x = 1:n)
+      seg_fit_data$y <- predict(seg_fit, newdata = seg_fit_data)
+      
+      p <- p +
+        geom_line(data = seg_fit_data, aes(x = x, y = y), color = "#984ea3", size = 1)+ 
+        geom_vline(xintercept = cp_trend, color = "#984ea3", linetype = "dotted",size=1.5)
+      
+    }
+    
+    # Display the plot
+    print(p)
+  }
+ 
+  return(result)
+},
 # function for MK trend analysis and change points detection ("trend" and "changepoint" packages)
 ## ts_in is the input time serie; name is the output pdf name; seasonal is wether for seasonal data; plot is whether plot result; main is the title for plot; Y_name is the title for y_axiel; sig is the sig threhold
 f_MK_CP=function(ts_in,name="",seasonal=F,plot=F,main="",Y_name="Streamflow (mm)",sig=0.05){
