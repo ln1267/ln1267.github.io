@@ -3253,10 +3253,10 @@ detect_change_points = function(Iw, minseglen=3 ,max_change_points = 3,sig.level
   if (!is.numeric(Iw)) {
     stop("Input Iw must be a numeric vector.")
   }
-  require("segmented")
-  require("changepoint.np")
-  require("changepoint")
-  require("ggplot2")
+  require("segmented",quietly =TRUE,warn.conflicts=F)
+  require("changepoint.np",quietly =TRUE,warn.conflicts=F)
+  require("changepoint",quietly =TRUE,warn.conflicts=F)
+  require("ggplot2",quietly =TRUE,warn.conflicts=F)
   
   n <- length(Iw)
   
@@ -3311,7 +3311,7 @@ detect_change_points = function(Iw, minseglen=3 ,max_change_points = 3,sig.level
       p_values_mean_var<-p_values_mean_var[p_values_mean_var<sig.level]
       
       if(max_change_points<num_cp_mean_var) {
-        message("Numer of change points is set to ", num_cp_mean_var," from ",max_change_points," due to more significant change points are detected.")
+        #message("Numer of change points is set to ", num_cp_mean_var," from ",max_change_points," due to more significant change points are detected.")
         max_change_points=num_cp_mean_var
       }
       
