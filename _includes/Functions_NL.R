@@ -3496,6 +3496,95 @@ detect_change_points = function(Iw, minseglen=3 ,max_change_points = 3,sig.level
   
   return(result)
 },
+
+#' Merge Layers from Change Point Results into a Raster Stack
+#'
+#' This function processes the change point detection results (`cp_result`), creates raster layers for different variables, 
+#' and merges them into a single raster stack. The merged raster stack can be used for further analysis or visualization.
+#'
+#' @param cp_result A data frame containing the change point detection results. The column names should include prefixes like 
+#' "MeanVar_CP", "MeanVar_pValue", "MeanVar_SegmentMean", "Trend_CP", "Trend_pValue", "Trend_SegmentSlope". The data frame should also contain a `cell` column to map indices to raster cells.
+#' @param da_r A list or raster object that serves as a template for creating raster layers. The function assumes the first element (e.g., `da_r[[1]]`) is the raster template.
+#' @param yr_start A numeric value (default is 0) that is added to the detected change point years in "MeanVar_CP" and "Trend_CP". This is useful for adjusting the time scale.
+#'
+#' @return A raster stack containing the merged layers for all the specified variable types. Each layer corresponds to a specific variable (e.g., "MeanVar_CP1", "Trend_SegmentSlope1").
+#'
+#' @details
+#' The function processes the following variable types:
+#' \itemize{
+#'   \item \strong{MeanVar_CP:} Change points detected for mean and variance.
+#'   \item \strong{MeanVar_pValue:} P-values associated with the mean and variance change points.
+#'   \item \strong{MeanVar_SegmentMean:} Mean values for each segment defined by the change points in mean/variance.
+#'   \item \strong{Trend_CP:} Change points detected for trend.
+#'   \item \strong{Trend_pValue:} P-values associated with the trend change points.
+#'   \item \strong{Trend_SegmentSlope:} Slopes of the segments defined by the trend change points.
+#' }
+#' For each variable type, the function creates a raster layer, assigns values from `cp_result`, and merges them into a raster stack. If the variable type is "MeanVar_CP" or "Trend_CP", the function adds `yr_start` to the values before assigning them to the raster cells.
+#'
+#' @note
+#' The function assumes that `cp_result` contains columns matching the variable types and that `da_r` and `cp_result$cell` are structured appropriately for raster manipulation.
+#'
+#' @importFrom terra rast
+#' @importFrom stats grep
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' # Example usage
+#' # Assuming 'cp_result' is a data frame with change point detection results
+#' # 'da_r' is a list with a raster template, and 'cp_result$cell' maps cells to raster indices
+#' merged_layers <- merge_CPResult(cp_result, da_r, yr_start = 1980)
+#' }
+merge_CPResult = function(cp_result, da_r, yr_start = 0) {
+  
+  # List of variable prefixes to process
+  variable_types <- c("MeanVar_CP", "MeanVar_pValue", "MeanVar_SegmentMean", 
+                      "Trend_CP", "Trend_pValue", "Trend_SegmentSlope")
+  
+  # Initialize an empty list to store the raster layers
+  raster_layers <- list()
+  
+  # Iterate through each variable type
+  for (var_prefix in variable_types) {
+    print(var_prefix)
+    
+    # Get the columns that match the current variable type
+    num_layers <- length(grep(paste0("^", var_prefix), names(cp_result)))
+    
+    # Loop over each layer for the current variable type
+    for (i in 1:num_layers) {
+      # Construct the full variable name dynamically
+      variable_name <- paste0(var_prefix, i)
+      print(variable_name)
+      
+      # Check if the column exists in cp_result (for safety)
+      if (variable_name %in% names(cp_result)) {
+        
+        # Create a new raster layer
+        raster_layer <- rast(da_r[[1]])
+        
+        # Update raster cells based on the dynamic variable in cp_result
+        if (var_prefix %in% c("MeanVar_CP", "Trend_CP")) {
+          raster_layer[cp_result$cell] <- cp_result[[variable_name]] + yr_start
+        } else {
+          raster_layer[cp_result$cell] <- cp_result[[variable_name]]
+        }
+        
+        # Store the raster layer in the list with a meaningful name
+        raster_layers[[variable_name]] <- raster_layer
+      } else {
+        message(paste("Column", variable_name, "not found in cp_result. Skipping..."))
+      }
+    }
+  }
+  
+  # Merge all the raster layers into a raster stack
+  merged_raster <- rast(raster_layers)
+  
+  # Return the merged raster stack
+  return(merged_raster)
+},
+
 # function for MK trend analysis and change points detection ("trend" and "changepoint" packages)
 ## ts_in is the input time serie; name is the output pdf name; seasonal is wether for seasonal data; plot is whether plot result; main is the title for plot; Y_name is the title for y_axiel; sig is the sig threhold
 f_MK_CP=function(ts_in,name="",seasonal=F,plot=F,main="",Y_name="Streamflow (mm)",sig=0.05){
