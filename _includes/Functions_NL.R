@@ -3196,6 +3196,7 @@ theme_grid = function(base_size = 12, base_family = "Times"){
 
     )
 },
+
 #' Detect Change Points in Time Series Data
 #'
 #' This function detects change points in both mean/variance and trend in a time series data using 
@@ -3207,7 +3208,9 @@ theme_grid = function(base_size = 12, base_family = "Times"){
 #' @param max_change_points An integer indicating the maximum number of change points to detect. Default is 3.
 #' @param sig.level A numeric value indicating the significance level for filtering p-values of the detected change points. Default is 0.05.
 #' @param ndigts An integer specifying the number of decimal places to round the output values. Default is 4.
+#' @param ts_start An integer specifying the start year.
 #' @param plot A logical value indicating whether to plot the results of the change point analysis. Default is FALSE.
+#' @param returnPlot A logical value indicating whether to return the plot only.
 #'
 #' @return A named vector containing the following elements:
 #' \describe{
@@ -3245,7 +3248,7 @@ theme_grid = function(base_size = 12, base_family = "Times"){
 #' detect_change_points(ts_data, plot = TRUE)
 #' }
 #' 
-detect_change_points = function(Iw, minseglen=3 ,max_change_points = 3,sig.level=0.05,ndigts=4, plot = FALSE) {
+detect_change_points = function(Iw, minseglen=3 ,max_change_points = 3,sig.level=0.05,ndigts=4,ts_start=0, plot = FALSE,returnPlot=FALSE) {
   # Check if Iw is numeric
   if (!is.numeric(Iw)) {
     stop("Input Iw must be a numeric vector.")
@@ -3408,15 +3411,15 @@ detect_change_points = function(Iw, minseglen=3 ,max_change_points = 3,sig.level
   }
   
   ### 3. Combine Results ###
-  
+
   # Create result vector
   result <- c(
     # Mean and Variance Change Points
-    cp_mean_var,
+    cp_mean_var+ts_start,
     segment_means,
     p_values_mean_var,
     # Trend Change Points
-    cp_trend,
+    cp_trend+ts_start,
     # segment_means_trend,
     segment_slopes,
     p_values_trend
@@ -3434,8 +3437,10 @@ detect_change_points = function(Iw, minseglen=3 ,max_change_points = 3,sig.level
   )
   
   ### 4. Optional Plotting ###
+  if(returnPlot) plot<-TRUE
   if (plot) {
-    plot_df <- dati
+    plot_df <- dati |> 
+      mutate(x=x+ts_start)
     
     p <- ggplot(plot_df, aes(x = x, y = y)) +
       geom_point(color = "black") +
@@ -3448,8 +3453,8 @@ detect_change_points = function(Iw, minseglen=3 ,max_change_points = 3,sig.level
       segment_means<-segment_means[!is.na(segment_means)]
       # Define the start and end of each segment
       segments_mv <- data.frame(
-        start = c(1, cp_mean_var + 1),  # Start at 1, then at each change point + 1
-        end = c(cp_mean_var, n),  # End at each change point, and at the end of the data
+        start = c(1, cp_mean_var + 1)+ts_start,  # Start at 1, then at each change point + 1
+        end = c(cp_mean_var, n)+ts_start,  # End at each change point, and at the end of the data
         mean = segment_means[1:(sum(!is.na(cp_mean_var)) + 1)]  # Means of each segment
       )
       
@@ -3466,12 +3471,9 @@ detect_change_points = function(Iw, minseglen=3 ,max_change_points = 3,sig.level
       
       
       # Add vertical lines for change points
-      p <- p + geom_vline(xintercept = cp_mean_var, color = "red", linetype = "dotted")
+      p <- p + geom_vline(xintercept = cp_mean_var+ts_start, color = "red", linetype = "dotted")
       
     }
-    
-    # Display the plot
-    print(p)
     
     # Add trend lines for trend change points
     if (class(seg_fit)[[1]] != "try-error" && any(!is.na(cp_trend))) {
@@ -3479,10 +3481,10 @@ detect_change_points = function(Iw, minseglen=3 ,max_change_points = 3,sig.level
       # Create a new data frame for segmented regression lines
       seg_fit_data <- data.frame(x = 1:n)
       seg_fit_data$y <- predict(seg_fit, newdata = seg_fit_data)
-      
+      seg_fit_data$x<-seg_fit_data$x+ts_start
       p <- p +
         geom_line(data = seg_fit_data, aes(x = x, y = y), color = "#984ea3", size = 1)+ 
-        geom_vline(xintercept = cp_trend, color = "#984ea3", linetype = "dotted",size=1.5)
+        geom_vline(xintercept = cp_trend+ts_start, color = "#984ea3", linetype = "dotted",size=1.5)
       
     }
     
@@ -3490,6 +3492,8 @@ detect_change_points = function(Iw, minseglen=3 ,max_change_points = 3,sig.level
     print(p)
   }
  
+  if(returnPlot) return(p)
+  
   return(result)
 },
 # function for MK trend analysis and change points detection ("trend" and "changepoint" packages)
