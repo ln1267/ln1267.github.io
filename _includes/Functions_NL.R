@@ -3487,7 +3487,7 @@ detect_change_points = function(Iw, minseglen=3 ,max_change_points = 3,sig.level
         geom_vline(xintercept = cp_trend+ts_start, color = "#984ea3", linetype = "dotted",size=1.5)
       
     }
-    
+    p<-p+scale_x_continuous(n.breaks=10)
     # Display the plot
     print(p)
   }
