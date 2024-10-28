@@ -1336,6 +1336,55 @@ make_tiles = function(data,
     )
   }
 },
+#' Align Raster Resolution, Projection, and Extent with Categorical Handling
+#'
+#' This function checks the resolution, projection, and extent of `source_raster` 
+#' against `target_raster`. If there are differences, it resamples and reprojects 
+#' `source_raster` to match `target_raster`, using mode resampling if the data is categorical.
+#'
+#' @param source_raster A SpatRaster object or a file path to the raster to be aligned.
+#' @param target_raster A SpatRaster object or a file path to the reference raster.
+#'
+#' @return A SpatRaster object that matches the resolution, projection, and extent of `target_raster`.
+#' @import terra
+#' @export
+align_raster = function(source_raster, target_raster,resample_method=NULL) {
+  
+  library(terra)
+  # Load the rasters if file paths are provided
+  if (is.character(source_raster)) source_raster <- rast(source_raster)
+  if (is.character(target_raster)) target_raster <- rast(target_raster)
+  
+  # Check if source_raster is categorical
+  is_categorical <- terra::is.factor(source_raster)
+  
+  # Set the resampling method based on data type
+  if(is.null(resample_method)) {resample_method<-if (is_categorical) "mode" else "bilinear"}
+  
+  # Check for projection consistency
+  if (!compareGeom(source_raster, target_raster, stopOnError = FALSE)) {
+    # Reproject source_raster to match target_raster
+    message("Reprojecting source_raster to match the projection of target_raster, using resample method: ",resample_method)
+    source_raster <- project(source_raster, target_raster, method = resample_method)
+  }
+  
+  # Check for resolution consistency
+  if (!all(res(source_raster) == res(target_raster))) {
+    # Resample source_raster to match the resolution of target_raster
+    message("Resampling source_raster to match the resolution of target_raster, using resample method: ",resample_method)
+    source_raster <- resample(source_raster, target_raster, method = resample_method)
+  }
+  
+  # Check if extents are different
+  if (!ext(source_raster) == ext(target_raster)) {
+    # Align the extent of source_raster to match target_raster
+    message("Aligning extent of source_raster to match target_raster.")
+    source_raster <- crop(source_raster, target_raster, snap = "out")
+    source_raster <- extend(source_raster, target_raster)
+  }
+  
+  return(source_raster)
+},
 
 
 #' Plot Raster Data as PNG 
