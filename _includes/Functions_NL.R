@@ -6761,7 +6761,8 @@ SMA = function(prcp,pet,par,pet_Soil=NULL,SoilEvp=FALSE, ini.states = c(0,0,500,
       }
 
       sbf <- sbf + bf_p
-      spbf<- sbf + bf_p
+      spbf<- spbf + bf_p
+	  
       # Baseflow from free water supplemental storage
       bf_s  <- lzfsc * dlzs
       lzfsc <- lzfsc - bf_s
