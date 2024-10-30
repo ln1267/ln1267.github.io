@@ -2231,6 +2231,68 @@ f_fit_AG=function(da,Var="NDVI"){
   }
   return(da_filled)
 },
+#' Smooth 8-day LAI data to daily resolution
+#'
+#' This function smooths 8-day LAI data to a daily resolution using spline interpolation.
+#' It also includes an optional plot to visualize the original and smoothed LAI data.
+#'
+#' @param lai_data A data frame containing two columns: "Date" (Date type) and "LAI" (numeric type).
+#' @param method Character. The smoothing method to use. Currently only "spline" is implemented.
+#' @param plotfig Logical. If `TRUE`, a plot of the original and smoothed LAI data is displayed. Default is `FALSE`.
+#' @return A data frame with daily dates and smoothed daily LAI values.
+#' @import ggplot2
+#' @examples
+#' lai_data <- data.frame(
+#'   Date = seq(as.Date("2022-01-01"), by = "8 days", length.out = 8),
+#'   LAI = c(0.5, 1.2, 2.1, 2.5, 2.8, 3.0, 2.9, 2.7)
+#' )
+#' smooth_LAI_to_daily(lai_data, method = "spline", plotfig = TRUE)
+smooth_LAI_to_daily = function(lai_data, method = "spline", plotfig = FALSE) {
+  # Input Validation
+  if (!all(c("Date", "LAI") %in% names(lai_data))) {
+    stop("Input data must contain 'Date' and 'LAI' columns.")
+  }
+  
+  if (!inherits(lai_data$Date, "Date")) {
+    stop("'Date' column must be of Date type.")
+  }
+  
+  # Sort data by Date and remove duplicates
+  lai_data <- lai_data[order(lai_data$Date), ]
+  lai_data <- lai_data[!duplicated(lai_data$Date), ]
+  
+  # Define the daily Date sequence
+  daily_dates <- seq(min(lai_data$Date), max(lai_data$Date), by = "day")
+  
+  # Spline Interpolation Method
+  lai_numeric_dates <- as.numeric(lai_data$Date)
+  daily_numeric_dates <- as.numeric(daily_dates)
+  
+  # Perform spline interpolation
+  spline_fit <- spline(lai_numeric_dates, lai_data$LAI, xout = daily_numeric_dates)
+  
+  # Create the output data frame
+  daily_LAI <- data.frame(
+    Date = as.Date(spline_fit$x, origin = "1970-01-01"),
+    LAI = spline_fit$y
+  )
+
+  # Plot if requested
+  if (plotfig) {
+    library(ggplot2)
+    ggplot() +
+      geom_point(data = lai_data, aes(x = Date, y = LAI), color = "#99d594", size = 2) +
+      geom_line(data = daily_LAI, aes(x = Date, y = LAI), color = "#fc8d59") +
+      labs(title = "Daily Smoothed LAI from 8-Day Data (Spline)",
+           x = "Date",
+           y = "LAI") +
+      theme_bw() +
+      theme(plot.title = element_text(hjust = 0.5)) -> p1
+    print(p1)
+  }
+  
+  return(daily_LAI)
+},
 
 #
 ## Function for calculating Hamon PET----
