@@ -6456,6 +6456,8 @@ WaSSI = function(da_daily, soil_pars, kc = 0.6, GSjdays = c(128, 280),
   require(lubridate, quietly = TRUE)
   require(Rcpp, quietly = TRUE)
   
+  if(!exists("SMA")) dWaSSI$load_dWaSSI()
+  
   # Convert da_daily to data.table for optimized performance
   da_daily <- setDT(da_daily)
   
@@ -6479,7 +6481,7 @@ WaSSI = function(da_daily, soil_pars, kc = 0.6, GSjdays = c(128, 280),
     # Assumes funs_nl$f_Ei_pot_USA is optimized, consider C++ reimplementation for speed
     da_daily <- funs_nl$f_Ei_pot_USA(da_daily, forest)
   }
-  
+    
   # Calculate Evaporation using the optimized C++ function 'calculateEi'
   da_daily <- calculateEi(da_daily) |> setDT()
   
@@ -7343,17 +7345,15 @@ SnowMelt=function(JDay, precip_mm, Tmax_C, Tmin_C, lat_deg, slope=0, aspect=0, t
 	colnames(Results)<-c("Date", "MaxT_C", "MinT_C", "Precip_mm", "Rain_mm", "SnowfallWatEq_mm", "SnowMelt_mm", "NewSnow_m", "SnowDepth_m", "SnowWaterEq_mm")
 	return(Results)
 },
-#' Load SMA C++ Script from GitHub
+#' Load dWaSSI C++ Script from GitHub
 #'
-#' Downloads and sources a specified C++ script from a GitHub repository.
-#' This function uses a temporary file to store the downloaded script and 
-#' then sources it using `sourceCpp`.
+#' Downloads and sources dWaSSI C++ script from a GitHub repository.
 #'
 #' @return No return value. The function is used for side effects (loading
 #'         the C++ code).
 #' @examples
-#' load_SMA()
-load_SMA = function() {
+#' load_dWaSSI()
+load_dWaSSI = function() {
   # Load necessary package for sourcing C++ code
   if (!requireNamespace("Rcpp", quietly = TRUE)) {
     install.packages("Rcpp")
@@ -7371,7 +7371,7 @@ load_SMA = function() {
   sourceCpp(temp_cpp_file)
   
   # Optional: Print a message to confirm loading
-  message("SMA C++ script successfully loaded from GitHub.")
+  message("dWaSSI C++ script successfully loaded from GitHub.")
 },
 
 SoilParCal=function(data_in,Sim_year,stationname="",dailyScale=T,validation=TRUE,return_state=F,export=F,output_dir="./",init_ratio=1){
