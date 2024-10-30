@@ -7250,6 +7250,36 @@ SnowMelt=function(JDay, precip_mm, Tmax_C, Tmin_C, lat_deg, slope=0, aspect=0, t
 	colnames(Results)<-c("Date", "MaxT_C", "MinT_C", "Precip_mm", "Rain_mm", "SnowfallWatEq_mm", "SnowMelt_mm", "NewSnow_m", "SnowDepth_m", "SnowWaterEq_mm")
 	return(Results)
 },
+#' Load SMA C++ Script from GitHub
+#'
+#' Downloads and sources a specified C++ script from a GitHub repository.
+#' This function uses a temporary file to store the downloaded script and 
+#' then sources it using `sourceCpp`.
+#'
+#' @return No return value. The function is used for side effects (loading
+#'         the C++ code).
+#' @examples
+#' load_SMA()
+load_SMA = function() {
+  # Load necessary package for sourcing C++ code
+  if (!requireNamespace("Rcpp", quietly = TRUE)) {
+    install.packages("Rcpp")
+  }
+  library(Rcpp)
+  
+  github_url = "https://raw.githubusercontent.com/ln1267/ln1267.github.io/master/_includes/SMA.cpp"
+  # Define a temporary file path to store the downloaded script
+  temp_cpp_file <- tempfile(fileext = ".cpp")
+  
+  # Download the C++ script
+  download.file(github_url, destfile = temp_cpp_file, mode = "wb")
+  
+  # Source the C++ file
+  sourceCpp(temp_cpp_file)
+  
+  # Optional: Print a message to confirm loading
+  message("SMA C++ script successfully loaded from GitHub.")
+},
 
 SoilParCal=function(data_in,Sim_year,stationname="",dailyScale=T,validation=TRUE,return_state=F,export=F,output_dir="./",init_ratio=1){
   
