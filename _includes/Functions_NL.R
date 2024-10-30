@@ -6438,7 +6438,13 @@ WaSSI=function(da_daily,soil_pars,kc=0.6,GSjdays=c(128,280),forest="DBF",...){
 
     da_sac[is.na(da_sac)]<-0
 
-    out_Ec<-dWaSSI$SMA(prcp = da_sac$P_Ei,pet = da_sac$PET_Ec,pet_Soil = da_sac$PET_Es,SoilEvp = T, par = soil_pars)
+    #out_Ec<-dWaSSI$SMA(prcp = da_sac$P_Ei,pet = da_sac$PET_Ec,pet_Soil = da_sac$PET_Es,SoilEvp = T, par = soil_pars)
+
+	# this is the c++ version of SMA
+	if (!exists("SMA")) {
+	  dWaSSI$load_SMA()
+	}
+    out_Ec<-SMA(prcp = da_sac$P_Ei,pet = da_sac$PET_Ec,pet_Soil = da_sac$PET_Es,SoilEvp = TRUE, par = soil_pars)
 
 	result<-cbind(da_sac,out_Ec[c("ESoilTot","aetTot","aetUZT","aetUZF","WYSurface","WYInter","WYBase","uztwc","lztwc","WaYldTot")])%>%
 		mutate(Year=year(Date),Month=month(Date))%>%
