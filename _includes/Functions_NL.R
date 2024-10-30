@@ -6410,68 +6410,155 @@ addWarmup=function(da,nyr=2){
   return(da_warm)
 },
 
-WaSSI=function(da_daily,soil_pars,kc=0.6,GSjdays=c(128,280),forest="DBF",...){
-
-  require(dplyr)
-  require(lubridate)
-
-    da_daily<-da_daily%>%
-      mutate(Rainfall=if_else(is.na(Rainfall),0,Rainfall))%>%
-      mutate(j=yday(Date))%>%
-      mutate(Fc=1-exp(-kc*LAI))%>%
-      mutate(GW=ifelse(j>=GSjdays[1] & j<=GSjdays[2],"GW","NonGW"))%>%
-      mutate(P_c=Rainfall)
-
-    # calculate potential Ei if it is not caculated before
-    if(!"Ei_pot" %in% names(da_daily)) da_daily<-funs_nl$f_Ei_pot_USA(da_daily,forest)
-
-    # Calculate the canopy Evaporation based on PET
-    da_daily<-funs_nl$f_Evap(da_daily)
-
-    # partition PET to canopy PET and soil surface PET
-    da_sac<-da_daily%>%
-      rowwise() %>%
-      arrange(Date)%>%
-      mutate(PET_Ec=(PT-Ei)*Fc,PET_Es=(PT-Ei)*(1-Fc))
-
-    #print(summary(da_sac))
-
-    da_sac[is.na(da_sac)]<-0
-
-    #out_Ec<-dWaSSI$SMA(prcp = da_sac$P_Ei,pet = da_sac$PET_Ec,pet_Soil = da_sac$PET_Es,SoilEvp = T, par = soil_pars)
-
-	# this is the c++ version of SMA
-	if (!exists("SMA")) {
-	  dWaSSI$load_SMA()
-	}
-    out_Ec<-SMA(prcp = da_sac$P_Ei,pet = da_sac$PET_Ec,pet_Soil = da_sac$PET_Es,SoilEvp = TRUE, par = soil_pars)
-
-	result<-cbind(da_sac,out_Ec[c("ESoilTot","aetTot","aetUZT","aetUZF","WYSurface","WYInter","WYBase","uztwc","lztwc","WaYldTot")])%>%
-		mutate(Year=year(Date),Month=month(Date))%>%
-		mutate(Ec=aetTot,Es=ESoilTot)%>%
-		mutate(AET=Ec+Es+Ei)%>%
-		dplyr::select(Date,Rainfall,VPD,LAI,Fc,PT,PET_Ec,PET_Es,Ei_pot,Ei,Es,Ec,AET,WaYldTot,aetUZT,aetUZF,WYSurface,WYInter,WYBase,uztwc,lztwc)%>%
-		dplyr::rename(ET=AET)%>%
-		mutate(WaSSI_Tr=Ec/PET_Ec,WaSSI=ET/PT)%>%
-		mutate(WaSSI_Tr=if_else(PET_Ec==0,1,WaSSI_Tr),WaSSI=if_else(PT==0,1,WaSSI))%>%
-		mutate(Tr_ET=Ec/ET)%>%
-		mutate(Tr_ET=if_else(ET==0 | is.na(ET) | is.nan(Tr_ET),1,Tr_ET))%>%
-		mutate(Method="dWaSSI")
-
-  # UWUE from  Zhou 2015; WUE from Zhang
-  uWUEp<-data.frame("IGBP"=c("CRO","DBF","GRA","ENF","WSA","MF","CSH","Average"),"uWUEp"=c(11.24,9.55,7.88,9.96,9.39,9.07,6.84,9.52),"uWUEp_sd"=c(2.9,1.6,1.78,2.81,1.35,2,1.44,2.53))
-  # Calculte GPP from Tr
-  if("VPD" %in% names(result))
-    result<-result%>%
-		mutate(VPD=VPD*10)%>% # kPa to hPa
-		mutate(GPP=Ec*uWUEp$uWUEp[uWUEp$IGBP==forest] /sqrt(VPD))%>%
-		mutate(GPP=if_else(VPD==0 ,0,GPP))%>%
-		mutate(GPP_SD=Ec*uWUEp$uWUEp_sd[uWUEp$IGBP==forest]/sqrt(VPD))%>%
-		mutate(GPP_SD=if_else(VPD==0 ,0,GPP_SD))%>%
-		mutate(Method="dWaSSI")
-
-  return(result)
+#' WaSSI Function for Hydrological Modeling
+#'
+#' The `WaSSI` function performs hydrological modeling by processing daily data,
+#' calculating evapotranspiration, and partitioning precipitation into various
+#' hydrological components. It leverages optimized C++ functions for performance.
+#'
+#' @param da_daily A data frame or data.table containing daily hydrological data.
+#'                 Required columns: `Date` (Date), `Rainfall` (numeric), `VPD` (numeric),
+#'                 `LAI` (numeric), `PT` (numeric).
+#' @param soil_pars A named numeric vector containing soil parameters required by the SMA function.
+#' @param kc A numeric value representing the extinction coefficient for LAI. Default is `0.6`.
+#' @param GSjdays A numeric vector of length two indicating the start and end Julian days for groundwater (GW) status.
+#'                Default is `c(128, 280)`.
+#' @param forest A character string specifying the forest type. Default is `"DBF"`.
+#' @param ... Additional arguments passed to internal functions.
+#'
+#' @return A data.table containing the original data along with calculated hydrological components,
+#'         including evapotranspiration (ET), canopy and soil evaporation, and various runoff components.
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' # Example usage of the WaSSI function
+#' da_daily <- data.frame(
+#'   Date = seq.Date(from = as.Date("2020-01-01"), by = "day", length.out = 365),
+#'   Rainfall = runif(365, min = 0, max = 20),
+#'   VPD = runif(365, min = 0.5, max = 3),
+#'   LAI = runif(365, min = 1, max = 6),
+#'   PT = runif(365, min = 5, max = 15)
+#' )
+#'
+#' soil_pars <- c(
+#'   UZTWM = 100, UZFWM = 200, UZK = 0.1, ZPERC = 1.0, REXP = 1.0,
+#'   LZTWM = 300, LZFSM = 400, LZFPM = 500, LZSK = 0.1, LZPK = 0.1, PFREE = 0.5
+#' )
+#'
+#' result <- WaSSI(da_daily, soil_pars, forest = "DBF")
+#' head(result)
+#' }
+WaSSI = function(da_daily, soil_pars, kc = 0.6, GSjdays = c(128, 280),
+                 forest = "DBF", ...) {
+  # Ensure required packages are loaded
+  require(data.table, quietly = TRUE)
+  require(lubridate, quietly = TRUE)
+  require(Rcpp, quietly = TRUE)
   
+  # Convert da_daily to data.table for optimized performance
+  da_daily <- setDT(da_daily)
+  
+  # Replace NA values in Rainfall with 0
+  da_daily[is.na(Rainfall), Rainfall := 0]
+  
+  # Calculate Julian day from Date
+  da_daily[, j := yday(Date)]
+  
+  # Calculate Fc based on LAI and extinction coefficient kc
+  da_daily[, Fc := 1 - exp(-kc * LAI)]
+  
+  # Determine Groundwater (GW) status based on Julian day
+  da_daily[, GW := fifelse(j >= GSjdays[1] & j <= GSjdays[2], "GW", "NonGW")]
+  
+  # Assign P_c as Rainfall for precipitation partitioning
+  da_daily[, P_c := Rainfall]
+  
+  # Calculate potential Ei if not already present
+  if(!"Ei_pot" %in% names(da_daily)) {
+    # Assumes funs_nl$f_Ei_pot_USA is optimized, consider C++ reimplementation for speed
+    da_daily <- funs_nl$f_Ei_pot_USA(da_daily, forest)
+  }
+  
+  # Calculate Evaporation using the optimized C++ function 'calculateEi'
+  da_daily <- calculateEi(da_daily) |> setDT()
+  
+  # Partition PET into canopy (PET_Ec) and soil surface (PET_Es) components
+  da_daily[, PET_Ec := (PT - Ei) * Fc]
+  da_daily[, PET_Es := (PT - Ei) * (1 - Fc)]
+  
+  # Create a copy of da_daily for further processing
+  da_sac <- copy(da_daily)
+  
+  # Replace all NA values in da_sac with 0 using data.table's optimized functions
+  da_sac[, (names(da_sac)) := lapply(.SD, function(x) {x[is.na(x)] <- 0; x})]
+  
+  # Call the optimized SMA function (assumed to be implemented in C++)
+  out_Ec <- SMA(prcp = da_sac$P_Ei,
+               pet = da_sac$PET_Ec,
+               pet_Soil = da_sac$PET_Es,
+               SoilEvp = TRUE,
+               par = soil_pars) |> setDT()
+  
+  # Merge SMA outputs with da_sac
+  da_sac <- cbind(da_sac, out_Ec[, .(ESoilTot, aetTot, aetUZT, aetUZF,
+                                     WYSurface, WYInter, WYBase, uztwc, lztwc, WaYldTot)])
+  
+  # Add Year and Month columns derived from Date
+  da_sac[, Year := year(Date)]
+  da_sac[, Month := month(Date)]
+  
+  # Assign Ec (canopy ET), Es (soil ET), and ET (total ET)
+  da_sac[, Ec := aetTot]
+  da_sac[, Es := ESoilTot]
+  da_sac[, ET := Ec + Es + Ei]
+  
+  # Select and rename relevant columns for the final output
+  da_sac <- da_sac[, .(Date, Rainfall, VPD, LAI, Fc, PT, PET_Ec, PET_Es,
+                       Ei_pot, Ei, Es, Ec, ET, WaYldTot,
+                       aetUZT, aetUZF, WYSurface, WYInter, WYBase,
+                       uztwc, lztwc)]
+  
+  # Calculate WaSSI_Tr and WaSSI indices
+  da_sac[, WaSSI_Tr := fifelse(PET_Ec == 0, 1, Ec / PET_Ec)]
+  da_sac[, WaSSI := fifelse(PT == 0, 1, ET / PT)]
+  
+  # Calculate Tr_ET (transpiration efficiency)
+  da_sac[, Tr_ET := fifelse(ET == 0 | is.na(ET), 1, Ec / ET)]
+  
+  # Assign the Method used for calculations
+  da_sac[, Method := "dWaSSI"]
+  
+  # Define Water Use Efficiency (UWUE) parameters from Zhou 2015
+  uWUEp <- data.table(IGBP = c("CRO","DBF","GRA","ENF","WSA","MF","CSH","Average"),
+                      uWUEp = c(11.24, 9.55, 7.88, 9.96, 9.39, 9.07, 6.84, 9.52),
+                      uWUEp_sd = c(2.9, 1.6, 1.78, 2.81, 1.35, 2, 1.44, 2.53))
+  
+  # Calculate Gross Primary Productivity (GPP) from Tr if VPD exists
+  if ("VPD" %in% names(da_sac)) {
+    da_sac[, VPD := VPD * 10] # Convert VPD from kPa to hPa
+    
+    # Handle forest types not present in uWUEp by assigning "Average"
+    if(!forest %in% uWUEp$IGBP) forest <- "Average"
+    
+    # Assign IGBP based on forest type for merging
+    da_sac[, IGBP := forest]
+    
+    # Merge with uWUEp based on IGBP (forest type)
+    da_sac <- merge(da_sac, uWUEp, by = "IGBP", all.x = TRUE)
+    
+    # Calculate GPP and its standard deviation (GPP_SD)
+    da_sac[, GPP := fifelse(VPD == 0, 0, Ec * uWUEp / sqrt(VPD))]
+    da_sac[, GPP_SD := fifelse(VPD == 0, 0, Ec * uWUEp_sd / sqrt(VPD))]
+    
+    # Assign Method used for GPP calculations
+    da_sac[, Method := "dWaSSI"]
+    
+    # Remove unnecessary columns after merging
+    da_sac <- da_sac[, -c("uWUEp", "IGBP", "uWUEp_sd")]
+  }
+  
+  return(da_sac)
 },
 
 #' @title daily SMA model
