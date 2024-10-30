@@ -9,8 +9,8 @@
 #include <vector>
 
 using namespace Rcpp;
-
-// [[Rcpp::export]] Revised SAC-SMA model
+// Revised SAC-SMA model
+// [[Rcpp::export]] 
 DataFrame SMA(
     NumericVector prcp,
     NumericVector pet,
