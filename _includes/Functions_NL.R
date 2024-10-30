@@ -7273,12 +7273,12 @@ load_SMA = function() {
   }
   library(Rcpp)
   
-  github_url = "https://raw.githubusercontent.com/ln1267/ln1267.github.io/master/_includes/SMA.cpp"
+  github_url = "https://raw.githubusercontent.com/ln1267/ln1267.github.io/master/_includes/dWaSSI.cpp"
   # Define a temporary file path to store the downloaded script
   temp_cpp_file <- tempfile(fileext = ".cpp")
   
   # Download the C++ script
-  download.file(github_url, destfile = temp_cpp_file, mode = "wb")
+  download.file(github_url, destfile = temp_cpp_file, mode = "wb",quiet =T)
   
   # Source the C++ file
   sourceCpp(temp_cpp_file)
