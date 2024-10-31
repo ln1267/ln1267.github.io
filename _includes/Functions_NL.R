@@ -7359,7 +7359,7 @@ load_dWaSSI = function() {
     install.packages("Rcpp")
   }
   library(Rcpp)
-  for(funcname in c("SMA","calculateEi"){
+  for(funcname in c("SMA","calculateEi")){
   
 	  github_url = sprintf("https://raw.githubusercontent.com/ln1267/ln1267.github.io/master/_includes/%s.cpp",funcname)
 	  # Define a temporary file path to store the downloaded script
