@@ -1349,7 +1349,7 @@ make_tiles = function(data,
 #' @return A SpatRaster object that matches the resolution, projection, and extent of `target_raster`.
 #' @import terra
 #' @export
-align_raster <- function(source_raster, target_raster, resample_method = NULL, quite = TRUE) {
+align_raster = function(source_raster, target_raster, resample_method = NULL, quite = TRUE) {
   
   # Load required packages
   if (!requireNamespace("terra", quietly = TRUE)) {
