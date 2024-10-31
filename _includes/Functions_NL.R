@@ -2231,6 +2231,66 @@ f_fit_AG=function(da,Var="NDVI"){
   }
   return(da_filled)
 },
+#' Interpolate LAI Values Over Daily Dates
+#'
+#' This function interpolates Leaf Area Index (LAI) values on a daily basis for each cell in the dataset.
+#' It first converts the date column to the Date class if necessary, then generates a continuous daily 
+#' sequence of dates for each cell, merging it with the original data. Finally, it interpolates missing 
+#' LAI values using spline interpolation.
+#'
+#' @param lai_data A data.table containing columns `cell`, `Date`, and `LAI` where `cell` represents 
+#'                 unique spatial identifiers, `Date` represents dates, and `LAI` represents the Leaf 
+#'                 Area Index values which may contain NA values.
+#' @return A data.table with interpolated daily LAI values for each cell.
+#' @import data.table
+#' @importFrom zoo na.spline
+#' @examples
+#' # Example data
+#' lai_data <- data.table(
+#'   cell = c(1, 1, 2, 2),
+#'   Date = as.Date(c("2023-01-01", "2023-01-10", "2023-01-01", "2023-01-10")),
+#'   LAI = c(0.3, NA, 0.5, 0.7)
+#' )
+#' lai_daily <- interpolate_daily_lai(lai_data)
+#' print(lai_daily)
+
+interpolate_to_daily = function(lai_data) {
+  require(data.table,quietly = TRUE)
+  require(zoo,quietly = TRUE)
+  # Ensure the Date column is of Date class; convert if not
+  if (!inherits(lai_data$Date, "Date")) {
+    lai_data[, Date := as.Date(Date)]
+  }
+  
+  # Determine the overall year range based on the minimum and maximum dates across all cells
+	overall_start_year <- format(min(lai_data$Date), "%Y")
+	overall_end_year <- format(max(lai_data$Date), "%Y")
+
+	# Define the adjusted overall start and end dates to cover from January 1 to December 31 of these years
+	overall_start <- as.Date(paste0(overall_start_year, "-01-01"))
+	overall_end <- as.Date(paste0(overall_end_year, "-12-31"))
+	# Generate a daily sequence of dates from January 1 of the start year to December 31 of the end year
+	daily_dates <- seq(overall_start, overall_end, by = "day")
+	
+  # Expand the data.table to include all dates within the range for each cell
+  lai_daily <- lai_data[, .(Date = daily_dates), by = cell]
+  
+  # Merge the expanded dates with the original LAI data, allowing missing (NA) values
+  lai_daily <- merge(lai_daily, lai_data, by = c("cell", "Date"), all.x = TRUE)
+  
+  # Ensure the data is ordered by cell and Date for interpolation consistency
+  setorder(lai_daily, cell, Date)
+  
+  # Interpolate LAI values using spline interpolation, filling NA values per cell
+  lai_daily[, LAI_interpolated := na.spline(LAI, x = as.numeric(Date), na.rm = FALSE), by = cell]
+  
+  lai_daily[,LAI:=LAI_interpolated]
+  lai_daily[,LAI_interpolated:=NULL]
+  
+  # Return the data.table with interpolated LAI values
+  return(lai_daily)
+},
+
 #' Smooth 8-day LAI data to daily resolution
 #'
 #' This function smooths 8-day LAI data to a daily resolution using spline interpolation.
