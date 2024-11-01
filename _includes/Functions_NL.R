@@ -1396,7 +1396,8 @@ extract_data = function(file_list, roi, aggregate = FALSE, nores = 10, varname =
         # Extract mean value for the region
         values <- terra::extract(raster_data, point_projected, fun = mean, ID = FALSE) |> 
           as.vector() |> unname() |> unlist()
-        data.frame(Date = time(raster_data), !!varname := values)
+        result_dt <- data.table(Date = time(raster_data), Value = values)
+        setnames(result_dt, "Value", varname)
       } else {
         # Extract values for each cell in the region without aggregation, with cell IDs
         region_data <- terra::extract(raster_data, point_projected, cells = TRUE,ID=FALSE)
@@ -1409,7 +1410,8 @@ extract_data = function(file_list, roi, aggregate = FALSE, nores = 10, varname =
       # Extract data for the single point
       values <- terra::extract(raster_data, point_projected, ID = FALSE) |> 
         as.vector() |> unname() |> unlist()
-      data.frame(Date = time(raster_data), !!varname := values)
+      result_dt <- data.table(Date = time(raster_data), Value = values)
+      setnames(result_dt, "Value", varname)
     }
   }
   
