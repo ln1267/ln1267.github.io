@@ -1336,6 +1336,94 @@ make_tiles = function(data,
     )
   }
 },
+#' Extract Data from a Point or Region in a List of Raster Files
+#'
+#' This function extracts values from a specified point or region (polygon) across a list of raster files. Each file can contain multiple layers,
+#' and the function will extract data from each layer for the specified point or region, combining results into a single data frame.
+#'
+#' @param file_list A character vector containing file paths to raster files.
+#' @param roi A `terra` `SpatVector` object representing either a point or a polygon for data extraction. 
+#'            This region of interest (ROI) will be projected to match the CRS of the raster files if needed.
+#' @param aggregate Logical, if `TRUE`, returns the mean of values within the region; if `FALSE`, returns values for each cell in the region.
+#'                  This parameter is ignored if `roi` is a single point. Default is `FALSE`.
+#' @param nores Integer, specifying the number of cores to use for parallel processing with `mclapply`. Default is 10.
+#' @param varname Character string specifying the name to assign to the extracted values column in the output data table. Default is `"value"`.
+#'
+#' @return A `data.table` with columns `Date`, `cell` (if `roi` is a region and `aggregate = FALSE`), and the column defined by `varname`,
+#'         where `Date` represents the date or time for each layer, and `varname` contains the extracted data for the specified point or region.
+#'         If `roi` is a region, each row corresponds to a cell within the region. If `roi` is a single point, only a single value per layer is returned.
+#' 
+#' @note The function automatically detects whether `roi` is a single point or a polygon. If `aggregate = FALSE` for a polygon, all cell values within the region are returned.
+#'       When `aggregate = TRUE`, only the mean value for the region is returned.
+#'
+#' @import terra
+#' @import data.table
+#' @import parallel
+#' 
+#' @examples
+#' # Example usage with a point:
+#' file_list <- sprintf("/datasets/work/lw-leap/work/users/liu240/tmp/Data/AU/SILO/%s.daily_rain.nc", 2000:2022)
+#' point <- vect(matrix(c(149.0, -35.0), ncol = 2), crs = "EPSG:4326")  # Example point in lat/lon
+#' combined_df <- extract_data(file_list, point, varname = "Rainfall")
+#' print(combined_df)
+#'
+#' # Example with region extraction without aggregation
+#' region <- vect(matrix(c(148.0, -35.5, 150.0, -34.5), ncol = 2, byrow = TRUE), type = "polygons", crs = "EPSG:4326")
+#' combined_df_region <- extract_data(file_list, region, aggregate = FALSE, varname = "Rainfall")
+#' print(combined_df_region)
+#'
+#' @export
+extract_data = function(file_list, roi, aggregate = FALSE, nores = 10, varname = "value") {
+  require(terra)
+  require(data.table)
+  require(parallel)
+  
+  # Project the point or region to the CRS of the first raster file
+  sample_raster <- rast(file_list[1])
+  point_projected <- project(roi, crs(sample_raster))
+  
+  # Detect if the point is a region (polygon)
+  is_region <- geomtype(point_projected) == "polygons"
+  
+  # Function to extract data from a single file
+  extract_from_file <- function(file_path) {
+    # Load the raster file
+    raster_data <- rast(file_path)
+    
+    # Extract data based on whether it's a point or region
+    if (is_region) {
+      if (aggregate) {
+        # Extract mean value for the region
+        values <- terra::extract(raster_data, point_projected, fun = mean, ID = FALSE) |> 
+          as.vector() |> unname() |> unlist()
+        data.frame(Date = time(raster_data), !!varname := values)
+      } else {
+        # Extract values for each cell in the region without aggregation, with cell IDs
+        region_data <- terra::extract(raster_data, point_projected, cells = TRUE,ID=FALSE)
+        region_df <- setDT(region_data)
+        names(region_df)<-c(as.character(time(raster_data)),"cell")
+        region_df |> 
+          data.table::melt("cell",value.name = varname,variable.name ="Date",variable.factor =F)
+      }
+    } else {
+      # Extract data for the single point
+      values <- terra::extract(raster_data, point_projected, ID = FALSE) |> 
+        as.vector() |> unname() |> unlist()
+      data.frame(Date = time(raster_data), !!varname := values)
+    }
+  }
+  
+  # Use mclapply to process each file in parallel
+  extracted_list <- mclapply(file_list, extract_from_file, mc.cores = nores)
+  
+  # Combine all extracted data frames into a single data.table
+  combined_df <- rbindlist(extracted_list, fill = TRUE)
+  
+  # Convert to data.table for efficient manipulation
+  setDT(combined_df)
+  
+  return(combined_df)
+},
 #' Align Raster Resolution, Projection, and Extent with Categorical Handling
 #'
 #' This function checks the resolution, projection, and extent of `source_raster` 
