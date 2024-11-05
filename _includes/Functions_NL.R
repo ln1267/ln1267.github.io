@@ -2122,7 +2122,7 @@ create_cog = function(input_raster, output_cog_path=NULL) {
 #' @importFrom ncdf4 nc_open ncvar_get
 #' @importFrom terra rast ext writeRaster
 #' @export
-f_readANUnc = function(fname, shp = NULL, dname = NULL, outfile = NULL) {
+f_readANUnc = function(fname, shp = NULL, dname = NULL, outfile = NULL,crs="EPSG:4283",origin= "1800-01-01") {
   # Load required packages
   require(ncdf4)
   require(terra)
@@ -2159,11 +2159,12 @@ f_readANUnc = function(fname, shp = NULL, dname = NULL, outfile = NULL) {
   }
   
   # Create raster brick
-  lc_brick <- rast(lc_array, crs = "EPSG:4326", extent = ext(min(lon), max(lon), min(lat), max(lat)))
+  lc_brick <- rast(lc_array, crs = crs, extent = ext(min(lon), max(lon), min(lat), max(lat)))
   
   # Name layers
-  times <- as.Date(lcnc$dim$time$vals, origin = "1800-01-01")
+  times <- as.Date(lcnc$dim$time$vals, origin = origin)
   names(lc_brick) <- times
+  time(lc_brick) <- times
   
   # Save to disk or memory
   if (!is.null(outfile)) {
