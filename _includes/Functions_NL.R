@@ -105,6 +105,39 @@ f_digits=function(x,n=2,format=F) {
   }
   
 },
+#' Auto Convert Between Windows and Unix Path
+#'
+#' This function detects if a path is in Windows or Unix format and converts it to the other format.
+#' For Windows paths, it maps the network server "fs1-cbr.nexus.csiro.au" to "datasets/work" in Unix format.
+#' When converting from Unix to Windows, it wraps the project name in curly braces.
+#'
+#' @param path A character string representing the file path.
+#' @return A character string representing the converted path in the opposite format.
+#' @examples
+#' auto_convert_path("\\\\fs1-cbr.nexus.csiro.au\\{projectname}\\folder\\")
+#' # Output: "/datasets/work/projectname/folder/"
+#' auto_convert_path("/datasets/work/projectname/folder/")
+#' # Output: "\\fs1-cbr.nexus.csiro.au\\{projectname}\\folder\\"
+auto_convert_path = function(path) {
+  # Detect if the path is Windows or Unix based on its structure
+  if (grepl("^\\\\\\\\fs1-cbr\\.nexus\\.csiro\\.au", path) || grepl("\\\\", path)) {
+    # Convert Windows to Unix
+    path <- gsub("\\\\fs1-cbr\\.nexus\\.csiro\\.au", "datasets/work", path)
+    path <- gsub("\\\\", "/", path)
+    path <- gsub("\\{([^}]+)\\}", "\\1", path)  # Remove curly braces around project name
+  } else if (grepl("^/datasets/work/", path)) {
+    # Convert Unix to Windows
+    # Extract the project name and wrap it in curly braces
+    path <- sub("^/datasets/work/([^/]+)", "/{\\1}", path)
+    # Replace root path with "\\fs1-cbr.nexus.csiro.au\" and format slashes
+    path <- gsub("^/\\{([^/]+)\\}", "\\\\\\\\fs1-cbr.nexus.csiro.au\\\\{\\1}", path)
+    path <- gsub("/", "\\\\", path)
+  } else {
+    stop("Path format not recognized. Please provide a valid Windows or Unix path.")
+  }
+  
+  return(path)
+},
 
 #' Convert calendar year(s) to fiscal year format (YYYY-YY)
 #'
