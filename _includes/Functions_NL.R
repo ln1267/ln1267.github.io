@@ -120,12 +120,12 @@ f_digits=function(x,n=2,format=F) {
 #' # Output: "\\fs1-cbr.nexus.csiro.au\\{projectname}\\folder\\"
 auto_convert_path = function(path) {
   # Detect if the path is Windows or Unix based on its structure
-  if (grepl("^\\\\\\\\fs1-cbr\\.nexus\\.csiro\\.au", path) || grepl("\\\\", path)) {
+  if (grepl("^\\\\\\\\fs1-cbr\\.nexus\\.csiro\\.au", path) || grepl("\\\\", path) & .Platform$OS.type!="windows") {
     # Convert Windows to Unix
     path <- gsub("\\\\fs1-cbr\\.nexus\\.csiro\\.au", "datasets/work", path)
     path <- gsub("\\\\", "/", path)
     path <- gsub("\\{([^}]+)\\}", "\\1", path)  # Remove curly braces around project name
-  } else if (grepl("^/datasets/work/", path)) {
+  } else if (grepl("^/datasets/work/", path) & .Platform$OS.type=="windows") {
     # Convert Unix to Windows
     # Extract the project name and wrap it in curly braces
     path <- sub("^/datasets/work/([^/]+)", "/{\\1}", path)
