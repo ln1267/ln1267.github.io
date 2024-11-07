@@ -132,9 +132,7 @@ auto_convert_path = function(path) {
     # Replace root path with "\\fs1-cbr.nexus.csiro.au\" and format slashes
     path <- gsub("^/\\{([^/]+)\\}", "\\\\\\\\fs1-cbr.nexus.csiro.au\\\\{\\1}", path)
     path <- gsub("/", "\\\\", path)
-  } else {
-    stop("Path format not recognized. Please provide a valid Windows or Unix path.")
-  }
+  } 
   
   return(path)
 },
