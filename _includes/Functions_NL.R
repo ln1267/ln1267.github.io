@@ -175,90 +175,76 @@ auto_convert_path = function(path) {
 #' @importFrom terra crs project ext rast
 #' @export
 get_intersect_ext = function(source, target, verbose = FALSE) {
-
+  
   # -------------------------------
   # 1. Input Validation
   # -------------------------------
-
+  
   if (!inherits(source, "SpatRaster")) {
     stop("`source` must be a SpatRaster object.")
   }
-
+  
   if (!inherits(target, "SpatRaster")) {
     stop("`target` must be a SpatRaster object.")
   }
-
+  
   # -------------------------------
   # 2. Check and Retrieve CRS
   # -------------------------------
-
+  
   crs_source <- terra::crs(source, proj = TRUE)
   crs_target <- terra::crs(target, proj = TRUE)
-
+  
   if (is.na(crs_target) || crs_target == "") {
     stop("`target` raster does not have a defined CRS.")
   }
-
+  
   if (is.na(crs_source) || crs_source == "") {
     stop("`source` raster does not have a defined CRS.")
   }
-
+  
   # -------------------------------
-  # 3. Reproject Source Raster if Necessary
+  # 3. Retrieve and Align Extents
   # -------------------------------
-
+  
+  ext_source <- terra::ext(source)
+  ext_target <- terra::ext(target)
+  
   if (!identical(crs_source, crs_target)) {
     if (verbose) {
-      message("CRS mismatch detected. Reprojecting `source` raster to match `target` CRS: ", crs_target)
+      message("CRS mismatch detected. Projecting `source` extent to match `target` CRS.")
     }
-    # Choose interpolation method based on data type
-    # "near" for categorical data, "bilinear" for continuous data
-    # Here, we'll default to "bilinear". Adjust as needed.
-    source_reprojected <- tryCatch({
-      terra::project(source, target, method = "bilinear")
-    }, error = function(e) {
-      stop("Failed to reproject `source` raster: ", e$message)
-    })
-  } else {
-    if (verbose) {
-      message("CRS match confirmed. No reprojection needed.")
-    }
-    source_reprojected <- source
+    ext_source <- terra::project(ext_source,crs_source,crs_target) # Updated extent after projection
+  } else if (verbose) {
+    message("CRS match confirmed. No reprojection needed.")
   }
-
-  # -------------------------------
-  # 4. Retrieve Extents
-  # -------------------------------
-
-  ext_source <- terra::ext(source_reprojected)
-  ext_target <- terra::ext(target)
-
+  
   if (verbose) {
-    terra::message("Extent of `source` raster: ", format(ext_source))
-    terra::message("Extent of `target` raster: ", format(ext_target))
+    message("Extent of `source` raster: ", format(ext_source))
+    message("Extent of `target` raster: ", format(ext_target))
   }
-
+  
   # -------------------------------
-  # 5. Calculate Intersection Extent
+  # 4. Calculate Intersection Extent
   # -------------------------------
-
+  
   intersect_min_x <- max(ext_source$xmin, ext_target$xmin)
   intersect_max_x <- min(ext_source$xmax, ext_target$xmax)
   intersect_min_y <- max(ext_source$ymin, ext_target$ymin)
   intersect_max_y <- min(ext_source$ymax, ext_target$ymax)
-
+  
   # Check for non-overlapping extents
   if (intersect_min_x >= intersect_max_x || intersect_min_y >= intersect_max_y) {
     warning("The input rasters do not overlap. No intersecting extent found.")
     return(NULL)
   }
-
+  
   intersect_ext <- terra::ext(intersect_min_x, intersect_max_x, intersect_min_y, intersect_max_y)
-
+  
   if (verbose) {
     message("Intersecting extent: ", format(intersect_ext))
   }
-
+  
   return(intersect_ext)
 },
 
