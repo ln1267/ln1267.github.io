@@ -605,7 +605,7 @@ fetchANULAI = function(lat, long, buffer = 0.02, start_year = 2000, end_year = 2
                       "-12-26T00%3A00%3A00Z&&&accept=netcdf4-classic")
         # Create a temporary file for the download
         temp_file <- tempfile(fileext = ".nc")
-        download.file(url, temp_file, mode = "wb")
+        download.file(url, temp_file, mode = "wb",quiet =T)
         on.exit(unlink(temp_file))
 
         # Open the NetCDF file
