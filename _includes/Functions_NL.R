@@ -2580,6 +2580,90 @@ f_acc=function(obs,sim){
   acc_result
 },
 
+#' Validate Simulations Against Observations
+#'
+#' This function calculates commonly used statistical metrics for validating 
+#' simulations against observed data. The metrics include:
+#' - Nash-Sutcliffe Efficiency (NSE)
+#' - Root Mean Square Error (RMSE)
+#' - Relative Root Mean Square Error (RRMSE)
+#' - Mean Absolute Error (MAE)
+#' - Percent Bias (PBIAS)
+#' - Coefficient of Determination (R²)
+#' - Kling-Gupta Efficiency (KGE)
+#'
+#' @param obs A numeric vector of observed values.
+#' @param sim A numeric vector of simulated values. Must have the same length as `obs`.
+#' 
+#' @return A named list containing the following metrics:
+#' \item{NSE}{Nash-Sutcliffe Efficiency.}
+#' \item{RMSE}{Root Mean Square Error.}
+#' \item{RRMSE}{Relative Root Mean Square Error, expressed as a percentage.}
+#' \item{MAE}{Mean Absolute Error.}
+#' \item{PBIAS}{Percent Bias, expressed as a percentage.}
+#' \item{R2}{Coefficient of Determination (R²).}
+#' \item{KGE}{Kling-Gupta Efficiency.}
+#' 
+#' @details
+#' This function evaluates the accuracy of simulated runoff values compared to observed values.
+#' It handles missing values (`NA`) gracefully using the `na.rm = TRUE` option where applicable.
+#'
+#' @examples
+#' # Example usage
+#' obs <- c(10, 15, 20, 25, 30)
+#' sim <- c(12, 14, 21, 24, 29)
+#' metrics <- validate_acc(obs, sim)
+#' print(metrics)
+#'
+#' @export
+validate_acc = function(obs, sim) {
+    if (length(obs) != length(sim)) {
+        stop("Observed and simulated data must have the same length.")
+    }
+    
+    # Mean values
+    mean_obs <- mean(obs, na.rm = TRUE)
+    mean_sim <- mean(sim, na.rm = TRUE)
+    
+    # Coefficients of variation (CV)
+    cv_obs <- sd(obs, na.rm = TRUE) / mean_obs
+    cv_sim <- sd(sim, na.rm = TRUE) / mean_sim
+    
+    # Correlation
+    r <- cor(obs, sim, use = "complete.obs")
+    
+    # Differences
+    diff <- obs - sim
+    
+    # Metrics
+    nse <- 1 - sum(diff^2, na.rm = TRUE) / sum((obs - mean_obs)^2, na.rm = TRUE)
+    rmse <- sqrt(mean(diff^2, na.rm = TRUE))
+    mae <- mean(abs(diff), na.rm = TRUE)
+    pbias <- 100 * sum(diff, na.rm = TRUE) / sum(obs, na.rm = TRUE)
+    r_squared <- r^2
+    rrms <- (rmse / mean_obs) * 100
+    
+    # Kling-Gupta Efficiency (KGE)
+    beta <- mean_sim / mean_obs
+    gamma <- cv_sim / cv_obs
+    kge <- 1 - sqrt((r - 1)^2 + (beta - 1)^2 + (gamma - 1)^2)
+    # Return all metrics
+    acc_result<-c(
+        "NSE" = nse,
+        "RMSE" = rmse,
+        "rRMSE" = rrms,
+        "MAE" = mae,
+        "Pbias" = pbias,
+        "R2" = r_squared,
+        "KGE" = kge
+    )
+
+	acc_result<-round(acc_result,3)
+
+	return(acc_result)
+	
+},
+
 
 ## Function for get season
 f_Season = function(DATES) {
