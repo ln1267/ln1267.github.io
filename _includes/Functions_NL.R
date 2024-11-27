@@ -602,8 +602,7 @@ fetchANULAI = function(lat, long, buffer = 0.02, start_year = 2000, end_year = 2
                       ".nc?var=LAI&north=", lat + buffer, "&west=", long - buffer, 
                       "&east=", long + buffer, "&south=", lat - buffer, 
                       "&horizStride=1&time_start=", year, "-01-01T00%3A00%3A00Z&time_end=", year, 
-                      "-12-26T00%3A00%3A00Z&timeStride=1")
-
+                      "-12-26T00%3A00%3A00Z&&&accept=netcdf4-classic")
         # Create a temporary file for the download
         temp_file <- tempfile(fileext = ".nc")
         download.file(url, temp_file, mode = "wb")
