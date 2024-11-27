@@ -167,7 +167,7 @@ run_parallel_processing = function(
     if (verbose) message("Running on Windows: Using pblapply...")
     num_cores <- ncores
     cl <- makeCluster(num_cores)
-    clusterExport(cl, varlist = c("process_function", "additional_args"))
+    clusterExport(cl, varlist = c("process_function", "additional_args"), envir = environment())
     results <- pblapply(tasks, safe_process_function, cl = cl)
     stopCluster(cl)
   }
@@ -670,6 +670,7 @@ fetchANULAI = function(lat, long, buffer = 0.02, start_year = 2000, end_year = 2
 
     # Function to process data for a single year
     process_year_data <- function(year, lat, long, buffer) {
+	library(ncdf4)
         # Construct the URL for the data
         url <- paste0("https://thredds.nci.org.au/thredds/ncss/grid/ub8/au/OzWALD/8day/LAI/OzWALD.LAI.", year, 
                       ".nc?var=LAI&north=", lat + buffer, "&west=", long - buffer, 
