@@ -2208,68 +2208,110 @@ parallelAccountByRegion = function(dafnames, zfname, varnames = NULL, ncore = pa
 #' result <- ts_validation(df)
 ts_validation = function(df,fun="sum") {
     # Check for necessary columns
-    if (!all(c("Date", "Obs", "Sim") %in% names(df))) {
-        stop("Dataframe must contain Date, Obs, and Sim columns.")
-    }
-
-    start_date <- min(df$Date) + lubridate::years(1)
-    
-    # Data Filtering and Aggregation
-    result_daily <- dplyr::filter(df, Date >= start_date)
-
-    result_month <- result_daily %>%
-        dplyr::mutate(Year = lubridate::year(Date), Month = lubridate::month(Date)) %>%
-        dplyr::group_by(Year, Month) %>%
-        dplyr::summarise(across(Obs:Sim, .fns = mean, na.rm = TRUE)) %>%
-        dplyr::mutate(Date = lubridate::make_date(Year, Month, 1))
-
-    result_ann <- result_daily %>%
-        dplyr::mutate(Year = lubridate::year(Date)) %>%
-        dplyr::group_by(Year) %>%
-        dplyr::summarise(across(Obs:Sim, .fns = mean, na.rm = TRUE)) %>%
-        dplyr::mutate(Pbias = (Sim - Obs) / Obs * 100)
-
-    # Validation parameters
-    val_par_daily <- funs_nl$f_acc(result_daily$Obs, result_daily$Sim)
-    val_par_monthly <- funs_nl$f_acc(result_month$Obs, result_month$Sim)
-    val_par_annual <- funs_nl$f_acc(result_ann$Obs, result_ann$Sim)
-
-    # Plots
-    p1 <- ggplot2::ggplot(result_daily, ggplot2::aes(x = Obs, y = Sim)) +
-        ggplot2::geom_point() + ggplot2::geom_smooth(method = "lm") +
-        ggplot2::coord_equal() + ggplot2::labs(x = "Obs Observed", y = "Obs Simulated") +
-        ggplot2::theme_bw()
-
-    # Additional plots (p2, p3, p4) are similar to p1 with different data and aesthetics
-	p2<-result_month%>%
-	  ggplot(aes(x=Obs,y=Sim))+ggplot2::geom_point()+ggplot2::geom_smooth(method = "lm")+ggplot2::coord_equal()+ggplot2::labs(x="Obs Observed",y="Obs Simulated")+ggplot2::theme_bw()
-
-	p3<-result_month%>%
-	  ggplot2::ggplot(aes(x=Date))+ggplot2::geom_line(aes(y=Obs,color="Observed"))+
-	  ggplot2::geom_line(aes(y=Sim,color="Simulated"))+ggplot2::scale_color_manual(name="Legend",values = c("black","red"),breaks=c("Observed","Simulated"))+ggplot2::scale_x_date(date_breaks ="1 year",date_labels = "%Y")+ggplot2::labs(x="Date",y="Value")+ggplot2::theme_bw()
-
-	p4<-result_ann%>%
-	  ggplot2::ggplot(aes(x=Year))+ggplot2::geom_line(aes(y=Obs,color="Observed"))+
-	  ggplot2::geom_line(aes(y=Sim,color="Simulated"))+ggplot2::scale_color_manual(name="Legend",values = c("black","red"),breaks=c("Observed","Simulated"))+ggplot2::labs(x="Year",y="Value")+ggplot2::scale_x_continuous(breaks = c(seq(1980,2022,1)))+ggplot2::theme_bw()
-	  
-    # Monthly and Annual Averages
-    Monthly_avg <- result_month %>%
-        dplyr::ungroup() %>%
-        dplyr::select(-Date, -Year) %>%
-        dplyr::group_by(Month) %>%
-        dplyr::summarise(across(.fns = mean))
-
-    Annual_avg <- result_ann %>%
-        dplyr::select(-Year) %>%
-        dplyr::summarise(across(.fns = mean))
-
-    return(list(daily = result_daily, monthly = result_month, annual = result_ann,
-                monthly_avg = Monthly_avg, annual_avg = Annual_avg,
-                Accuracy = list(val_par_daily = val_par_daily, val_par_monthly = val_par_monthly,
-                                val_par_annual = val_par_annual),
-                Figs = list(daily = p1, monthly = p2, monthly_lines = p3, annual = p4)))
+  if (!all(c("Date", "Obs", "Sim") %in% names(df))) {
+    stop("Dataframe must contain Date, Obs, and Sim columns.")
+  }
+  
+  # Set start date for filtering
+  start_date <- min(df$Date) + lubridate::years(1)
+  
+  # Filter data for analysis
+  result_daily <- df |>
+    dplyr::filter(Date >= start_date)
+  
+  # Monthly aggregation
+  result_month <- result_daily |>
+    dplyr::mutate(Year = lubridate::year(Date), Month = lubridate::month(Date)) |>
+    dplyr::group_by(Year, Month) |>
+    dplyr::summarise(
+      across(Obs:Sim, \(x) mean(x, na.rm = TRUE)), 
+      .groups = "drop"
+    ) |>
+    dplyr::mutate(Date = lubridate::make_date(Year, Month, 1))
+  
+  # Annual aggregation
+  result_ann <- result_daily |>
+    dplyr::mutate(Year = lubridate::year(Date)) |>
+    dplyr::group_by(Year) |>
+    dplyr::summarise(
+      across(Obs:Sim, \(x) mean(x, na.rm = TRUE)), 
+      .groups = "drop"
+    ) |>
+    dplyr::mutate(Pbias = (Sim - Obs) / Obs * 100)
+  
+  # Validation parameters
+  val_par_daily <- funs_nl$f_acc(result_daily$Obs, result_daily$Sim)
+  val_par_monthly <- funs_nl$f_acc(result_month$Obs, result_month$Sim)
+  val_par_annual <- funs_nl$f_acc(result_ann$Obs, result_ann$Sim)
+  
+  # Visualization: Scatterplot for daily data
+  p1 <- ggplot2::ggplot(result_daily, ggplot2::aes(x = Obs, y = Sim)) +
+    ggplot2::geom_point() +
+    ggplot2::geom_smooth(method = "lm") +
+    ggplot2::coord_equal() +
+    ggplot2::labs(x = "Observed", y = "Simulated") +
+    ggplot2::theme_bw()
+  
+  # Visualization: Monthly scatterplot
+  p2 <- ggplot2::ggplot(result_month, ggplot2::aes(x = Obs, y = Sim)) +
+    ggplot2::geom_point() +
+    ggplot2::geom_smooth(method = "lm") +
+    ggplot2::coord_equal() +
+    ggplot2::labs(x = "Observed", y = "Simulated") +
+    ggplot2::theme_bw()
+  
+  # Visualization: Monthly trends
+  p3 <- ggplot2::ggplot(result_month, ggplot2::aes(x = Date)) +
+    ggplot2::geom_line(ggplot2::aes(y = Obs, color = "Observed")) +
+    ggplot2::geom_line(ggplot2::aes(y = Sim, color = "Simulated")) +
+    ggplot2::scale_color_manual(name = "Legend", values = c("black", "red"), 
+                                breaks = c("Observed", "Simulated")) +
+    ggplot2::scale_x_date(date_breaks = "1 year", date_labels = "%Y") +
+    ggplot2::labs(x = "Date", y = "Value") +
+    ggplot2::theme_bw()
+  
+  # Visualization: Annual trends
+  p4 <- ggplot2::ggplot(result_ann, ggplot2::aes(x = Year)) +
+    ggplot2::geom_line(ggplot2::aes(y = Obs, color = "Observed")) +
+    ggplot2::geom_line(ggplot2::aes(y = Sim, color = "Simulated")) +
+    ggplot2::scale_color_manual(name = "Legend", values = c("black", "red"), 
+                                breaks = c("Observed", "Simulated")) +
+    ggplot2::labs(x = "Year", y = "Value") +
+    ggplot2::scale_x_continuous(breaks = seq(1980, 2022, 1)) +
+    ggplot2::theme_bw()
+  
+  # Monthly averages
+  Monthly_avg <- result_month |>
+    dplyr::ungroup() |>
+    dplyr::select(-Date, -Year) |>
+    dplyr::group_by(Month) |>
+    dplyr::summarise(across(everything(), mean), .groups = "drop")
+  
+  # Annual averages
+  Annual_avg <- result_ann |>
+    dplyr::select(-Year) |>
+    dplyr::summarise(across(everything(), mean))
+  
+  # Return results
+  return(list(
+    daily = result_daily,
+    monthly = result_month,
+    annual = result_ann,
+    monthly_avg = Monthly_avg,
+    annual_avg = Annual_avg,
+    Accuracy = list(
+      val_par_daily = val_par_daily, 
+      val_par_monthly = val_par_monthly,
+      val_par_annual = val_par_annual
+    ),
+    Figs = list(
+      daily = p1, 
+      monthly = p2, 
+      monthly_lines = p3, 
+      annual = p4
+    )
+  ))
 },
-
 
 #' Create Cloud Optimized GeoTIFF (COG)
 #'
