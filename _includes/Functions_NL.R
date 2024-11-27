@@ -598,7 +598,7 @@ fetchANULAI = function(lat, long, buffer = 0.02, start_year = 2000, end_year = 2
     # Function to process data for a single year
     process_year_data <- function(year, lat, long, buffer) {
         # Construct the URL for the data
-        url <- paste0("https://dapds00.nci.org.au/thredds/ncss/ub8/au/OzWALD/8day/LAI/OzWALD.LAI.", year, 
+        url <- paste0("https://thredds.nci.org.au/thredds/ncss/grid/ub8/au/OzWALD/8day/LAI/OzWALD.LAI.", year, 
                       ".nc?var=LAI&north=", lat + buffer, "&west=", long - buffer, 
                       "&east=", long + buffer, "&south=", lat - buffer, 
                       "&horizStride=1&time_start=", year, "-01-01T00%3A00%3A00Z&time_end=", year, 
