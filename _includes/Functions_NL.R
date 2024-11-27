@@ -105,6 +105,79 @@ f_digits=function(x,n=2,format=F) {
   }
   
 },
+#' Run Parallel Processing
+#'
+#' This function applies a user-defined process function to a sequence of tasks in parallel.
+#' It handles cross-platform compatibility, using `mclapply` for Unix-based systems 
+#' and `pblapply` for Windows. It also includes error handling and combines results.
+#'
+#' @param process_function A function to be applied to each task. The first argument should be the task, followed by additional arguments.
+#' @param tasks A vector of tasks (e.g., years, IDs, etc.) to process.
+#' @param additional_args A named list of additional arguments to pass to `process_function`. Defaults to an empty list.
+#' @param verbose Logical. If `TRUE`, messages are displayed for progress and errors. Defaults to `TRUE`.
+#' @param ncores Number of cores to use
+#' @return A combined data frame of all non-NULL results returned by the process function.
+#' @examples
+#' # Example process function
+#' process_year_data <- function(year, lat, long, buffer) {
+#'   data.frame(Year = year, Value = runif(1))
+#' }
+#'
+#' # Define tasks and additional arguments
+#' years_to_process <- 2000:2020
+#' additional_arguments <- list(lat = -35.0, long = 149.0, buffer = 1000)
+#'
+#' # Run the function
+#' results <- run_parallel_processing(
+#'   process_function = process_year_data,
+#'   tasks = years_to_process,
+#'   additional_args = additional_arguments,
+#'   verbose = TRUE
+#' )
+#' print(results)
+#' @import parallel
+#' @import pbapply
+#' @export
+run_parallel_processing = function(
+    process_function,  # The function to be applied to each element
+    tasks,             # A vector of tasks (e.g., years, IDs, etc.)
+    additional_args = list(), # Named list of additional arguments to pass to process_function
+    ncores=3,
+    verbose = TRUE     # Whether to show messages or progress
+) {
+  # Load necessary libraries
+  library(parallel)
+  library(pbapply)
+  
+  # Wrapper for error handling
+  safe_process_function <- function(task) {
+    tryCatch({
+      do.call(process_function, c(list(task), additional_args))
+    }, error = function(e) {
+      if (verbose) message("Error processing task ", task, ": ", e$message)
+      NULL
+    })
+  }
+  
+  # Check the operating system
+  if (.Platform$OS.type == "unix") {
+    if (verbose) message("Running on Unix: Using mclapply...")
+    results <- mclapply(tasks, safe_process_function, mc.cores = ncores)
+  } else {
+    if (verbose) message("Running on Windows: Using pblapply...")
+    num_cores <- ncores
+    cl <- makeCluster(num_cores)
+    clusterExport(cl, varlist = c("process_function", "additional_args"))
+    results <- pblapply(tasks, safe_process_function, cl = cl)
+    stopCluster(cl)
+  }
+  
+  # Combine all non-NULL results
+  combined_results <- do.call(rbind, Filter(Negate(is.null), results))
+  return(combined_results)
+},
+
+
 #' Auto Convert Between Windows and Unix Path
 #'
 #' This function detects if a path is in Windows or Unix format and converts it to the other format.
