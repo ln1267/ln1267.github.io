@@ -105,6 +105,51 @@ f_digits=function(x,n=2,format=F) {
   }
   
 },
+#' Check match between two character vectors
+#'
+#' This function checks the match between two character vectors
+#' and returns the values that are present in both, either, or only in one of them.
+#'
+#' @param v1 A character vector.
+#' @param v2 A character vector.
+#' @param names A character vector of length 2, specifying the names to use for the results.
+#' @return A list containing four elements:
+#' \describe{
+#'   \item{in_both}{Values present in both vectors.}
+#'   \item{in_var1_only}{Values present only in the first vector.}
+#'   \item{in_var2_only}{Values present only in the second vector.}
+#'   \item{in_either}{Values present in either vector.}
+#' }
+#' @examples
+#' v1 <- c("System1", "System2", "System3")
+#' v2 <- c("System2", "System3", "System4")
+#' result <- check_match(v1, v2, var_names = c("ecsystm", "subject_label"))
+#' result$in_both
+#' result$in_ecsystm_only
+#' result$in_subject_label_only
+check_match= function(v1, v2, var_names = c("var1", "var2")) {
+  if (length(var_names) != 2) {
+    stop("names must be a character vector of length 2")
+  }
+  
+  in_both <- intersect(v1, v2)
+  in_v1_only <- setdiff(v1, v2)
+  in_v2_only <- setdiff(v2, v1)
+  in_either <- union(v1, v2)
+  
+  result <- list(
+    in_both = in_both,
+    in_v1_only = in_v1_only,
+    in_v2_only = in_v2_only#,
+    # in_either = in_either
+  )
+  
+  names(result) <- c("in_both",   paste0("in_", var_names[1], "_only"),    paste0("in_", var_names[2], "_only")  )
+  
+  return(result)
+},
+
+
 #' Run Parallel Processing
 #'
 #' This function applies a user-defined process function to a sequence of tasks in parallel.
