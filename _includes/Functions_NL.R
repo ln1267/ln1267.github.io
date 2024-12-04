@@ -2006,12 +2006,13 @@ twoClass = function(r1, r2,withClass=FALSE,sep_combine="_") {
 #'
 #' @param da_raster A raster object containing the data to be aggregated.
 #' @param region A raster object containing the region classifications.
-#' @param mask An optional raster object to apply as a mask. If NULL, all data is considered valid.
+#' @param mask An optional raster object [0,1] to apply as a mask. If NULL, all data is considered valid.
 #' @param aggmethod A string specifying the aggregation method (e.g., "mean", "sum", "median"). Default is "mean".
 #'
 #' @return A list with two data tables when the data is numerical data: 
 #' \item{value}{A data.table containing the aggregated values by region and mask status.}
 #' \item{N}{A data.table containing the counts by region and mask status.}
+#' \item{N_noNA}{A data.table containing the counts by region and mask status, exluding NA values.}
 #'
 #'#' @return A data.table when the data is categorical data: 
 #' \item{N}{A data.table containing the counts by region and mask status.}
@@ -2117,18 +2118,18 @@ accountByRegion = function(da_raster,varname=NULL, region = NULL, mask = NULL, a
     
     # Global aggregation
     agg_fun <- match.fun(aggmethod)  # Match the aggregation method
-    dt_global <- dt[, .(value = agg_fun(value, na.rm = TRUE), N = .N), by = .(mask)]
+    dt_global <- dt[, .(value = agg_fun(value, na.rm = TRUE), N = .N,N_noNA = sum(!is.na(value))), by = .(mask)]
     dt_global[, Region := "Total"]
     
     # Regional aggregation
-    dt <- dt[, .(value = agg_fun(value, na.rm = TRUE), N = .N), by = .(Region, mask)]
+    dt <- dt[, .(value = agg_fun(value, na.rm = TRUE), N = .N,N_noNA = sum(!is.na(value))), by = .(Region, mask)]
     dt <- merge(dt, df_region, by.x = "Region", by.y = names(df_region)[1], all.x = TRUE)
     
     # Combine global and regional data
     dt$Region <- dt[[names(df_region)[2]]]
     
     dt<-dplyr::bind_rows(dt,dt_global)
-      
+    
     dt[, Region := factor(Region, levels = c(df_region[[names(df_region)[2]]], "Total"))]
     if (!is.null(mask)) {
       dt[, mask := factor(mask, 0:1, c("Masked", "Valid"))]
@@ -2140,25 +2141,32 @@ accountByRegion = function(da_raster,varname=NULL, region = NULL, mask = NULL, a
     dt <- dt[CJ(Region = levels(dt$Region), mask = levels(dt$mask), unique = TRUE), on = .(Region, mask)]
     
     dt[, Region := factor(Region, levels = c(df_region[[names(df_region)[2]]], "Total"))]
-  
+    
     if (!is.null(mask)) {
       dt[, mask := factor(mask,c("Masked", "Valid"))]
       # Reshape the data.tables
       dt_value <- dcast(dt, Region ~ mask, value.var = "value") |> setorder(Region)
       dt_N <- dcast(dt, Region ~ mask, value.var = "N") |> setorder(Region)
-      setnames(dt_value,c(names(df_region)[2],varname))
-      setnames(dt_N,c(names(df_region)[2],varname))
+      dt_N_noNA <- dcast(dt, Region ~ mask, value.var = "N_noNA") |> setorder(Region)
+      
+      setnames(dt_value,c(names(df_region)[2],paste0(varname,c("_Masked", "_Valid"))))
+      setnames(dt_N,c(names(df_region)[2],paste0(varname,c("_Masked", "_Valid"))))
+      setnames(dt_N_noNA,c(names(df_region)[2],paste0(varname,c("_Masked", "_Valid"))))
+               
     } else {
       # Reshape the data.tables
       dt_value <- dt[,c("Region","value")] |> setorder(Region)
       dt_N <- dt[,c("Region","N")] |> setorder(Region)
-	  
+      dt_N_noNA <- dt[,c("Region","N_noNA")] |> setorder(Region)
+      
       setnames(dt_value,c(names(df_region)[2],varname))
       setnames(dt_N,c(names(df_region)[2],varname))
+      setnames(dt_N_noNA,c(names(df_region)[2],varname))
+      
     }
-
+    
     # Return the results
-    return(list(value = dt_value, N = dt_N))
+    return(list(value = dt_value, N = dt_N,N_noNA=dt_N_noNA))
   }
 },
 
