@@ -1641,53 +1641,37 @@ make_tiles_equal = function(data,
   # Aggregate based on data type
   if (terra::is.factor(data)) {
     message("Data is categorical. Using 'modal' for aggregation.")
-    rast_agg <- terra::aggregate(data, fact = c(x_tiles, y_tiles), fun = terra::modal, na.rm = TRUE)
+    rast_agg <- terra::aggregate(data, fact = c(x_tiles, y_tiles), fun = 'modal', na.rm = TRUE)
   } else {
     message("Data is continuous. Using 'mean' for aggregation.")
-    rast_agg <- terra::aggregate(data, fact = c(x_tiles, y_tiles), fun = mean, na.rm = TRUE)
+    rast_agg <- terra::aggregate(data, fact = c(x_tiles, y_tiles), fun = 'mean', na.rm = TRUE)
   }
   message("Raster aggregated by ", x_tiles, " x ", y_tiles)
-  
+    
   # Convert raster to polygons (grid)
   outpoly <- terra::as.polygons(rast_agg, dissolve = FALSE)
   
+  message("finished polygons")
+    
   # Ensure CRS consistency
-  if (!is.na(terra::crs(data))) {
-    terra::crs(outpoly) <- terra::crs(data)
-  }
-  
-  # Print number of created tiles
-  message("\nNumber of raster tiles: ", nrow(outpoly))
-  
-  if (plotTiles) {
-    library(ggplot2)
-    library(sf)
+    if (!is.na(terra::crs(data))) {
+      terra::crs(outpoly) <- terra::crs(data)
+    }
     
-    # Convert raster to a data frame for plotting
-    raster_df <- as.data.frame(data, xy = TRUE)
-    colnames(raster_df) <- c("x", "y", "value")
+    # Print number of created tiles
+    message("\nNumber of raster tiles: ", nrow(outpoly))
     
-    # Convert polygon grid to sf object
-    vector_df <- st_as_sf(outpoly)
-    vector_df$ID <- seq_len(nrow(vector_df))
+    if (plotTiles) {
+
+      plot(data)
+      polys(outpoly,border="red")
+    }
     
-    # Create plot
-    p <- ggplot() +
-      geom_raster(data = raster_df, aes(x = x, y = y, fill = value)) +
-      scale_fill_viridis_c() +
-      geom_sf(data = vector_df, color = "red", fill = NA, size = 0.7) +
-      geom_sf_text(data = vector_df, aes(label = ID), size = 3, nudge_y = 0.1, color = "red") +
-      labs(title = "Raster overview with created tiles (Labeled by tile ID)",
-           fill = "Raster Value") +
-      theme_minimal()
-    
-    print(p)
-  }
-  
   if (spatial) {
     return(outpoly)
+    
   } else {
-    return(terra::getTileExtents(rast_agg))  # Assuming you need extents if not spatial
+    return(terra::getTileExtents(data,outpoly))  # Assuming you need extents if not spatial
   }
 },
 #' Extract Data from a Point or Region in a List of Raster Files
