@@ -1596,6 +1596,100 @@ make_tiles = function(data,
     )
   }
 },
+
+#' Split Raster into Equal-Sized Tiles
+#'
+#' This function takes a `SpatRaster` and divides it into equal-sized tiles, ensuring they 
+#' are as uniform as possible while handling categorical and continuous data differently.
+#' The function can also visualize the created tiles with an overlay on the original raster.
+#'
+#' @param data A `SpatRaster` object representing the raster data.
+#' @param n_tiles An integer specifying the number of tiles to divide the raster into.
+#' @param spatial Logical; if `TRUE`, returns a `SpatVector` of the tile polygons. If `FALSE`, returns the tile extents.
+#' @param plotTiles Logical; if `TRUE`, creates a `ggplot2` visualization of the tiles overlaid on the raster.
+#'
+#' @return If `spatial = TRUE`, returns a `SpatVector` object representing the tile polygons.
+#' If `spatial = FALSE`, returns the extent of each tile.
+#'
+#' @importFrom terra aggregate as.polygons is.factor crs
+#' @importFrom sf st_as_sf
+#' @importFrom ggplot2 ggplot geom_raster geom_sf geom_sf_text scale_fill_viridis_c labs theme_minimal aes
+#'
+#' @examples
+#' \dontrun{
+#' library(terra)
+#' r <- rast(ncol=100, nrow=100)
+#' values(r) <- runif(ncell(r))
+#' tiles <- make_tiles_equal(r, n_tiles = 4, spatial = TRUE, plotTiles = TRUE)
+#' }
+#'
+#' @export
+make_tiles_equal = function(data, 
+                             n_tiles,
+                             spatial = FALSE, 
+                             plotTiles = TRUE) {
+  
+  # Ensure data is a SpatRaster
+  if (!inherits(data, "SpatRaster")) {
+    stop("Input data must be a SpatRaster object.")
+  }
+  
+  # Determine grid size
+  x_tiles <- ceiling(nrow(data) / sqrt(n_tiles))
+  y_tiles <- ceiling(ncol(data) / sqrt(n_tiles))
+  
+  # Aggregate based on data type
+  if (terra::is.factor(data)) {
+    message("Data is categorical. Using 'modal' for aggregation.")
+    rast_agg <- terra::aggregate(data, fact = c(x_tiles, y_tiles), fun = terra::modal, na.rm = TRUE)
+  } else {
+    message("Data is continuous. Using 'mean' for aggregation.")
+    rast_agg <- terra::aggregate(data, fact = c(x_tiles, y_tiles), fun = mean, na.rm = TRUE)
+  }
+  message("Raster aggregated by ", x_tiles, " x ", y_tiles)
+  
+  # Convert raster to polygons (grid)
+  outpoly <- terra::as.polygons(rast_agg, dissolve = FALSE)
+  
+  # Ensure CRS consistency
+  if (!is.na(terra::crs(data))) {
+    terra::crs(outpoly) <- terra::crs(data)
+  }
+  
+  # Print number of created tiles
+  message("\nNumber of raster tiles: ", nrow(outpoly))
+  
+  if (plotTiles) {
+    library(ggplot2)
+    library(sf)
+    
+    # Convert raster to a data frame for plotting
+    raster_df <- as.data.frame(data, xy = TRUE)
+    colnames(raster_df) <- c("x", "y", "value")
+    
+    # Convert polygon grid to sf object
+    vector_df <- st_as_sf(outpoly)
+    vector_df$ID <- seq_len(nrow(vector_df))
+    
+    # Create plot
+    p <- ggplot() +
+      geom_raster(data = raster_df, aes(x = x, y = y, fill = value)) +
+      scale_fill_viridis_c() +
+      geom_sf(data = vector_df, color = "red", fill = NA, size = 0.7) +
+      geom_sf_text(data = vector_df, aes(label = ID), size = 3, nudge_y = 0.1, color = "red") +
+      labs(title = "Raster overview with created tiles (Labeled by tile ID)",
+           fill = "Raster Value") +
+      theme_minimal()
+    
+    print(p)
+  }
+  
+  if (spatial) {
+    return(outpoly)
+  } else {
+    return(terra::getTileExtents(rast_agg))  # Assuming you need extents if not spatial
+  }
+},
 #' Extract Data from a Point or Region in a List of Raster Files
 #'
 #' This function extracts values from a specified point or region (polygon) across a list of raster files. Each file can contain multiple layers,
