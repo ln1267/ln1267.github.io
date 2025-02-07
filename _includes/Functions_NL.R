@@ -1633,6 +1633,18 @@ make_tiles_equal = function(data,
   if (!inherits(data, "SpatRaster")) {
     stop("Input data must be a SpatRaster object.")
   }
+   
+  # get extent of each tiles from polygons
+  get_tile_extent <- function(x) {
+    nr <- nrow(x)
+    out <- matrix(0, nrow = nr, ncol = 4)
+    colnames(out) <- c("xmin", "xmax", "ymin", "ymax")
+    for(i in 1:nr) {
+      out[i, ] <- terra::ext(x[i, ])[1:4]
+    }
+    
+    return(out)
+  }
   
   # Determine grid size
   x_tiles <- ceiling(nrow(data) / sqrt(n_tiles))
@@ -1671,7 +1683,7 @@ make_tiles_equal = function(data,
     return(outpoly)
     
   } else {
-    return(terra::getTileExtents(data,outpoly))  # Assuming you need extents if not spatial
+    return(get_tile_extent(outpoly))  # Assuming you need extents if not spatial
   }
 },
 #' Extract Data from a Point or Region in a List of Raster Files
