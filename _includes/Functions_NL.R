@@ -4040,10 +4040,11 @@ detect_change_points = function(Iw, minseglen=3 ,max_change_points = 3,sig.level
   if (!is.numeric(Iw)) {
     stop("Input Iw must be a numeric vector.")
   }
-  require("segmented",quietly =TRUE,warn.conflicts=F)
-  require("changepoint.np",quietly =TRUE,warn.conflicts=F)
-  require("changepoint",quietly =TRUE,warn.conflicts=F)
-  require("ggplot2",quietly =TRUE,warn.conflicts=F)
+	suppressMessages(suppressWarnings(require("segmented", quietly = TRUE, warn.conflicts = FALSE)))
+	suppressMessages(suppressWarnings(require("changepoint.np", quietly = TRUE, warn.conflicts = FALSE)))
+	suppressMessages(suppressWarnings(require("changepoint", quietly = TRUE, warn.conflicts = FALSE)))
+	suppressMessages(suppressWarnings(require("ggplot2", quietly = TRUE, warn.conflicts = FALSE)))
+	suppressMessages(suppressWarnings(require("dplyr", quietly = TRUE, warn.conflicts = FALSE)))
   
   #' @title Combine Consecutive Identical Change Labels
   #' @description This function takes a vector of change points (`cp`) and a vector of mean segment values (`means`),
