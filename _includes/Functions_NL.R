@@ -3997,6 +3997,7 @@ theme_grid = function(base_size = 12, base_family = "Times"){
 #' @param ts_start An integer specifying the start year.
 #' @param plot A logical value indicating whether to plot the results of the change point analysis. Default is FALSE.
 #' @param returnPlot A logical value indicating whether to return the plot only.
+#' @param returnLabel A logical value indicating whether to return the lable of changepoints.
 #'
 #' @return A named vector containing the following elements:
 #' \describe{
@@ -4034,7 +4035,7 @@ theme_grid = function(base_size = 12, base_family = "Times"){
 #' detect_change_points(ts_data, plot = TRUE)
 #' }
 #' 
-detect_change_points = function(Iw, minseglen=3 ,max_change_points = 3,sig.level=0.05,ndigts=4,ts_start=0, plot = FALSE,returnPlot=FALSE) {
+detect_change_points = function(Iw, minseglen=3 ,max_change_points = 3,sig.level=0.05,ndigts=4,ts_start=0, plot = FALSE,returnPlot=FALSE,returnLabel=FALSE) {
   # Check if Iw is numeric
   if (!is.numeric(Iw)) {
     stop("Input Iw must be a numeric vector.")
@@ -4043,6 +4044,76 @@ detect_change_points = function(Iw, minseglen=3 ,max_change_points = 3,sig.level
   require("changepoint.np",quietly =TRUE,warn.conflicts=F)
   require("changepoint",quietly =TRUE,warn.conflicts=F)
   require("ggplot2",quietly =TRUE,warn.conflicts=F)
+  
+  #' @title Combine Consecutive Identical Change Labels
+  #' @description This function takes a vector of change points (`cp`) and a vector of mean segment values (`means`),
+  #' calculates change labels based on differences in `means`, and removes consecutive identical labels, 
+  #' keeping only the necessary change points.
+  #'
+  #' @param cp A numeric vector of change point positions.
+  #' @param means A numeric vector of segment mean values, which should be one element longer than `cp` 
+  #' (since `means` defines the values for each segment between change points).
+  #' @param change_threshold A numeric value defining the minimum absolute difference 
+  #' required to classify a change as "Increase" or "Decrease". Defaults to `0.001`.
+  #'
+  #' @return A list with two elements:
+  #' \item{cp}{A numeric vector of filtered change point positions, removing redundant breakpoints.}
+  #' \item{labels}{A character vector of change labels ("Baseline", "Increase", "Decrease", or "Stable").}
+  #'
+  #' @examples
+  #' # Example 1: Basic Case with Change Points and Means
+  #' cp <- c(3, 7, 10)
+  #' means <- c(0.8, 0.5, 0.5, 0.9)  # Decrease, Stable, Increase
+  #' combine_consecutive_changes(cp, means, change_threshold = 0.05)
+  #'
+  #' # Example 2: Case with Redundant Consecutive Changes
+  #' cp <- c(3, 7, 10, 15)
+  #' means <- c(0.8, 0.5, 0.5, 0.4, 0.9)  # Decrease, Stable, Decrease, Increase
+  #' combine_consecutive_changes(cp, means, change_threshold = 0.05)
+  #'
+  #' @export
+  combine_consecutive_changes <- function(cp, means, change_threshold = 0.001) {
+    
+    # Ensure means is one element longer than cp
+    if (length(means) != (length(cp) + 1)) {
+      stop("`means` must be one element longer than `cp` (segments correspond to cp boundaries).")
+    } 
+    
+    # If there are enough valid means, compute labels
+    if (sum(!is.na(means)) > 1) {
+      labels <- diff(means) %>% 
+        cut(c(-Inf, -change_threshold, change_threshold, Inf), 
+            labels = c("Disturbance", "Stable", "Recovery")) %>% 
+        as.character() %>% 
+        na.omit()
+      
+      labels <- c("Baseline", labels)  # The first segment is always "Baseline"
+    }
+    
+    # Use rle() to detect consecutive duplicate labels
+    rle_result <- rle(labels)
+    
+    # Identify positions where labels change (keep only these cp)
+    keep_indices <- cumsum(rle_result$lengths)[-length(rle_result$lengths)]
+    
+    # Filter change points
+    new_cp <- cp[keep_indices]
+    new_labels <- rle_result$values
+    
+    id_in<-which(new_labels=="Recovery")
+    
+    if(length(id_in)>0){
+      for(id_ in id_in){
+        if(new_labels[id_-1] %in% c("Baseline")) new_labels[id_]<-"Growing"
+      }
+    }
+    
+    return(list(
+      cp = new_cp,
+      labels = new_labels
+    ))
+  }
+  
   
   n <- length(Iw)
   
@@ -4118,9 +4189,9 @@ detect_change_points = function(Iw, minseglen=3 ,max_change_points = 3,sig.level
         segment_means<-c(segment_means, rep(NA, max_change_points - num_cp_mean_var))
         p_values_mean_var <- c(p_values_mean_var, rep(NA, max_change_points - num_cp_mean_var))
       }
-
+      
     }
-    }
+  }
 
   ### 2. Detect Trend Change Points using segmented ###
   dati<-data.frame(x=1:length(Iw),y=Iw)
@@ -4132,8 +4203,8 @@ detect_change_points = function(Iw, minseglen=3 ,max_change_points = 3,sig.level
   
   ## Auto set number of ch points
   seg_fit <- try(segmented.lm(out.lm,seg.Z=~x,psi=list(x=NA),
-                  control=seg.control(fix.npsi=FALSE, n.boot=0, tol=1e-7, it.max = 50, K=5, display=F)), silent = TRUE)
-
+                              control=seg.control(fix.npsi=FALSE, n.boot=0, tol=1e-7, it.max = 50, K=5, display=F)), silent = TRUE)
+  
   if (class(seg_fit)[1] == "try-error"|| is.null(seg_fit$psi)) {
     # If segmented fails, set all trend change metrics to NA
     cp_trend <- rep(NA, max_change_points)
@@ -4166,7 +4237,7 @@ detect_change_points = function(Iw, minseglen=3 ,max_change_points = 3,sig.level
           mean(Iw[(cp_trend[i-1] + 1):length(Iw)])  # Last segment
         }
       })
-
+      
       # Extract p-values for slopes from the segmented fit summary
       p_values_trend <- rep(NA, num_cp_trend)
       slope_pvals <- summary(seg_fit)$coefficients[, "Pr(>|t|)"]  # Get p-values from the summary
@@ -4196,16 +4267,17 @@ detect_change_points = function(Iw, minseglen=3 ,max_change_points = 3,sig.level
     }
   }
   
-  ### 3. Combine Results ###
 
+  ### 3. Combine Results ###
+  
   # Create result vector
   result <- c(
     # Mean and Variance Change Points
-    cp_mean_var+ts_start,
+    cp_mean_var+ts_start-1,
     segment_means,
     p_values_mean_var,
     # Trend Change Points
-    cp_trend+ts_start,
+    cp_trend+ts_start-1,
     # segment_means_trend,
     segment_slopes,
     p_values_trend
@@ -4255,9 +4327,45 @@ detect_change_points = function(Iw, minseglen=3 ,max_change_points = 3,sig.level
         )
       }
       
+      segment_starts <- c(ts_start, cp_mean_var + ts_start) # Start at ts_start
+      segment_ends   <- c(cp_mean_var + ts_start, ts_start + length(Iw)) # End at breakpoints
       
+      
+
+      # Determine color based on change direction
+      segment_colors <- rep(NA, length(segment_means))
+      segment_colors[1] <- "gray90"  # First segment (Baseline)
+      
+      for (i in 2:length(segment_means)) {
+        if (!is.na(segment_means[i]) && !is.na(segment_means[i-1])) {
+          if (segment_means[i] > segment_means[i-1]) {
+            segment_colors[i] <- "#91cf60"  # Green for Increase
+          } else {
+            segment_colors[i] <- "#fc8d59"  # Red for Decrease
+          }
+        } else {
+          segment_colors[i] <- "gray90"  # Default if NA
+        }
+      }
+      
+      # Create a data frame for geom_rect
+      segment_df <- data.frame(
+        xmin = segment_starts,
+        xmax = segment_ends,
+        ymin = -Inf,  # Cover full y-axis range
+        ymax = Inf,
+        fill = segment_colors
+      )
+      
+
+      # Add background shading
+      p <- p + geom_rect(data = segment_df, 
+                         aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax, fill = fill),
+                         alpha = 0.3, inherit.aes = FALSE) + # Adjust transparency
+        scale_fill_identity() # Use defined colors without a legend
+
       # Add vertical lines for change points
-      p <- p + geom_vline(xintercept = cp_mean_var+ts_start, color = "red", linetype = "dotted")
+      # p <- p + geom_vline(xintercept = cp_mean_var+ts_start, color = "red", linetype = "dotted")
       
     }
     
@@ -4277,10 +4385,17 @@ detect_change_points = function(Iw, minseglen=3 ,max_change_points = 3,sig.level
     # Display the plot
     print(p)
   }
- 
+
   if(returnPlot) return(p)
   
+  if(sum(!is.na(cp_mean_var))>0 & returnLabel ){
+    cp_labels<-combine_consecutive_changes(cp = cp_mean_var,means = segment_means)
+    cp_labels$cp<-cp_labels$cp+ts_start-1
+    return(cp_labels)
+  }
+  
   return(result)
+
 },
 
 #' Merge Layers from Change Point Results into a Raster Stack
