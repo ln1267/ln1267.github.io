@@ -4304,7 +4304,7 @@ detect_change_points = function(Iw, minseglen=3 ,max_change_points = 3,sig.level
     p <- ggplot(plot_df, aes(x = x, y = y)) +
       geom_point(color = "black") +
       geom_line(color = "#377eb8") +
-      labs(title = "Breakpoints Detected via cpt.np (Solid Segment Lines) and Segmented Regression (Purple)", x = "Year", y = "Value")+theme_bw()
+      labs(title = "Break Segments via cpt.np (Solid black lines for the average) and Segmented Regression lines (Purple)", x = "Year", y = "Value")+theme_bw()
     
     # Add mean lines for mean/variance change points
     if (any(!is.na(cp_mean_var))) {
