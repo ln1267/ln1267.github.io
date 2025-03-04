@@ -4324,7 +4324,7 @@ detect_change_points = function(Iw, minseglen=3 ,max_change_points = 3,sig.level
           y = segments_mv$mean[i],
           xend = segments_mv$end[i],
           yend = segments_mv$mean[i],
-          color = "red", linetype = "dashed"
+          color = "red", linetype = "dashed",size = 1.5
         )
       }
       
@@ -4378,8 +4378,8 @@ detect_change_points = function(Iw, minseglen=3 ,max_change_points = 3,sig.level
       seg_fit_data$y <- predict(seg_fit, newdata = seg_fit_data)
       seg_fit_data$x<-seg_fit_data$x+ts_start
       p <- p +
-        geom_line(data = seg_fit_data, aes(x = x, y = y), color = "#984ea3", size = 1)+ 
-        geom_vline(xintercept = cp_trend+ts_start, color = "#984ea3", linetype = "dotted",size=1.5)
+        geom_line(data = seg_fit_data, aes(x = x, y = y), color = "#984ea3", size = 0.5)+ 
+        geom_vline(xintercept = cp_trend+ts_start, color = "#984ea3", linetype = "dotted",size=0.5)
       
     }
     p<-p+scale_x_continuous(n.breaks=10)
