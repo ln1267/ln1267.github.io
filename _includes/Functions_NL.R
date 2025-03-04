@@ -4324,7 +4324,7 @@ detect_change_points = function(Iw, minseglen=3 ,max_change_points = 3,sig.level
           y = segments_mv$mean[i],
           xend = segments_mv$end[i],
           yend = segments_mv$mean[i],
-          color = "black", linetype = "solid",size = 1.5
+          color = "#4d4d4d", linetype = "solid",size = 1.5
         )
       }
       
