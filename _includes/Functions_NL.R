@@ -148,6 +148,56 @@ check_match= function(v1, v2, var_names = c("var1", "var2")) {
   
   return(result)
 },
+#' Resample a raster to match the resolution, extent, and CRS of a target raster
+#'
+#' @param src_file Path to the source raster file to be resampled
+#' @param target_file Path to the target raster file whose spatial properties will be matched
+#' @param out_file Path where the resampled raster will be saved
+#' @param method Resampling method, e.g., "bilinear", "nearest", "cubic" (default = "bilinear")
+#' @param overwrite Logical, whether to overwrite existing output file (default = TRUE)
+#'
+#' @return No return value. Writes resampled raster to `out_file`.
+#' @export
+gdal_resample = function(src_file, target_file, out_file,
+                          method = "bilinear", overwrite = TRUE) {
+  # Check required packages
+  if (!requireNamespace("terra", quietly = TRUE)) {
+    stop("Package 'terra' is required but not installed.")
+  }
+  if (!requireNamespace("gdalUtilities", quietly = TRUE)) {
+    stop("Package 'gdalUtilities' is required but not installed.")
+  }
+
+  # Load necessary functions
+  library(terra)
+  library(gdalUtilities)
+
+  # Read target raster and extract spatial properties
+  target_rast <- terra::rast(target_file)
+  res_target <- terra::res(target_rast)
+  ext_target <- terra::ext(target_rast)
+  crs_target <- terra::crs(target_rast, proj = TRUE)
+
+  # Handle output file if it already exists
+  if (overwrite && file.exists(out_file)) {
+    message("Overwriting existing output file: ", out_file)
+    file.remove(out_file)
+  }
+
+  # Run gdalwarp to resample source raster
+  gdalUtilities::gdalwarp(
+    srcfile = src_file,
+    dstfile = out_file,
+    t_srs = crs_target,
+    te = c(ext_target[1], ext_target[3], ext_target[2], ext_target[4]),  # xmin, ymin, xmax, ymax
+    tr = res_target,   # target resolution: xres, yres
+    r = method,        # resampling method
+    overwrite = overwrite,
+    co = c("COMPRESS=LZW")  # Compression option
+  )
+
+  message("Resampling completed. Output saved to: ", out_file)
+},
 
 
 #' Run Parallel Processing
