@@ -149,7 +149,7 @@ check_match= function(v1, v2, var_names = c("var1", "var2")) {
   return(result)
 },
 #' Resample a raster to match the resolution, extent, and CRS of a target raster
-#'
+#' reference: https://gdal.org/en/stable/programs/gdalwarp.html
 #' @param src_file Path to the source raster file to be resampled
 #' @param target_file Path to the target raster file whose spatial properties will be matched
 #' @param out_file Path where the resampled raster will be saved
