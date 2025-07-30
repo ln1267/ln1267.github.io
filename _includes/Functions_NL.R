@@ -2071,9 +2071,9 @@ twoClass = function(r1, r2,withClass=FALSE,sep_combine="_") {
   
   # Create new levels for r1
   lev_r1 <-
-    terra::levels(r1)[[1]] %>%
-    setNames(c("ID","Class1")) %>%
-    dplyr::mutate(id_1 = dplyr::row_number(),r1_id=ID) %>%
+    terra::levels(r1)[[1]] |>
+    setNames(c("ID","Class1")) |>
+    dplyr::mutate(id_1 = dplyr::row_number(),r1_id=ID) |>
     dplyr::select(r1_id, id_1,Class1)
   
   # Get the multiple factor based on the number of characters of the maximum ID in lev_r1
@@ -2083,9 +2083,9 @@ twoClass = function(r1, r2,withClass=FALSE,sep_combine="_") {
   r1<-terra::classify(r1,as.matrix(lev_r1[,1:2]))
   
   # Create new levels for r2
-  lev_r2 <- terra::levels(r2)[[1]]  %>%
-    setNames(c("ID","Class2")) %>%
-    dplyr::mutate(id_2=dplyr::row_number()*multiple_factor,r2_id=ID)%>%
+  lev_r2 <- terra::levels(r2)[[1]]  |>
+    setNames(c("ID","Class2")) |>
+    dplyr::mutate(id_2=dplyr::row_number()*multiple_factor,r2_id=ID)|>
     dplyr::select(r2_id, id_2,Class2)
   
   # Reclassify r2
@@ -2095,15 +2095,15 @@ twoClass = function(r1, r2,withClass=FALSE,sep_combine="_") {
   r1_r2<-r1+r2
   
   # Get the combined levels and the frequency
-  newlevels <- terra::freq(r1_r2)[,-1] %>%
+  newlevels <- terra::freq(r1_r2)[,-1] |>
     dplyr::mutate(id_1=value%%multiple_factor,
-                  id_2=floor(value/multiple_factor)*multiple_factor) %>%
-    dplyr::rename(value_old=value) %>%
-    dplyr::mutate(Value=dplyr::row_number()) %>%
-    dplyr::left_join(lev_r1, by = "id_1") %>%
-    dplyr::left_join(lev_r2, by = "id_2") %>%
-    dplyr::mutate(cls1_cls2 = paste(Class1, Class2, sep = sep_combine)) %>%
-    dplyr::select(value_old,Value,"cls1_cls2","count","r1_id","r2_id","Class1","Class2") %>% #
+                  id_2=floor(value/multiple_factor)*multiple_factor) |>
+    dplyr::rename(value_old=value) |>
+    dplyr::mutate(Value=dplyr::row_number()) |>
+    dplyr::left_join(lev_r1, by = "id_1") |>
+    dplyr::left_join(lev_r2, by = "id_2") |>
+    dplyr::mutate(cls1_cls2 = paste(Class1, Class2, sep = sep_combine)) |>
+    dplyr::select(value_old,Value,"cls1_cls2","count","r1_id","r2_id","Class1","Class2") |> #
     dplyr::arrange(Value)
   
   # Reclassify r1_r2
@@ -2129,8 +2129,8 @@ twoClass = function(r1, r2,withClass=FALSE,sep_combine="_") {
     # Rename raster
     names(r1_r2) = "id"
     
-    dt<-newlevels %>%
-      dplyr::mutate(V1=r1_id,V2=r2_id,id=Value) %>%
+    dt<-newlevels |>
+      dplyr::mutate(V1=r1_id,V2=r2_id,id=Value) |>
       dplyr::select(V1,V2,id)
     
     # Return the new raster object.
@@ -3059,7 +3059,7 @@ f_hamon_PET_daily = function(tavg, day, lat) {
 #' @examples
 #' f_PT(da)
 f_PT=function(da,alpha=1.26){
-  df<-da%>%
+  df<-da|>
    mutate(esT=0.61121*exp(17.502*Ta/(Ta+240.97)),
            s=17.502*240.97*esT/((Ta+240.97)^2),
            ssy=s/(s+0.066),
@@ -3086,7 +3086,7 @@ f_PT_JPL=function(da,kPAR=0.5, kRn=0.6, TaOpt=25){
   # Check whether LAI is exist
   if( "LAI" %in% names(da)){
 
-    df<-da%>%
+    df<-da|>
     mutate(fiPAR=1-exp(-kPAR*LAI),
            NDVI= fiPAR +0.05,
            SAVI=0.45*NDVI+0.132,
@@ -3094,7 +3094,7 @@ f_PT_JPL=function(da,kPAR=0.5, kRn=0.6, TaOpt=25){
 
   # Otherwise NDVI is used
   }else{
-     df<-da%>%
+     df<-da|>
     mutate(SAVI=0.45*NDVI+0.132,
            fAPAR=1.16*NDVI-0.14,
            fiPAR=1.0*NDVI-0.05,
@@ -3102,7 +3102,7 @@ f_PT_JPL=function(da,kPAR=0.5, kRn=0.6, TaOpt=25){
 
   }
 
-  df<-df%>%
+  df<-df|>
         mutate(Rns=Rn*exp(-kRn*LAI),
            Rnc=Rn-Rns,
            ea=RH*(0.61121*exp(17.502*Ta/(Ta+240.97))), # unit is Kpa
@@ -3114,10 +3114,10 @@ f_PT_JPL=function(da,kPAR=0.5, kRn=0.6, TaOpt=25){
            phen=ifelse(phen<0,0,phen))
 
   # get the optimum condition
-  df_max<-df%>%
-    dplyr::select(Year,SAVI,phen,fAPAR)%>%
-    group_by(Year)%>%
-    summarise(phenmax=max(phen,na.rm = T),SAVImax=max(SAVI,na.rm = T),fAPARmax=max(fAPAR,na.rm = T))%>%
+  df_max<-df|>
+    dplyr::select(Year,SAVI,phen,fAPAR)|>
+    group_by(Year)|>
+    summarise(phenmax=max(phen,na.rm = T),SAVImax=max(SAVI,na.rm = T),fAPARmax=max(fAPAR,na.rm = T))|>
     mutate(Topt=TaOpt)
 
   # Calculate Topt from Phenmax
@@ -3129,9 +3129,9 @@ f_PT_JPL=function(da,kPAR=0.5, kRn=0.6, TaOpt=25){
     }
   }
 
-  PT_ET<-df%>%
-	left_join(df_max,by="Year")%>%
-    group_by(Year)%>%
+  PT_ET<-df|>
+	left_join(df_max,by="Year")|>
+    group_by(Year)|>
     mutate(fT=exp(-((Ta-Topt)/Topt)^2),
            fT=ifelse(fT>1,1,fT),
            fM=fAPAR/fAPARmax,
@@ -3155,7 +3155,7 @@ f_PT_JPL=function(da,kPAR=0.5, kRn=0.6, TaOpt=25){
 #' @param lc_code Code of Land use,one of  c("Water","ENF","EBF","DNF","DBF","MF","CSH","OSH","WSA","SA","GRA","WET","CRO","Urban","CROPandNature","Snow","Barren","Unclass")
 #' @export
 #' @examples
-#' da_mothly<-da_daily%>%
+#' da_mothly<-da_daily|>
 #' mutate(Ei_LT=f_Ei(ts.prcp = Rainfall,ts.lai = LAI_NC2))
 
 f_Ei=function(ts.prcp,ts.lai,lc_code="ENF") {
@@ -3219,11 +3219,11 @@ f_Ei_pot_USA=function(da_daily,forest="ENF") {
 
 	# Calculate the potential interception by forest type using the regression between throughfall and rainfall
 	  if(forest=="DBF"){
-	  	 da_Ei<-da_daily%>%
+	  	 da_Ei<-da_daily|>
 				mutate(Ei_pot=ifelse(GW=="GW",P_c*0.06+0.04*25.4,P_c*0.03+0.02*25.4))
 
 	  }else{
-	  	da_Ei<-da_daily%>%
+	  	da_Ei<-da_daily|>
 				mutate(Ei_pot=P_c*0.12+0.03*25.4) # Loblolly pine
   	  }
 	  return(da_Ei)
@@ -3243,10 +3243,10 @@ f_Ei_pot_USA=function(da_daily,forest="ENF") {
 f_Evap=function(da_daily) {
 	# Correct by rainfall
 
-	da_Ei<-da_daily%>%
-	  mutate(Ei_pot=ifelse(Ei_pot>P_c,P_c,Ei_pot))%>% # Interception should less than Rainfall
-	  mutate(Ei_pot=ifelse(P_c==0,0,Ei_pot))%>% # If Rainfall ==0 , Interception ==0
-	  rowwise() %>%
+	da_Ei<-da_daily|>
+	  mutate(Ei_pot=ifelse(Ei_pot>P_c,P_c,Ei_pot))|> # Interception should less than Rainfall
+	  mutate(Ei_pot=ifelse(P_c==0,0,Ei_pot))|> # If Rainfall ==0 , Interception ==0
+	  rowwise() |>
 	  mutate(Ei=NA,P_Ei=P_c-Ei_pot)
 
 	da_Ei[is.na(da_Ei)]<-0
@@ -4132,10 +4132,10 @@ detect_change_points = function(Iw, minseglen=3 ,max_change_points = 3,sig.level
     
     # If there are enough valid means, compute labels
     if (sum(!is.na(means)) > 1) {
-      labels <- diff(means) %>% 
+      labels <- diff(means) |> 
         cut(c(-Inf, -change_threshold, change_threshold, Inf), 
-            labels = c("Disturbance", "Stable", "Recovery")) %>% 
-        as.character() %>% 
+            labels = c("Disturbance", "Stable", "Recovery")) |> 
+        as.character() |> 
         na.omit()
       
       labels <- c("Baseline", labels)  # The first segment is always "Baseline"
@@ -5240,24 +5240,24 @@ f_sta_shp_nc=function(ncfilename=NULL,da=NULL,basin,fun="mean",varname,zonal_fie
 
   if(scale=="month" | scale=="Month" | scale=="MONTH"){
     dates<-seq(as.Date(paste0(start,"-01-01")),by="1 month",length.out = dim(da)[3])
-    sta_catchment<-t(ex)%>%
-      round(digits = 5)%>%
-      as.data.frame()%>%
+    sta_catchment<-t(ex)|>
+      round(digits = 5)|>
+      as.data.frame()|>
       mutate(Year=as.integer(format(dates,"%Y")),
-             Month=as.integer(format(dates,"%m")))%>%
-      melt(id=c("Year","Month"))%>%
-      mutate(BasinID=rep(basin[[zonal_field]],each=length(dates)))%>%
+             Month=as.integer(format(dates,"%m")))|>
+      melt(id=c("Year","Month"))|>
+      mutate(BasinID=rep(basin[[zonal_field]],each=length(dates)))|>
       dplyr::select(BasinID,Year,Month,value)
     names(sta_catchment)<-c(zonal_field,"Year","Month",varname)
 
   }else if(scale=="annual" | scale=="Annual" | scale=="ANNUAL"){
     dates<-seq(as.Date(paste0(start,"-01-01")),by="1 year",length.out = dim(da)[3])
-    sta_catchment<-t(ex)%>%
-      round(digits = 5)%>%
-      as.data.frame()%>%
-      mutate(Year=as.integer(format(dates,"%Y")))%>%
-      melt(id=c("Year","Month"))%>%
-      mutate(BasinID=rep(basin[[zonal_field]],each=length(dates)))%>%
+    sta_catchment<-t(ex)|>
+      round(digits = 5)|>
+      as.data.frame()|>
+      mutate(Year=as.integer(format(dates,"%Y")))|>
+      melt(id=c("Year","Month"))|>
+      mutate(BasinID=rep(basin[[zonal_field]],each=length(dates)))|>
       dplyr::select(BasinID,Year,value)
 
     names(sta_catchment)<-c(zonal_field,"Year",varname)
@@ -5265,14 +5265,14 @@ f_sta_shp_nc=function(ncfilename=NULL,da=NULL,basin,fun="mean",varname,zonal_fie
   }else{
     dates<-seq(as.Date(paste0(start,"-01-01")),by="1 day",length.out = dim(da)[3])
 
-    sta_catchment<-t(ex)%>%
-      round(digits = 5)%>%
-      as.data.frame()%>%
+    sta_catchment<-t(ex)|>
+      round(digits = 5)|>
+      as.data.frame()|>
       mutate(Year=as.integer(format(dates,"%Y")),
              Month=as.integer(format(dates,"%m")),
-             Day=as.integer(format(dates,"%d")))%>%
-      melt(id=c("Year","Month"))%>%
-      mutate(BasinID=rep(basin[[zonal_field]],each=length(dates)))%>%
+             Day=as.integer(format(dates,"%d")))|>
+      melt(id=c("Year","Month"))|>
+      mutate(BasinID=rep(basin[[zonal_field]],each=length(dates)))|>
       dplyr::select(BasinID,Year,Month,Day,value)
     names(sta_catchment)<-c(zonal_field,"Year","Month","Day",varname)
 
@@ -5330,19 +5330,19 @@ f_zonal_TS= function(data=NULL, shp=NULL, fun = "mean", varname="Value", zonal.f
   # names(ex)<-c("ID",dates)
   if(!is.null(start.date)) {
     
-    da_all<-ex %>% 
-      mutate(ID=shp_att[,zonal.field]) %>% 
-      tidyr::pivot_longer(cols = starts_with("X"),names_prefix = "X",names_to = "Date",values_to = "Var") %>%
-      mutate(Date=as.Date(Date,"%Y.%m.%d")) %>%
-      filter(!is.na(Var)) %>% 
+    da_all<-ex |> 
+      mutate(ID=shp_att[,zonal.field]) |> 
+      tidyr::pivot_longer(cols = starts_with("X"),names_prefix = "X",names_to = "Date",values_to = "Var") |>
+      mutate(Date=as.Date(Date,"%Y.%m.%d")) |>
+      filter(!is.na(Var)) |> 
       setNames(c(zonal.field,"Date",varname))
     
   }else{
 
-    da_all<-ex %>% 
-      mutate(ID=shp_att[,zonal.field]) %>% 
-      tidyr::pivot_longer(cols = starts_with("rast_"),names_prefix = "rast_",names_to = "Layer_ID",values_to = "Var") %>%
-      filter(!is.na(Var)) %>% 
+    da_all<-ex |> 
+      mutate(ID=shp_att[,zonal.field]) |> 
+      tidyr::pivot_longer(cols = starts_with("rast_"),names_prefix = "rast_",names_to = "Layer_ID",values_to = "Var") |>
+      filter(!is.na(Var)) |> 
       setNames(c(zonal.field,"Layer_ID",varname))
  
   }
@@ -5391,8 +5391,8 @@ f_zonal_shp_nc=function(ncfilename,shp,zonal_field,category=T,mcores=10){
   # Function for get the ratio of one polygon
   f_ratio<-function(extracts,levs,zonal_field){
     class_ratio<-data.frame("Levels"=levs,"Ratio"=NA)
-    a<-extracts %>%
-      table()  %>%
+    a<-extracts |>
+      table()  |>
       as.data.frame()
     a$Levels<-as.integer(as.character(a$.))
     class_ratio<-merge(class_ratio,a[-1],all.x=T)
@@ -5676,38 +5676,38 @@ f_readGEEClimate=function(filename,dataSource="Terra",dataScale="Monthly"){
   require("dplyr")
   require("lubridate")
   
-  da<-read.csv(filename)%>%
-    mutate(Date=as.Date(as.character(date),"%Y%m%d"))%>%
+  da<-read.csv(filename)|>
+    mutate(Date=as.Date(as.character(date),"%Y%m%d"))|>
     dplyr::select(-one_of(c("system.index","date",".geo")))
   
   if(dataSource=="Terra"){
-    da<-da%>%
-      mutate(Year=year(Date),Month=month(Date))%>%
-      dplyr::rename(Ppt_mm=pr,Tmin_C=tmmn,Tmax_C=tmmx,swe_mm=swe,ET0=pet)%>%
-      mutate(Tavg_C=(Tmin_C+Tmax_C)/20,ET0=ET0/10)%>%
+    da<-da|>
+      mutate(Year=year(Date),Month=month(Date))|>
+      dplyr::rename(Ppt_mm=pr,Tmin_C=tmmn,Tmax_C=tmmx,swe_mm=swe,ET0=pet)|>
+      mutate(Tavg_C=(Tmin_C+Tmax_C)/20,ET0=ET0/10)|>
       mutate(Tmax_C=Tmax_C/10,Tmin_C=Tmin_C/10)
     
   }else if(dataSource=="Daymet"){
     
-    da<-da%>%
-      mutate(Year=year(Date),Month=month(Date),Day=day(Date))%>%
-      mutate(Tavg_C=(tmax+tmin)/2)%>%
+    da<-da|>
+      mutate(Year=year(Date),Month=month(Date),Day=day(Date))|>
+      mutate(Tavg_C=(tmax+tmin)/2)|>
       dplyr::rename(Ppt_mm=prcp,Tmin_C=tmin,Tmax_C=tmax,swe_kgm2=swe,vp_Pa=vp,dayl_s=dayl,srad_Wm2=srad)
     
     if(dataScale=="Monthly"){
-      da<-da%>%
-        group_by(WS_ID,Year,Month)%>%
+      da<-da|>
+        group_by(WS_ID,Year,Month)|>
         summarise(Ppt_mm=sum(Ppt_mm),swe_kgm2=sum(swe_kgm2),dayl_s=sum(dayl_s),Tavg_C=mean(Tavg_C),Tmax_C=mean(Tmax_C),Tmin_C=mean(Tmin_C),vp_Pa=mean(vp_Pa),srad_Wm2=mean(srad_Wm2))
     }
     
   }else if(dataSource=="PRISM"){
-    da<-da%>%
-      mutate(Year=year(Date),Month=month(Date),Day=day(Date))%>%
+    da<-da|>
+      mutate(Year=year(Date),Month=month(Date),Day=day(Date))|>
       dplyr::rename(Tavg_C=tmean,Ppt_mm=ppt,Tmin_C=tmin,Tmax_C=tmax,Tdavg_C=tdmean,vpdmin_hPa=vpdmin,vpdmax_hPa=vpdmax)
     
     if(dataScale=="Monthly"){
-      da<-da%>%
-        group_by(WS_ID,Year,Month)%>%
+      da<-da|>
+        group_by(WS_ID,Year,Month)|>
         summarise(Ppt_mm=sum(Ppt_mm),Tavg_C=mean(Tavg_C),Tmax_C=mean(Tmax_C),Tmin_C=mean(Tmin_C),Tdavg_C=mean(Tdavg_C),vpdmin_hPa=mean(vpdmin_hPa),vpdmax_hPa=mean(vpdmax_hPa))
     }
     
@@ -5728,11 +5728,11 @@ read_GEE8DayLAI=function(filename,TimeScale="8days"){
   require(tidyverse)
   require(dplyr)
   require(lubridate)
-  da_gee<-read.csv(filename)%>%
-    dplyr::select(-.geo,-system.index)%>%
-    pivot_longer(cols =starts_with("X20"),names_to="Info",names_prefix = "X",values_to ="LAI")%>%
-    mutate(Date=as.Date(as.character(Info),"%Y%j"))%>%
-    mutate(Year=year(Date),Month=month(Date),Day=day(Date))%>%
+  da_gee<-read.csv(filename)|>
+    dplyr::select(-.geo,-system.index)|>
+    pivot_longer(cols =starts_with("X20"),names_to="Info",names_prefix = "X",values_to ="LAI")|>
+    mutate(Date=as.Date(as.character(Info),"%Y%j"))|>
+    mutate(Year=year(Date),Month=month(Date),Day=day(Date))|>
     dplyr::select(-Info)
   
   da_gee
@@ -5751,12 +5751,12 @@ read_GEE_S2=function(filename,VarName="LAI"){
   require(tidyverse)
   require(dplyr)
   require(lubridate)
-  da_gee<-read.csv(filename)%>%
-    dplyr::select(-.geo,-system.index)%>%
-    pivot_longer(cols =starts_with("X20"),names_to="Info",names_prefix = "X",values_to =VarName)%>%
-    mutate(Date=as.Date(substr(as.character(Info),1,8),"%Y%m%d"))%>%
-    mutate(Year=year(Date),Month=month(Date),Day=day(Date))%>%
-    dplyr::select(-Info)%>%
+  da_gee<-read.csv(filename)|>
+    dplyr::select(-.geo,-system.index)|>
+    pivot_longer(cols =starts_with("X20"),names_to="Info",names_prefix = "X",values_to =VarName)|>
+    mutate(Date=as.Date(substr(as.character(Info),1,8),"%Y%m%d"))|>
+    mutate(Year=year(Date),Month=month(Date),Day=day(Date))|>
+    dplyr::select(-Info)|>
     filter(!is.na(get(VarName)))
   
   da_gee
@@ -6779,22 +6779,22 @@ Predict_monthly=function(fitModel,newdata,forestType="DBF"){
 
   names(Output_all)[1:2]<-c("Q_sim","ET")
 
-  result_month<-cbind(newdata,Output_all)%>%
-    mutate(Date=make_date(Year,Month,"01"))%>%
+  result_month<-cbind(newdata,Output_all)|>
+    mutate(Date=make_date(Year,Month,"01"))|>
     filter(Year>=newdata$Year[1]+1)
   
   if(forestType=="DBF"){
-    result_month<-result_month%>%
+    result_month<-result_month|>
       mutate(GPP=ET*3.2,GPP_SD=ET*1.26) # DBF
   }else{
-    result_month<-result_month%>%
+    result_month<-result_month|>
       mutate(GPP=ET*2.46,GPP_SD=ET*0.96) # ENF
   }
 
-	result_ann<-result_month%>%
-	  mutate(Year=year(Date))%>%
-	  group_by(Year)%>%
-	  summarise(across(c("Rainfall","PT","PET_Hamon","PET","ET","Q","Q_sim","GPP","GPP_SD"),.fns = sum,na.rm=T))%>%
+	result_ann<-result_month|>
+	  mutate(Year=year(Date))|>
+	  group_by(Year)|>
+	  summarise(across(c("Rainfall","PT","PET_Hamon","PET","ET","Q","Q_sim","GPP","GPP_SD"),.fns = sum,na.rm=T))|>
 	  mutate(Pbias=(Q_sim-Q)/Q*100)
 
 # Validation parameters
@@ -6803,25 +6803,25 @@ Predict_monthly=function(fitModel,newdata,forestType="DBF"){
 	val_par_annual<-funs_nl$f_acc(result_ann$Q,result_ann$Q_sim)
 
 	# Plots
-	p2<-result_month%>%
+	p2<-result_month|>
 	  ggplot(aes(x=Q,y=Q_sim))+geom_point()+geom_smooth(method = "lm")+coord_equal()+labs(x="Q Observed",y="Q Simulated")+theme_bw()
 
-	p3<-result_month%>%
+	p3<-result_month|>
 	  ggplot(aes(x=Date))+geom_line(aes(y=Q,color="Observed"))+
 	  geom_line(aes(y=Q_sim,color="Simulated"))+scale_color_manual(name="Legend",values = c("black","red"),breaks=c("Observed","Simulated"))+scale_x_date(date_breaks ="1 year",date_labels = "%Y")+labs(x="Date",y="Flow (mm)")+theme_bw()
 
-	p4<-result_ann%>%
+	p4<-result_ann|>
 	  ggplot(aes(x=Year))+geom_line(aes(y=Q,color="Observed"))+
 	  geom_line(aes(y=Q_sim,color="Simulated"))+scale_color_manual(name="Legend",values = c("black","red"),breaks=c("Observed","Simulated"))+labs(x="Year",y="Flow (mm)")+scale_x_continuous(breaks = c(seq(1980,2022,1)))+theme_bw()
 
-	Monthly_avg<-result_month%>%
-	  ungroup()%>%
-	  dplyr::select(-Date,-Year)%>%
-	  group_by(Month)%>%
+	Monthly_avg<-result_month|>
+	  ungroup()|>
+	  dplyr::select(-Date,-Year)|>
+	  group_by(Month)|>
 	  summarise(across(.fns = mean))
 	
-	Annual_avg<-result_ann%>%
-	  select(-Year)%>%
+	Annual_avg<-result_ann|>
+	  select(-Year)|>
 	  summarise(across(.fns = mean))
 	  	  
 	return(list(monthly=result_month,annual=result_ann,
@@ -6834,23 +6834,23 @@ RunMonthlyWaSSI=function(data_in,soil_pars,inputScale="monthly",DailyStep=FALSE,
   
   names(soil_pars)<-toupper(names(soil_pars))
   
-  result_month<-cbind(data_in,funs_nl$sacSma_monthly(par = soil_pars,inputScale=inputScale,DailyStep=DailyStep,pet = data_in$PET, prcp = data_in$Rainfall))%>%
-    mutate(Q_sim=WaYldTot,ET=aetTot)%>%
-    mutate(Date=make_date(Year,Month,"01"))%>%
+  result_month<-cbind(data_in,funs_nl$sacSma_monthly(par = soil_pars,inputScale=inputScale,DailyStep=DailyStep,pet = data_in$PET, prcp = data_in$Rainfall))|>
+    mutate(Q_sim=WaYldTot,ET=aetTot)|>
+    mutate(Date=make_date(Year,Month,"01"))|>
     filter(Year>=data_in$Year[1]+1)
   
   if(forestType=="DBF"){
-    result_month<-result_month%>%
+    result_month<-result_month|>
       mutate(GPP=ET*3.2,GPP_SD=ET*1.26) # DBF
   }else{
-    result_month<-result_month%>%
+    result_month<-result_month|>
       mutate(GPP=ET*2.46,GPP_SD=ET*0.96) # ENF
   }
 
-	result_ann<-result_month%>%
-	  mutate(Year=year(Date))%>%
-	  group_by(Year)%>%
-	  summarise(across(c("Rainfall","PT","PET_Hamon","PET","ET","Q","Q_sim","GPP","GPP_SD"),.fns = sum,na.rm=T))%>%
+	result_ann<-result_month|>
+	  mutate(Year=year(Date))|>
+	  group_by(Year)|>
+	  summarise(across(c("Rainfall","PT","PET_Hamon","PET","ET","Q","Q_sim","GPP","GPP_SD"),.fns = sum,na.rm=T))|>
 	  mutate(Pbias=(Q_sim-Q)/Q*100)
 
 # Validation parameters
@@ -6859,25 +6859,25 @@ RunMonthlyWaSSI=function(data_in,soil_pars,inputScale="monthly",DailyStep=FALSE,
 	val_par_annual<-funs_nl$f_acc(result_ann$Q,result_ann$Q_sim)
 
 	# Plots
-	p2<-result_month%>%
+	p2<-result_month|>
 	  ggplot(aes(x=Q,y=Q_sim))+geom_point()+geom_smooth(method = "lm")+coord_equal()+labs(x="Q Observed",y="Q Simulated")+theme_bw()
 
-	p3<-result_month%>%
+	p3<-result_month|>
 	  ggplot(aes(x=Date))+geom_line(aes(y=Q,color="Observed"))+
 	  geom_line(aes(y=Q_sim,color="Simulated"))+scale_color_manual(name="Legend",values = c("black","red"),breaks=c("Observed","Simulated"))+scale_x_date(date_breaks ="1 year",date_labels = "%Y")+labs(x="Date",y="Flow (mm)")+theme_bw()
 
-	p4<-result_ann%>%
+	p4<-result_ann|>
 	  ggplot(aes(x=Year))+geom_line(aes(y=Q,color="Observed"))+
 	  geom_line(aes(y=Q_sim,color="Simulated"))+scale_color_manual(name="Legend",values = c("black","red"),breaks=c("Observed","Simulated"))+labs(x="Year",y="Flow (mm)")+scale_x_continuous(breaks = c(seq(1980,2022,1)))+theme_bw()
 
-	Monthly_avg<-result_month%>%
-	  ungroup()%>%
-	  dplyr::select(-Date,-Year)%>%
-	  group_by(Month)%>%
+	Monthly_avg<-result_month|>
+	  ungroup()|>
+	  dplyr::select(-Date,-Year)|>
+	  group_by(Month)|>
 	  summarise(across(.fns = mean))
 	
-	Annual_avg<-result_ann%>%
-	  select(-Year)%>%
+	Annual_avg<-result_ann|>
+	  select(-Year)|>
 	  summarise(across(.fns = mean))
 	  	  
 	return(list(monthly=result_month,annual=result_ann,
@@ -6907,11 +6907,11 @@ f_dailyWaSSI=function(da_daily,soil_pars,kc=0.6,GSjdays=c(128,280),forest="DBF",
   require(lubridate)
   
   if(splitGrid){
-    da_daily<-da_daily%>%
-      mutate(Rainfall=if_else(is.na(Rainfall),0,Rainfall))%>%
-      mutate(j=yday(Date))%>%
-      mutate(Fc=1-exp(-kc*LAI))%>%
-      mutate(GW=ifelse(j>=GSjdays[1] & j<=GSjdays[2],"GW","NonGW"))%>%
+    da_daily<-da_daily|>
+      mutate(Rainfall=if_else(is.na(Rainfall),0,Rainfall))|>
+      mutate(j=yday(Date))|>
+      mutate(Fc=1-exp(-kc*LAI))|>
+      mutate(GW=ifelse(j>=GSjdays[1] & j<=GSjdays[2],"GW","NonGW"))|>
       mutate(P_c=Rainfall*Fc,P_s=Rainfall*(1-Fc))
     
     # calculate potential Ei if it is not caculated before
@@ -6921,9 +6921,9 @@ f_dailyWaSSI=function(da_daily,soil_pars,kc=0.6,GSjdays=c(128,280),forest="DBF",
     da_daily<-funs_nl$f_Evap(da_daily)
     
     # partition PET to canopy PET and soil surface PET
-    da_sac<-da_daily%>%
-      rowwise() %>%
-      arrange(Date)%>%
+    da_sac<-da_daily|>
+      rowwise() |>
+      arrange(Date)|>
       mutate(PET_Ec=PT*Fc-Ei,PET_Es=PT*(1-Fc))
     
     #print(summary(da_sac))
@@ -6934,33 +6934,33 @@ f_dailyWaSSI=function(da_daily,soil_pars,kc=0.6,GSjdays=c(128,280),forest="DBF",
     
     out_Es<-funs_nl$f_SacSma(pet =da_sac$PET_Es,prcp = da_sac$P_s, par = soil_pars,SoilEvp = T)
     
-	data_Ec<-cbind(da_sac,out_Ec)%>%
+	data_Ec<-cbind(da_sac,out_Ec)|>
 		dplyr::select(Date,Rainfall,VPD,PT,PET_Ec,Ei_pot,Ei,Fc,LAI,aetTot,aetUZT,aetUZF,uztwc,lztwc,WaYldTot)
 	  
-	  data_Es<-cbind(da_sac,out_Es)%>%
+	  data_Es<-cbind(da_sac,out_Es)|>
 		dplyr::select(Date,aetTot,aetUZT,aetUZF,uztwc,lztwc,WaYldTot)
 	  
-	  result_SACSMA<-data_Ec%>%
-		left_join(data_Es,by="Date",suffix=c(".c",".s"))%>%
-		mutate(Year=year(Date),Month=month(Date))%>%
-		mutate(Ec=aetTot.c,Es=aetTot.s)%>%
-		mutate(AET=Ec+Es+Ei)%>%
-		dplyr::select(Date,Rainfall,VPD,Fc,PT,PET_Ec,Ei_pot,Ei,Es,Ec,AET,WaYldTot.c,WaYldTot.s)%>%
-		dplyr::rename(ET=AET)%>%
-		mutate(WaYldTot=WaYldTot.s+WaYldTot.c,WaSSI_Tr=Ec/PET_Ec,WaSSI=ET/PT)%>%
-		mutate(WaSSI_Tr=if_else(PET_Ec==0,1,WaSSI_Tr),WaSSI=if_else(PT==0,1,WaSSI))%>%
-		mutate(Tr_ET=Ec/ET)%>%
-		mutate(Tr_ET=if_else(ET==0 | is.na(ET) | is.nan(Tr_ET),1,Tr_ET))%>%
+	  result_SACSMA<-data_Ec|>
+		left_join(data_Es,by="Date",suffix=c(".c",".s"))|>
+		mutate(Year=year(Date),Month=month(Date))|>
+		mutate(Ec=aetTot.c,Es=aetTot.s)|>
+		mutate(AET=Ec+Es+Ei)|>
+		dplyr::select(Date,Rainfall,VPD,Fc,PT,PET_Ec,Ei_pot,Ei,Es,Ec,AET,WaYldTot.c,WaYldTot.s)|>
+		dplyr::rename(ET=AET)|>
+		mutate(WaYldTot=WaYldTot.s+WaYldTot.c,WaSSI_Tr=Ec/PET_Ec,WaSSI=ET/PT)|>
+		mutate(WaSSI_Tr=if_else(PET_Ec==0,1,WaSSI_Tr),WaSSI=if_else(PT==0,1,WaSSI))|>
+		mutate(Tr_ET=Ec/ET)|>
+		mutate(Tr_ET=if_else(ET==0 | is.na(ET) | is.nan(Tr_ET),1,Tr_ET))|>
 		mutate(Method="dWaSSI")
 	
     
   }else{
     
-    da_daily<-da_daily%>%
-      mutate(Rainfall=if_else(is.na(Rainfall),0,Rainfall))%>%
-      mutate(j=yday(Date))%>%
-      mutate(Fc=1-exp(-kc*LAI))%>%
-      mutate(GW=ifelse(j>=GSjdays[1] & j<=GSjdays[2],"GW","NonGW"))%>%
+    da_daily<-da_daily|>
+      mutate(Rainfall=if_else(is.na(Rainfall),0,Rainfall))|>
+      mutate(j=yday(Date))|>
+      mutate(Fc=1-exp(-kc*LAI))|>
+      mutate(GW=ifelse(j>=GSjdays[1] & j<=GSjdays[2],"GW","NonGW"))|>
       mutate(P_c=Rainfall)
     
     # calculate potential Ei if it is not caculated before
@@ -6970,9 +6970,9 @@ f_dailyWaSSI=function(da_daily,soil_pars,kc=0.6,GSjdays=c(128,280),forest="DBF",
     da_daily<-funs_nl$f_Evap(da_daily)
     
     # partition PET to canopy PET and soil surface PET
-    da_sac<-da_daily%>%
-      rowwise() %>%
-      arrange(Date)%>%
+    da_sac<-da_daily|>
+      rowwise() |>
+      arrange(Date)|>
       mutate(PET_Ec=(PT-Ei)*Fc,PET_Es=(PT-Ei)*(1-Fc))
     
     #print(summary(da_sac))
@@ -6984,26 +6984,26 @@ f_dailyWaSSI=function(da_daily,soil_pars,kc=0.6,GSjdays=c(128,280),forest="DBF",
     out_Es<-funs_nl$f_SacSma(pet =da_sac$PET_Es,prcp = da_sac$P_Ei, par = soil_pars,SoilEvp = T)
     
 	# Update flow from veg
-	data_Ec<-cbind(da_sac,out_Ec)%>%
-		mutate(WaYldTot=(WYSurface+WYInter)*Fc+WYBase)%>%
+	data_Ec<-cbind(da_sac,out_Ec)|>
+		mutate(WaYldTot=(WYSurface+WYInter)*Fc+WYBase)|>
 		dplyr::select(Date,Rainfall,VPD,PT,PET_Ec,Ei_pot,Ei,Fc,LAI,aetTot,aetUZT,aetUZF,uztwc,lztwc,WaYldTot)
 		
 	# Update flow from Soil surface
-	data_Es<-cbind(da_sac,out_Es)%>%
-		mutate(WaYldTot=(WYSurface+WYInter)*(1-Fc))%>%
+	data_Es<-cbind(da_sac,out_Es)|>
+		mutate(WaYldTot=(WYSurface+WYInter)*(1-Fc))|>
 		dplyr::select(Date,aetTot,aetUZT,aetUZF,uztwc,lztwc,WaYldTot)
   
-	result_SACSMA<-data_Ec%>%
-		left_join(data_Es,by="Date",suffix=c(".c",".s"))%>%
-		mutate(Year=year(Date),Month=month(Date))%>%
-		mutate(Ec=aetTot.c,Es=aetTot.s)%>%
-		mutate(AET=Ec+Es+Ei)%>%
-		dplyr::select(Date,Rainfall,VPD,Fc,PT,PET_Ec,Ei_pot,Ei,Es,Ec,AET,WaYldTot.c,WaYldTot.s)%>%
-		dplyr::rename(ET=AET)%>%
-		mutate(WaYldTot=WaYldTot.s+WaYldTot.c,WaSSI_Tr=Ec/PET_Ec,WaSSI=ET/PT)%>%
-		mutate(WaSSI_Tr=if_else(PET_Ec==0,1,WaSSI_Tr),WaSSI=if_else(PT==0,1,WaSSI))%>%
-		mutate(Tr_ET=Ec/ET)%>%
-		mutate(Tr_ET=if_else(ET==0 | is.na(ET) | is.nan(Tr_ET),1,Tr_ET))%>%
+	result_SACSMA<-data_Ec|>
+		left_join(data_Es,by="Date",suffix=c(".c",".s"))|>
+		mutate(Year=year(Date),Month=month(Date))|>
+		mutate(Ec=aetTot.c,Es=aetTot.s)|>
+		mutate(AET=Ec+Es+Ei)|>
+		dplyr::select(Date,Rainfall,VPD,Fc,PT,PET_Ec,Ei_pot,Ei,Es,Ec,AET,WaYldTot.c,WaYldTot.s)|>
+		dplyr::rename(ET=AET)|>
+		mutate(WaYldTot=WaYldTot.s+WaYldTot.c,WaSSI_Tr=Ec/PET_Ec,WaSSI=ET/PT)|>
+		mutate(WaSSI_Tr=if_else(PET_Ec==0,1,WaSSI_Tr),WaSSI=if_else(PT==0,1,WaSSI))|>
+		mutate(Tr_ET=Ec/ET)|>
+		mutate(Tr_ET=if_else(ET==0 | is.na(ET) | is.nan(Tr_ET),1,Tr_ET))|>
 		mutate(Method="dWaSSI")
 	
   }
@@ -7013,12 +7013,12 @@ f_dailyWaSSI=function(da_daily,soil_pars,kc=0.6,GSjdays=c(128,280),forest="DBF",
   uWUEp<-data.frame("IGBP"=c("CRO","DBF","GRA","ENF","WSA","MF","CSH","Average"),"uWUEp"=c(11.24,9.55,7.88,9.96,9.39,9.07,6.84,9.52),"uWUEp_sd"=c(2.9,1.6,1.78,2.81,1.35,2,1.44,2.53))
   # Calculte GPP from Tr
   if("VPD" %in% names(result_SACSMA))
-    result_SACSMA<-result_SACSMA%>%
-    mutate(VPD=VPD*10)%>% # kPa to hPa
-    mutate(GPP=Ec*uWUEp$uWUEp[uWUEp$IGBP==forest] /sqrt(VPD))%>%
-    mutate(GPP=if_else(VPD==0 ,0,GPP))%>%
-    mutate(GPP_SD=Ec*uWUEp$uWUEp_sd[uWUEp$IGBP==forest]/sqrt(VPD))%>%
-    mutate(GPP_SD=if_else(VPD==0 ,0,GPP_SD))%>%
+    result_SACSMA<-result_SACSMA|>
+    mutate(VPD=VPD*10)|> # kPa to hPa
+    mutate(GPP=Ec*uWUEp$uWUEp[uWUEp$IGBP==forest] /sqrt(VPD))|>
+    mutate(GPP=if_else(VPD==0 ,0,GPP))|>
+    mutate(GPP_SD=Ec*uWUEp$uWUEp_sd[uWUEp$IGBP==forest]/sqrt(VPD))|>
+    mutate(GPP_SD=if_else(VPD==0 ,0,GPP_SD))|>
     mutate(Method="dWaSSI")
   
   return(result_SACSMA)
@@ -7068,11 +7068,11 @@ Read_FLUXNET=function(dirfolder,Sites=NULL,Scale="MM",Var="FULLSET"){
 ##get names of all flux data
   allFiles<-dir(path=dirfolder,include.dirs=TRUE,all.files =TRUE,pattern = ".csv",full.names = T,recursive = T)
   names<-dir(path=dirfolder,all.files =TRUE,pattern = ".csv",recursive = T)
-  Sitefiles<-data.frame(Name=names,Files=allFiles)%>%
-    filter(str_detect(Name,paste0(Var,"_",Scale,"_")))%>%
+  Sitefiles<-data.frame(Name=names,Files=allFiles)|>
+    filter(str_detect(Name,paste0(Var,"_",Scale,"_")))|>
     mutate(Site_ID=substr(Name, 5, 10))
   
-  if(!is.null(Sites)) Sitefiles <-Sitefiles%>% filter(Site_ID %in% Sites)
+  if(!is.null(Sites)) Sitefiles <-Sitefiles|> filter(Site_ID %in% Sites)
   
   da_original<-data.frame()
   for (i in c(1:nrow(Sitefiles))){
@@ -7197,16 +7197,16 @@ ConvertUnit=function(flux_data,LEField="LE_F_MDS",Scale="daily",useTair=T){
   }
 
   if(Scale=="daily"){
-      flux_data<-flux_data%>%
-        mutate(Date=as.Date(paste0(flux_data$TIMESTAMP),"%Y%m%d"))%>%
+      flux_data<-flux_data|>
+        mutate(Date=as.Date(paste0(flux_data$TIMESTAMP),"%Y%m%d"))|>
         mutate(ET=ET*60*60*24)                #(ET, mm/day)
     
   }else{
     
-      flux_data<-flux_data%>%
-      mutate(Date=as.Date(paste0(flux_data$TIMESTAMP,"01"),"%Y%m%d"))%>%
-      mutate(ndays=days_in_month(Date))%>%
-      mutate(P_F=P_F*ndays)%>% # Preciptation to mm/month
+      flux_data<-flux_data|>
+      mutate(Date=as.Date(paste0(flux_data$TIMESTAMP,"01"),"%Y%m%d"))|>
+      mutate(ndays=days_in_month(Date))|>
+      mutate(P_F=P_F*ndays)|> # Preciptation to mm/month
       mutate(ET=ET*60*60*24*ndays)   #(ET, mm/month)
   }
 }
@@ -7224,28 +7224,28 @@ addWarmup=function(da,nyr=2){
   
   if("Year" %in% names(da) & "Date" %in% names(da) ){
     
-    da_warm<-da%>%
-      filter(Year<=min(da$Year)+(nyr-1))%>%
+    da_warm<-da|>
+      filter(Year<=min(da$Year)+(nyr-1))|>
       mutate(Year=Year-nyr,Date=Date-years(nyr))    
     
   }else if("Year" %in% names(da)){
-    da_warm<-da%>%
-      filter(Year<=min(da$Year)+(nyr-1))%>%
+    da_warm<-da|>
+      filter(Year<=min(da$Year)+(nyr-1))|>
       mutate(Year=Year-nyr)
     
   }else if("Date" %in% names(da)){
     
-    da_warm<-da%>%
-      mutate(Year=year(Date))%>%
-      filter(Year<=min(da$Year)+(nyr-1))%>%
-      mutate(Year=Year-nyr,Date=Date-years(nyr))%>%
+    da_warm<-da|>
+      mutate(Year=year(Date))|>
+      filter(Year<=min(da$Year)+(nyr-1))|>
+      mutate(Year=Year-nyr,Date=Date-years(nyr))|>
       dplyr::select(-Year)
   }
   
   da$Warmup<-FALSE
   
-  da_warm<-da_warm%>%
-    mutate(Warmup=TRUE)%>%
+  da_warm<-da_warm|>
+    mutate(Warmup=TRUE)|>
     rbind(da)
 
   return(da_warm)
@@ -8323,22 +8323,22 @@ SoilParCal=function(data_in,Sim_year,stationname="",dailyScale=T,validation=TRUE
 
 	result_SACSMA<-dWaSSI$WaSSI(data_in,soil_pars,forest = forestType)
 
-	result_daily<-result_SACSMA%>%
-	  right_join(data_in[,c("Date","Q")],by="Date")%>%
-	  mutate(Q_sim=WaYldTot)%>%
+	result_daily<-result_SACSMA|>
+	  right_join(data_in[,c("Date","Q")],by="Date")|>
+	  mutate(Q_sim=WaYldTot)|>
 	  filter(Date>= min(result_SACSMA$Date)+years(1))
 
-	result_month<-result_daily%>%
-	  mutate(Year=year(Date),Month=month(Date))%>%
-	  group_by(Year,Month)%>%
-	  summarise(across(c("Rainfall","PT","Ei","Es","Ec","ET","WaYldTot","Q","Q_sim","GPP","GPP_SD"),.fns = sum,na.rm=T))%>%
+	result_month<-result_daily|>
+	  mutate(Year=year(Date),Month=month(Date))|>
+	  group_by(Year,Month)|>
+	  summarise(across(c("Rainfall","PT","Ei","Es","Ec","ET","WaYldTot","Q","Q_sim","GPP","GPP_SD"),.fns = sum,na.rm=T))|>
 	  mutate(Date=make_date(Year,Month,"01"))
 
-	result_ann<-result_daily%>%
-	  mutate(Year=year(Date))%>%
-	  group_by(Year)%>%
-	  summarise(across(c("Rainfall","PT","Ei","Es","Ec","ET","WaYldTot","Q","Q_sim","GPP","GPP_SD"),.fns = sum,na.rm=T))%>%
-	  mutate(Tr_ET=Ec/ET)%>%
+	result_ann<-result_daily|>
+	  mutate(Year=year(Date))|>
+	  group_by(Year)|>
+	  summarise(across(c("Rainfall","PT","Ei","Es","Ec","ET","WaYldTot","Q","Q_sim","GPP","GPP_SD"),.fns = sum,na.rm=T))|>
+	  mutate(Tr_ET=Ec/ET)|>
 	  mutate(Pbias=(Q_sim-Q)/Q*100)
 
 # Validation parameters
@@ -8349,28 +8349,28 @@ SoilParCal=function(data_in,Sim_year,stationname="",dailyScale=T,validation=TRUE
 	val_par_annual<-funs_nl$f_acc(result_ann$Q,result_ann$Q_sim)
 
 	# Plots
-	p1<-result_daily%>%
+	p1<-result_daily|>
 	  ggplot(aes(x=Q,y=Q_sim))+geom_point()+geom_smooth(method = "lm")+coord_equal()+labs(x="Q Observed",y="Q Simulated")+theme_bw()
 
-	p2<-result_month%>%
+	p2<-result_month|>
 	  ggplot(aes(x=Q,y=Q_sim))+geom_point()+geom_smooth(method = "lm")+coord_equal()+labs(x="Q Observed",y="Q Simulated")+theme_bw()
 
-	p3<-result_month%>%
+	p3<-result_month|>
 	  ggplot(aes(x=Date))+geom_line(aes(y=Q,color="Observed"))+
 	  geom_line(aes(y=Q_sim,color="Simulated"))+scale_color_manual(name="Legend",values = c("black","red"),breaks=c("Observed","Simulated"))+scale_x_date(date_breaks ="1 year",date_labels = "%Y")+labs(x="Date",y="Flow (mm)")+theme_bw()
 
-	p4<-result_ann%>%
+	p4<-result_ann|>
 	  ggplot(aes(x=Year))+geom_line(aes(y=Q,color="Observed"))+
 	  geom_line(aes(y=Q_sim,color="Simulated"))+scale_color_manual(name="Legend",values = c("black","red"),breaks=c("Observed","Simulated"))+labs(x="Year",y="Flow (mm)")+scale_x_continuous(breaks = c(seq(1980,2022,1)))+theme_bw()
 
-	Monthly_avg<-result_month%>%
-	  ungroup()%>%
-	  dplyr::select(-Date,-Year)%>%
-	  group_by(Month)%>%
+	Monthly_avg<-result_month|>
+	  ungroup()|>
+	  dplyr::select(-Date,-Year)|>
+	  group_by(Month)|>
 	  summarise(across(.fns = mean))
 	
-	Annual_avg<-result_ann%>%
-	  select(-Year)%>%
+	Annual_avg<-result_ann|>
+	  select(-Year)|>
 	  summarise(across(.fns = mean))
 	  
 	  
@@ -8431,38 +8431,38 @@ fn_GEE<-list(
 	  require("dplyr")
 	  require("lubridate")
 	  
-	  da<-read.csv(filename)%>%
-		mutate(Date=as.Date(as.character(date),"%Y%m%d"))%>%
+	  da<-read.csv(filename)|>
+		mutate(Date=as.Date(as.character(date),"%Y%m%d"))|>
 		dplyr::select(-one_of(c("system.index","date",".geo")))
 	  
 	  if(dataSource=="Terra"){
-		da<-da%>%
-		  mutate(Year=year(Date),Month=month(Date))%>%
-		  dplyr::rename(Ppt_mm=pr,Tmin_C=tmmn,Tmax_C=tmmx,swe_mm=swe,ET0=pet)%>%
-		  mutate(Tavg_C=(Tmin_C+Tmax_C)/20,ET0=ET0/10)%>%
+		da<-da|>
+		  mutate(Year=year(Date),Month=month(Date))|>
+		  dplyr::rename(Ppt_mm=pr,Tmin_C=tmmn,Tmax_C=tmmx,swe_mm=swe,ET0=pet)|>
+		  mutate(Tavg_C=(Tmin_C+Tmax_C)/20,ET0=ET0/10)|>
 		  mutate(Tmax_C=Tmax_C/10,Tmin_C=Tmin_C/10)
 		
 	  }else if(dataSource=="Daymet"){
 		
-		da<-da%>%
-		  mutate(Year=year(Date),Month=month(Date),Day=day(Date))%>%
-		  mutate(Tavg_C=(tmax+tmin)/2)%>%
+		da<-da|>
+		  mutate(Year=year(Date),Month=month(Date),Day=day(Date))|>
+		  mutate(Tavg_C=(tmax+tmin)/2)|>
 		  dplyr::rename(Ppt_mm=prcp,Tmin_C=tmin,Tmax_C=tmax,swe_kgm2=swe,vp_Pa=vp,dayl_s=dayl,srad_Wm2=srad)
 		
 		if(dataScale=="Monthly"){
-		  da<-da%>%
-			group_by(WS_ID,Year,Month)%>%
+		  da<-da|>
+			group_by(WS_ID,Year,Month)|>
 			summarise(Ppt_mm=sum(Ppt_mm),swe_kgm2=sum(swe_kgm2),dayl_s=sum(dayl_s),Tavg_C=mean(Tavg_C),Tmax_C=mean(Tmax_C),Tmin_C=mean(Tmin_C),vp_Pa=mean(vp_Pa),srad_Wm2=mean(srad_Wm2))
 		}
 		
 	  }else if(dataSource=="PRISM"){
-		da<-da%>%
-		  mutate(Year=year(Date),Month=month(Date),Day=day(Date))%>%
+		da<-da|>
+		  mutate(Year=year(Date),Month=month(Date),Day=day(Date))|>
 		  dplyr::rename(Tavg_C=tmean,Ppt_mm=ppt,Tmin_C=tmin,Tmax_C=tmax,Tdavg_C=tdmean,vpdmin_hPa=vpdmin,vpdmax_hPa=vpdmax)
 		
 		if(dataScale=="Monthly"){
-		  da<-da%>%
-			group_by(WS_ID,Year,Month)%>%
+		  da<-da|>
+			group_by(WS_ID,Year,Month)|>
 			summarise(Ppt_mm=sum(Ppt_mm),Tavg_C=mean(Tavg_C),Tmax_C=mean(Tmax_C),Tmin_C=mean(Tmin_C),Tdavg_C=mean(Tdavg_C),vpdmin_hPa=mean(vpdmin_hPa),vpdmax_hPa=mean(vpdmax_hPa))
 		}
 		
@@ -8483,11 +8483,11 @@ fn_GEE<-list(
 	  require(tidyverse)
 	  require(dplyr)
 	  require(lubridate)
-	  da_gee<-read.csv(filename)%>%
-		dplyr::select(-.geo,-system.index)%>%
-		pivot_longer(cols =starts_with("X20"),names_to="Info",names_prefix = "X",values_to ="LAI")%>%
-		mutate(Date=as.Date(as.character(Info),"%Y%j"))%>%
-		mutate(Year=year(Date),Month=month(Date),Day=day(Date))%>%
+	  da_gee<-read.csv(filename)|>
+		dplyr::select(-.geo,-system.index)|>
+		pivot_longer(cols =starts_with("X20"),names_to="Info",names_prefix = "X",values_to ="LAI")|>
+		mutate(Date=as.Date(as.character(Info),"%Y%j"))|>
+		mutate(Year=year(Date),Month=month(Date),Day=day(Date))|>
 		dplyr::select(-Info)
 	  
 	  da_gee
@@ -8506,12 +8506,12 @@ fn_GEE<-list(
 	  require(tidyverse)
 	  require(dplyr)
 	  require(lubridate)
-	  da_gee<-read.csv(filename)%>%
-		dplyr::select(-.geo,-system.index)%>%
-		pivot_longer(cols =starts_with("X20"),names_to="Info",names_prefix = "X",values_to =VarName)%>%
-		mutate(Date=as.Date(substr(as.character(Info),1,8),"%Y%m%d"))%>%
-		mutate(Year=year(Date),Month=month(Date),Day=day(Date))%>%
-		dplyr::select(-Info)%>%
+	  da_gee<-read.csv(filename)|>
+		dplyr::select(-.geo,-system.index)|>
+		pivot_longer(cols =starts_with("X20"),names_to="Info",names_prefix = "X",values_to =VarName)|>
+		mutate(Date=as.Date(substr(as.character(Info),1,8),"%Y%m%d"))|>
+		mutate(Year=year(Date),Month=month(Date),Day=day(Date))|>
+		dplyr::select(-Info)|>
 		filter(!is.na(get(VarName)))
 	  
 	  da_gee
@@ -8531,27 +8531,27 @@ fn_GEE<-list(
 	  da_PRISM<-da_Daymet<-da_LAI_8days<-da_Soil<-da_Imp<-da_LAI_S2<-da_Albedo_S2<-NULL
 	  
 	  Albedo_s2_name<-paste0(dir,"Albedo_S2_",siteName,".csv")
-	  if(file.exists(PRISM_name)) da_PRISM<-read_csv(PRISM_name) %>% dplyr::select(-"system:index",-".geo") %>% mutate(Date=as.Date(as.character(date),"%Y%m%d"))
+	  if(file.exists(PRISM_name)) da_PRISM<-read_csv(PRISM_name) |> dplyr::select(-"system:index",-".geo") |> mutate(Date=as.Date(as.character(date),"%Y%m%d"))
 	  
 	  if(file.exists(Daymet_name)){
-		  da_Daymet<-read_csv(Daymet_name) %>% 
-			dplyr::select(-"system:index",-".geo") %>%   
-			mutate(Date=as.Date(as.character(date),"%Y%m%d")) %>%
-			mutate(Rs=srad* dayl/1000000,n=dayl/60/60)%>% # MJ/m2/day
-			mutate(Tmax=tmax,Tmin=tmin)%>%
-			mutate(J=yday(Date),Year=year(Date),Month=month(Date),Day=day(Date))%>%
-			mutate(Date.daily=Date)%>%
+		  da_Daymet<-read_csv(Daymet_name) |> 
+			dplyr::select(-"system:index",-".geo") |>   
+			mutate(Date=as.Date(as.character(date),"%Y%m%d")) |>
+			mutate(Rs=srad* dayl/1000000,n=dayl/60/60)|> # MJ/m2/day
+			mutate(Tmax=tmax,Tmin=tmin)|>
+			mutate(J=yday(Date),Year=year(Date),Month=month(Date),Day=day(Date))|>
+			mutate(Date.daily=Date)|>
 			mutate(va=vp/1000, #kpa
 				  vs_Tmax=0.6108 * exp(17.27 * Tmax/(Tmax +237.3)),
-				  vs_Tmin =0.6108 * exp(17.27 * Tmin/(Tmin +237.3)))%>%
+				  vs_Tmin =0.6108 * exp(17.27 * Tmin/(Tmin +237.3)))|>
 			mutate(vs=(vs_Tmax + vs_Tmin)/2,VPD=vs-va)
 		}
 		
 	   if(file.exists(LAI_8days_name)) da_LAI_8days<-funs_nl$read_GEE8DayLAI(LAI_8days_name)
 
-	  if(file.exists(SoiPar_name)) da_Soil<-read_csv(SoiPar_name) %>% dplyr::select(-"system:index",-".geo")%>% mutate(adimp=0,pctim=0) %>% as.list()
+	  if(file.exists(SoiPar_name)) da_Soil<-read_csv(SoiPar_name) |> dplyr::select(-"system:index",-".geo")|> mutate(adimp=0,pctim=0) |> as.list()
 	  
-	  if(file.exists(Imp_name)) da_Imp<-read_csv(Imp_name) %>% dplyr::select(-"system:index",-".geo") 
+	  if(file.exists(Imp_name)) da_Imp<-read_csv(Imp_name) |> dplyr::select(-"system:index",-".geo") 
 	  
   	 if(file.exists(LAI_s2_name)) da_LAI_S2<-funs_nl$read_GEE_S2(LAI_s2_name) 
 	  
@@ -8562,25 +8562,25 @@ fn_GEE<-list(
 	  },
 	  
 	  s2_DailyLAI=function(da){
-	   da%>% 
-		filter(LAI>0)%>%
-		mutate(DOY=yday(Date),Year=year(Date))%>%
-		funs_nl$f_fit_AG(Var="LAI")%>%
-		mutate(Date=as.Date(paste0(Year,DOY),"%Y%j"))%>%
-		dplyr::select(-DOY)%>%
-		dplyr::rename(LAI=Filled)%>%
+	   da|> 
+		filter(LAI>0)|>
+		mutate(DOY=yday(Date),Year=year(Date))|>
+		funs_nl$f_fit_AG(Var="LAI")|>
+		mutate(Date=as.Date(paste0(Year,DOY),"%Y%j"))|>
+		dplyr::select(-DOY)|>
+		dplyr::rename(LAI=Filled)|>
 		dplyr::select(Date,LAI)
 	  
 	},
 
 	s2_DailyAlbedo=function(da){
-	   da%>% 
-		filter(Albedo>0)%>%
-		mutate(DOY=yday(Date),Year=year(Date))%>%
-		funs_nl$f_fit_AG(Var="Albedo")%>%
-		mutate(Date=as.Date(paste0(Year,DOY),"%Y%j"))%>%
-		dplyr::select(-DOY)%>%
-		dplyr::rename(Albedo=Filled)%>%
+	   da|> 
+		filter(Albedo>0)|>
+		mutate(DOY=yday(Date),Year=year(Date))|>
+		funs_nl$f_fit_AG(Var="Albedo")|>
+		mutate(Date=as.Date(paste0(Year,DOY),"%Y%j"))|>
+		dplyr::select(-DOY)|>
+		dplyr::rename(Albedo=Filled)|>
 		dplyr::select(Date,Albedo)
 	  
 	},
@@ -8704,9 +8704,9 @@ Datalist=function(dir_Cloud=NULL,dir_LST=NULL,dir_ET=NULL){
 	
 	if(!is.null(dir_Cloud)) {
 		files_Cloud<-dir(dir_Cloud,".tif")
-		Cloud_list<-data.frame("filename"=files_Cloud)%>%
-		  mutate(Var=str_match(filename, "SDS_(.*?)_doy")[,2])%>%
-		  mutate(Name=str_match(filename, "_doy(.*?)_aid0001")[,2])%>%
+		Cloud_list<-data.frame("filename"=files_Cloud)|>
+		  mutate(Var=str_match(filename, "SDS_(.*?)_doy")[,2])|>
+		  mutate(Name=str_match(filename, "_doy(.*?)_aid0001")[,2])|>
 		  as.data.frame()
 		  
 		Datalist<-rbind(Datalist,Cloud_list)
@@ -8715,26 +8715,26 @@ Datalist=function(dir_Cloud=NULL,dir_LST=NULL,dir_ET=NULL){
 	if(!is.null(dir_LST)) {
 
 		files_LST<-dir(dir_LST,".tif")
-		LST_list<-data.frame("filename"=files_LST)%>%
-		  mutate(Var=str_match(filename, "SDS_(.*?)_doy")[,2])%>%
-		  mutate(Name=str_match(filename, "_doy(.*?)_aid0001")[,2])%>%
+		LST_list<-data.frame("filename"=files_LST)|>
+		  mutate(Var=str_match(filename, "SDS_(.*?)_doy")[,2])|>
+		  mutate(Name=str_match(filename, "_doy(.*?)_aid0001")[,2])|>
 		  as.data.frame()
 		  
 		Datalist<-rbind(Datalist,LST_list)
 	}
 	if(!is.null(dir_ET)){
 		files_ET<-dir(dir_ET,".tif")
-		ET_list<-data.frame("filename"=files_ET)%>%
-		 mutate(Var=str_match(filename, "PT_JPL_(.*?)_doy")[,2])%>%
-		 mutate(Name=str_match(filename, "_doy(.*?)_aid0001")[,2])%>%
+		ET_list<-data.frame("filename"=files_ET)|>
+		 mutate(Var=str_match(filename, "PT_JPL_(.*?)_doy")[,2])|>
+		 mutate(Name=str_match(filename, "_doy(.*?)_aid0001")[,2])|>
 		 as.data.frame()
 		 
 		Datalist<-rbind(Datalist,ET_list)
 	}	
 
-	Datalist<-Datalist%>%
-	  pivot_wider(id_cols = Name,names_from = Var,values_from = filename,values_fill = NA)%>%
-	  mutate(UTC=parse_date_time(Name,"%Y%j%H%M%S",tz="UTC"))%>%
+	Datalist<-Datalist|>
+	  pivot_wider(id_cols = Name,names_from = Var,values_from = filename,values_fill = NA)|>
+	  mutate(UTC=parse_date_time(Name,"%Y%j%H%M%S",tz="UTC"))|>
 	  mutate(Timestamp=with_tz(UTC,tz="EST"))
 	  
 	return(Datalist)
@@ -8777,8 +8777,8 @@ Datalist=function(dir_Cloud=NULL,dir_LST=NULL,dir_ET=NULL){
 	readEcosLST=function(ID,var,LST_QC_lookup,da_dir,mask=F,plot=T,shp=NULL){
 	  #LST_QC_lookup "ECOSTRESS/data/Lookups/ECO2LSTE-001-SDS-QC-lookup.csv"
 	  filename<-paste0(da_dir,"ECO2LSTE.001_SDS_",var,"_doy",ID,"_aid0001.tif")
-	  LST_QC_lookup<-read.csv(LST_QC_lookup)%>%
-		filter(Mandatory.QA.flags=="Pixel produced, best quality")%>%
+	  LST_QC_lookup<-read.csv(LST_QC_lookup)|>
+		filter(Mandatory.QA.flags=="Pixel produced, best quality")|>
 		filter(LST.accuracy!=">2 K (Poor performance)")
 	  #print(filename)
 	  if(!file.exists(filename)) return()
@@ -8834,11 +8834,11 @@ Datalist=function(dir_Cloud=NULL,dir_LST=NULL,dir_ET=NULL){
 	  readEcosET=function(ID,var,LST_QC_lookup,da_dir,mask=F,da_LST_dir=NULL,plot=T,shp=NULL){
 	  
 	  filename<-paste0(da_dir,"ECO3ETPTJPL.001_EVAPOTRANSPIRATION_PT_JPL_",var,"_doy",ID,"_aid0001.tif")
-	  LST_QC_lookup<-read.csv(LST_QC_lookup)%>%
-		filter(Mandatory.QA.flags=="Pixel produced, best quality")%>%
+	  LST_QC_lookup<-read.csv(LST_QC_lookup)|>
+		filter(Mandatory.QA.flags=="Pixel produced, best quality")|>
 		filter(LST.accuracy!=">2 K (Poor performance)")
 	  # 
-	  # LST_QC_lookup<-read.csv("ECOSTRESS/data/Lookups/ECO2LSTE-001-SDS-QC-lookup.csv")%>%
+	  # LST_QC_lookup<-read.csv("ECOSTRESS/data/Lookups/ECO2LSTE-001-SDS-QC-lookup.csv")|>
 	  #   filter(Mandatory.QA.flags=="Pixel produced, best quality")
 	  #print(filename)
 	  if(!file.exists(filename)) return()
