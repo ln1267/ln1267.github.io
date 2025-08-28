@@ -811,6 +811,66 @@ fetchANULAI = function(lat, long, buffer = 0.02, start_year = 2000, end_year = 2
 
     return(all_lai_data)
 },
+#' Write Raster Value Frequencies to CSV
+#'
+#' Reads a raster file, computes the frequency of each unique value,
+#' and writes the resulting data to a CSV file. The output file has the
+#' same base name as the input `.tif` file.
+#'
+#' @param fname Character string. Path to the input `.tif` raster file.
+#'
+#' @return A data frame of raster value frequencies, returned invisibly.
+#'         A CSV file is also written to disk.
+#'
+#' @import terra
+#' @importFrom dplyr select
+#' @importFrom tools file_path_sans_ext
+#'
+#' @examples
+#' \dontrun{
+#' # Load required packages
+#' library(terra)
+#'
+#' # Create example raster
+#' r <- rast(nrows = 10, ncols = 10)
+#' values(r) <- sample(1:5, size = 100, replace = TRUE)
+#'
+#' # Save to temporary .tif file
+#' test_file <- tempfile(fileext = ".tif")
+#' writeRaster(r, test_file, overwrite = TRUE)
+#'
+#' # Run function
+#' write_raster_value_frequencies(test_file)
+#'
+#' # Check output
+#' read.csv(sub(".tif$", ".csv", test_file))
+#' }
+#'
+#' @export
+write_raster_value_frequencies = function(fname) {
+  if (!file.exists(fname)) {
+    stop("The file does not exist: ", fname)
+  }
+
+  # Read raster
+  r <- terra::rast(fname)
+
+  # Calculate frequencies
+  freq_df <- terra::freq(r) |>
+    as.data.frame() |>
+    dplyr::select(-layer)
+
+  # Output CSV filename
+  out_csv <- paste0(tools::file_path_sans_ext(fname), ".csv")
+
+  # Write CSV file
+  write.csv(freq_df, file = out_csv, row.names = FALSE)
+
+  # Return result invisibly
+  invisible(freq_df)
+},
+
+
 #' Create Summary Table for sf Object Attributes
 #'
 #' Generates a summary table for each attribute in an sf object. For character attributes, 
