@@ -1,0 +1,77 @@
+EFG,RGB,HEX
+T1.1 - Tropical/Subtropical lowland rainforests,"rgb(50, 160, 107)",#32A06B
+T1.2 - Tropical/Subtropical dry forests and thickets,"rgb(82, 188, 133)",#52BC85
+T1.3 - Tropical/Subtropical montane rainforests,"rgb(111, 217, 161)",#6FD9A1
+T1.4 - Tropical heath forests,"rgb(141, 247, 189)",#8DF7BD
+T2.1 - Boreal and temperate high montane forests and woodlands,"rgb(0, 96, 81)",#006051
+T2.2 - Deciduous temperate forests,"rgb(50, 148, 131)",#329483
+T2.3 - Oceanic cool temperate rainforests,"rgb(84, 178, 160)",#54B2A0
+T2.4 - Warm temperate laurophyll forests,"rgb(115, 209, 190)",#73D1BE
+T2.5 - Temperate pyric humid forests,"rgb(146, 240, 221)",#92F0DD
+T2.6 - Temperate pyric sclerophyll forests and woodlands,"rgb(187, 240, 229)",#BBF0E5
+T3.1 - Seasonally dry tropical shrublands,"rgb(52, 135, 142)",#34878E
+T3.2 - Seasonally dry temperate heath and shrublands,"rgb(87, 167, 174)",#57A7AE
+T3.3 - Cool temperate heathlands,"rgb(120, 200, 207)",#78C8CF
+"T3.4 - Young rocky pavements, lava flows and screes","rgb(154, 234, 241)",#9AEAF1
+T4.1 - Trophic savannas,"rgb(255, 210, 28)",#FFD21C
+T4.2 - Pyric tussock savannas,"rgb(255, 161, 52)",#FFA134
+T4.3 - Hummock savannas,"rgb(255, 145, 16)",#FF9110
+T4.4 - Temperate woodlands,"rgb(255, 107, 0)",#FF6B00
+T4.5 - Temperate subhumid grasslands,"rgb(211, 110, 0)",#D36E00
+T5.1 - Semi-desert steppe,"rgb(255, 210, 121)",#FFD279
+T5.2 - Succulent or Thorny deserts and semi-deserts,"rgb(238, 196, 113)",#EEC471
+T5.3 - Sclerophyll hot deserts and semi-deserts,"rgb(179, 142, 62)",#B38E3E
+T5.4 - Cool deserts and semi-deserts,"rgb(136, 103, 22)",#886716
+T5.5 - Hyper-arid deserts,"rgb(94, 67, 0)",#5E4300
+T5.6 - Semi-arid open woodlands,"rgb(60, 42, 0)",#3C2A00
+"T6.1 - Ice sheets, glaciers and perennial snowfields","rgb(219, 219, 219)",#DBDBDB
+"T6.2 - Polar/alpine cliffs, screes, outcrops and lava flows","rgb(199, 199, 199)",#C7C7C7
+T6.3 - Polar tundra and deserts,"rgb(184, 184, 184)",#B8B8B8
+T6.4 - Temperate alpine grasslands and shrublands,"rgb(168, 168, 168)",#A8A8A8
+T6.5 - Tropical alpine grasslands and herbfields,"rgb(148, 148, 148)",#949494
+T7.1 - Annual croplands,"rgb(255, 20, 161)",#FF14A1
+T7.2 - Sown pastures and fields,"rgb(202, 0, 121)",#CA0079
+T7.3 - Plantations,"rgb(170, 0, 95)",#AA005F
+T7.4 - Urban and industrial ecosystems,"rgb(139, 0, 71)",#8B0047
+T7.5 - Derived semi-natural pastures and old fields,"rgb(108, 0, 48)",#6C0030
+TF1.1 - Tropical flooded forests and peat forests,"rgb(115, 184, 152)",#73B898
+TF1.2 - Subtropical/temperate forested wetlands,"rgb(142, 227, 187)",#8EE3BB
+TF1.3 - Permanent marshes,"rgb(159, 255, 211)",#9FFFD3
+TF1.4 - Seasonal floodplain marshes,"rgb(147, 214, 153)",#93D699
+TF1.5 - Episodic arid floodplains,"rgb(175, 214, 179)",#AFD6B3
+"TF1.6 - Boreal, temperate and montane peat bogs","rgb(193, 241, 149)",#C1F195
+TF1.7 - Boreal and temperate fens,"rgb(223, 241, 207)",#DFF1CF
+F1.2 - Permanent lowland rivers,"rgb(171, 245, 163)",#ABF5A3
+F2.1 - Large permanent freshwater lakes,"rgb(214, 251, 255)",#D6FBFF
+F2.2 - Small permanent freshwater lakes,"rgb(214, 251, 255)",#D6FBFF
+F2.4 - Freeze-thaw freshwater lakes,"rgb(66, 236, 255)",#42ECFF
+F2.5 - Ephemeral freshwater lakes,"rgb(28, 216, 237)",#1CD8ED
+F2.7 - Ephemeral salt lakes,"rgb(0, 157, 177)",#009DB1
+F2.8 - Artesian springs and oases,"rgb(0, 122, 138)",#007A8A
+F3.1 - Large reservoirs,"rgb(196, 255, 190)",#C4FFBE
+F3.2 - Constructed lacustrine wetlands,"rgb(171, 245, 163)",#ABF5A3
+F3.3 - Rice paddies,"rgb(144, 218, 160)",#90DAA0
+F3.4 - Freshwater aquafarms,"rgb(81, 212, 177)",#51D4B1
+FM1.2 - Permanently open riverine estuaries and bays,"rgb(249, 96, 186)",#F960BA
+FM1.3 - Intermittently closed and open lakes and lagoons,"rgb(255, 131, 220)",#FF83DC
+M1.1 - Seagrass meadows,"rgb(241, 235, 255)",#F1EBFF
+M1.2 - Kelp forests,"rgb(233, 224, 255)",#E9E0FF
+M1.3 - Photic coral reefs,"rgb(224, 211, 255)",#E0D3FF
+M1.5 - Photo-limited marine animal forests,"rgb(161, 151, 254)",#A197FE
+M1.6 - Subtidal rocky reefs,"rgb(137, 124, 254)",#897CFE
+M1.7 - Subtidal sand beds,"rgb(111, 102, 238)",#6F66EE
+M1.8 - Subtidal mud plains,"rgb(94, 86, 209)",#5E56D1
+M3.1 - Continental and island slopes,"rgb(27, 118, 147)",#1B7693
+M3.2 - Submarine canyons,"rgb(33, 146, 181)",#2192B5
+M3.3 - Abyssal plains,"rgb(39, 174, 216)",#27AED8
+"M3.4 - Seamounts, ridges and plateaus","rgb(82, 190, 224)",#52BEE0
+M3.5 - Deepwater biogenic beds,"rgb(156, 218, 237)",#9CDAED
+M3.6 - Hadal trenches and troughs,"rgb(168, 234, 255)",#A8EAFF
+MT1.1 - Rocky shorelines,"rgb(135, 130, 210)",#8782D2
+MT1.2 - Muddy shorelines,"rgb(164, 158, 240)",#A49EF0
+MT1.3 - Sandy shorelines,"rgb(194, 186, 255)",#C2BAFF
+MT1.4 - Boulder and cobble shores,"rgb(224, 215, 255)",#E0D7FF
+MT2.1 - Coastal shrublands and grasslands,"rgb(114, 107, 218)",#726BDA
+MT2.2 - Large seabird and pinniped colonies,"rgb(86, 81, 166)",#5651A6
+MFT1.2 - Intertidal forests and shrublands,"rgb(137, 71, 78)",#89474E
+MFT1.3 - Coastal saltmarshes and reedbeds,"rgb(103, 41, 49)",#672931
