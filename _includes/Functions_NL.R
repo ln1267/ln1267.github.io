@@ -1925,7 +1925,7 @@ align_raster <- function(source_raster,
   if (is.character(source_raster)) source_raster <- terra::rast(source_raster)
   if (is.character(target_raster)) target_raster <- terra::rast(target_raster)
   target_raster<-target_raster[[1]]
-  browser()
+
   n <- terra::nlyr(source_raster)
   if (n == 0) stop("source_raster contains no layers.")
   
