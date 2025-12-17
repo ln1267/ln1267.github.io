@@ -1908,7 +1908,7 @@ extract_data = function(file_list, roi, aggregate = FALSE, nores = 10, varname =
 #' @date 2025-12-17
 #'
 #' @export
-align_raster <- function(source_raster,
+align_raster = function(source_raster,
                                  target_raster,
                                  resample_method = NULL,
                                  quite = TRUE,
