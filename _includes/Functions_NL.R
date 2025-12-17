@@ -1886,96 +1886,113 @@ extract_data = function(file_list, roi, aggregate = FALSE, nores = 10, varname =
   
   return(combined_df)
 },
-#' Align Raster Resolution, Projection, and Extent with Categorical Handling
+#' Align a Source Raster to a Target Raster with Optional Masking
 #'
-#' This function checks the resolution, projection, and extent of `source_raster` 
-#' against `target_raster`. If there are differences, it resamples and reprojects 
-#' `source_raster` to match `target_raster`, using mode resampling if the data is categorical.
+#' Aligns a source raster (single or multilayer) to a target raster by matching
+#' CRS, resolution, and extent. Optionally masks the aligned raster using the
+#' target raster. Factor (categorical) levels from the source are preserved,
+#' including after masking.
 #'
-#' @param source_raster A SpatRaster object or a file path to the raster to be aligned.
-#' @param target_raster A SpatRaster object or a file path to the reference raster.
-#' @param resample_method A resample method one of bilinear, near, mode.
+#' @param source_raster A `SpatRaster` or a file path to a raster readable by `terra::rast()`.
+#' @param target_raster A `SpatRaster` or a file path to a raster readable by `terra::rast()`.
+#' @param resample_method Character; resampling method used when projections or resolutions differ.
+#'   If `NULL`, uses "mode" for factor layers and "bilinear" otherwise.
+#' @param quite Logical; if `FALSE`, prints progress messages.
+#' @param mask Logical; if `TRUE`, masks the aligned raster using `target_raster`.
 #'
-#' @return A SpatRaster object that matches the resolution, projection, and extent of `target_raster`.
-#' @import terra
+#' @return A `SpatRaster` aligned (and optionally masked) to `target_raster`,
+#'   with factor levels preserved where applicable.
+#'
+#' @author Ning Liu
+#' @email ning.liu@csiro.au
+#' @date 2025-12-17
+#'
 #' @export
-align_raster = function(source_raster, target_raster, resample_method = NULL, quite = TRUE) {
+align_raster <- function(source_raster,
+                                 target_raster,
+                                 resample_method = NULL,
+                                 quite = TRUE,
+                                 mask = FALSE) {
   
-  # Load required packages
   if (!requireNamespace("terra", quietly = TRUE)) {
     stop("The 'terra' package is required but not installed. Please install it using install.packages('terra').")
   }
   if (!requireNamespace("pbapply", quietly = TRUE)) {
     stop("The 'pbapply' package is required but not installed. Please install it using install.packages('pbapply').")
   }
-  library(terra)
-  library(pbapply)
-
-  # Helper function to align a single layer
-  align_single_layer <- function(layer, target_raster, resample_method) {
+  
+  # Load rasters from paths if needed
+  if (is.character(source_raster)) source_raster <- terra::rast(source_raster)
+  if (is.character(target_raster)) target_raster <- terra::rast(target_raster)
+  target_raster<-target_raster[[1]]
+  browser()
+  n <- terra::nlyr(source_raster)
+  if (n == 0) stop("source_raster contains no layers.")
+  
+  # ---- Capture factor metadata from source, per layer (to restore later) ----
+  src_is_factor <- vapply(seq_len(n), function(i) terra::is.factor(source_raster[[i]]), logical(1))
+  src_levels <- lapply(seq_len(n), function(i) {
+    if (src_is_factor[i]) terra::levels(source_raster[[i]]) else NULL
+  })
+  
+  align_single_layer <- function(layer, target_raster, resample_method, quite) {
     
-    # Check if the layer is categorical
     is_categorical <- terra::is.factor(layer)
     
-    # Set the resampling method based on data type if not provided
-    if (is.null(resample_method)) {
-      resample_method <- if (is_categorical) "mode" else "bilinear"
+    # Default resampling method
+    method_i <- resample_method
+    if (is.null(method_i)) method_i <- if (is_categorical) "mode" else "bilinear"
+    
+    # Reproject if CRS differs
+    if (!terra::compareGeom(layer, target_raster, stopOnError = FALSE, crs = TRUE)) {
+      if (!quite) message("Reprojecting using method: ", method_i)
+      layer <- terra::project(layer, target_raster, method = method_i)
     }
     
-    # Reproject if projections differ
-    if (!compareGeom(layer, target_raster, stopOnError = FALSE, crs = TRUE)) {
-      if (!quite) message("Reprojecting layer to match the projection of target_raster using method: ", resample_method)
-      layer <- terra::project(layer, target_raster, method = resample_method)
-    }
-    
-    # Resample if resolutions differ
+    # Resample if resolution differs
     if (!all(terra::res(layer) == terra::res(target_raster))) {
-      if (!quite) message("Resampling layer to match the resolution of target_raster using method: ", resample_method)
-      layer <- terra::resample(layer, target_raster, method = resample_method)
+      if (!quite) message("Resampling using method: ", method_i)
+      layer <- terra::resample(layer, target_raster, method = method_i)
     }
     
-    # Adjust extent if extents differ
-    if (!terra::ext(layer) == terra::ext(target_raster)) {
-      if (!quite) message("Aligning extent of layer to match target_raster.")
-      layer <- terra::crop(layer, target_raster, snap = "out")
-      layer <- terra::extend(layer, target_raster)
+    # Align extent
+    if (!(terra::ext(layer) == terra::ext(target_raster))) {
+      if (!quite) message("Aligning extent to target_raster.")
+      layer <- terra::crop(layer, target_raster, snap = "out") |>
+        terra::extend(target_raster)
     }
     
-    return(layer)
+    layer
   }
   
-  # Load the rasters if file paths are provided
-  if (is.character(source_raster)) {
-    source_raster <- terra::rast(source_raster)
-  }
+  # Align each layer
+  aligned_layers <- pbapply::pblapply(seq_len(n), function(i) {
+    align_single_layer(source_raster[[i]], target_raster, resample_method, quite)
+  })
   
-  if (is.character(target_raster)) {
-    target_raster <- terra::rast(target_raster)
-  }
-  
-  # Check if source_raster has multiple layers
-  num_layers <- terra::nlyr(source_raster)
-  
-  if (num_layers == 0) {
-    stop("source_raster contains no layers.")
-  }
-  
-  # Apply alignment with a progress bar for each layer
-  aligned_layers <- pbapply::pblapply(1:num_layers, function(i) {
-    align_single_layer(source_raster[[i]], target_raster, resample_method)
-  }) # Using parallel processing if multiple cores are specified
-  
-  # Combine all aligned layers back into a single SpatRaster
   aligned_raster <- terra::rast(aligned_layers)
   
-  # Preserve the original layer names if they exist
-  if (!is.null(names(source_raster))) {
-    names(aligned_raster) <- names(source_raster)
+  # Preserve names
+  if (!is.null(names(source_raster))) names(aligned_raster) <- names(source_raster)
+  
+  # Optional masking (this is where factor levels often get dropped)
+  if (isTRUE(mask)) {
+    if (!quite) message("Applying mask using target_raster.")
+    aligned_raster <- terra::mask(aligned_raster, target_raster)
   }
   
-  return(aligned_raster)
+  # ---- Restore factor status + levels AFTER all operations (incl. mask) ----
+  for (i in seq_len(n)) {
+    if (isTRUE(src_is_factor[i]) && !is.null(src_levels[[i]])) {
+      # Ensure it's treated as categorical again
+      aligned_raster[[i]] <- terra::as.factor(aligned_raster[[i]])
+      # Re-attach the exact level table(s)
+      levels(aligned_raster[[i]]) <- src_levels[[i]]
+    }
+  }
+  
+  aligned_raster
 },
-
 
 #' Plot Raster Data as PNG 
 #'
