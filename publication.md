@@ -4,10 +4,36 @@ title: Dr Ning liu's Ecohydrology
 description: This is some Bio information 
 sitemap:
     priority: 0.7
-    lastmod: 2018-3-30
+    lastmod: 2026-02-10
     changefreq: weekly
 ---
 ## Publications
+
+### Selected Main Publications (First to Third Author)
+
+1. **Liu, N.**, Sun, G., Yang, Y., Aguilos, M., Starr, G., O'Halloran, T. L., Amatya, D. M., Oishi, A. C., Zhang, Y., & Trettin, C. (2025). Potential for augmenting water yield by restoring longleaf pine (*Pinus palustris*) forests in the southeastern United States. *Water Resources Research*, 61(2), e2024WR037444.
+
+1. Jin, K., **Liu, N.**, Tang, R., Sun, G., & Hao, L. (2025). Quantifying Long Term (2000-2020) water balances across Nepal by integrating remote sensing and an ecohydrological model. *Remote Sensing*, 17(11), 1819.
+
+1. Richter, B. D., Prunes, E., **Liu, N.**, Caldwell, P., Wei, D., Davis, K. F., Sandoval-Solis, S., Herrera, G. R., Rodriguez, R. S., Ao, Y., et al. (2024). Opportunities for restoring environmental flows in the Rio Grande-Rio Bravo basin spanning the US-Mexico border. *Journal of Water Resources Planning and Management*, 150(2), 04023079.
+
+1. Sun, M., Sun, P., **Liu, N.**, Zhang, L., Yu, Z., Feng, Q., Smettem, K., & Liu, S. (2024). Alternating dominant effects of temperature and precipitation along elevational gradient on the alpine and subalpine vegetation activities in southwestern China. *Forest Ecology and Management*, 554, 121668.
+
+1. Aguilos, M., Sun, G., **Liu, N.**, Zhang, Y., Starr, G., Oishi, A. C., O'Halloran, T. L., Forsythe, J., Wang, J., Zhu, M., et al. (2024). Energy availability and leaf area dominate control of ecosystem evapotranspiration in the southeastern US. *Agricultural and Forest Meteorology*, 349, 109960.
+
+1. Chen, D., **Liu, N.**, Gan, G., Liu, Y., Qin, M., Zheng, Q., Sun, G., & Hao, L. (2024). Combined effects of urbanization and climate variability on water and carbon balances in a rice paddy-dominated basin in southern China. *Environmental Research Letters*, 19(12), 124042.
+
+1. Duan, K., Qu, S., **Liu, N.**, Dobbs, G. R., Caldwell, P. V., & Sun, G. (2023). Evolving efficiency of inter-basin water transfers in regional water stress alleviation. *Resources, Conservation and Recycling*, 191, 106878.
+
+1. Dobbs, G. R., **Liu, N.**, Caldwell, P. V., Miniat, C. F., Sun, G., Duan, K., & Bolstad, P. V. (2023). Inter-basin surface water transfers database for public water supplies in conterminous United States, 1986-2015. *Scientific Data*, 10(1), 255.
+
+1. **Liu, N.**, Sun, G., & Jian, J. (2023). Influence of catchment characteristics on the transpiration to evapotranspiration ratio across Australian hydrologic reference stations catchments. *AGU Fall Meeting Abstracts*, H11-01.
+
+1. **Liu, N.**, Dobbs, G. R., Caldwell, P. V., Miniat, C. F., Sun, G., Duan, K., Nelson, S. A. C., Bolstad, P. V., & Carlson, C. P. (2022). Inter-basin transfers extend the benefits of water from forests to population centers across the conterminous US. *Water Resources Research*, 58(5), e2021WR031537.
+
+1. Worley, E., **Liu, N.**, Sun, G., Norman, S. P., Christie, W. M., Gavazzi, M., Boggs, J., & McNulty, S. G. (2022). Impacts of Hurricane Michael on watershed hydrology: A case study in the Southeastern United States. *Forests*, 13(6), 904.
+
+### Earlier Publications
 
 1. **Liu, N.**, Dobbs, G. R., Caldwell, P. V, Miniat, C. F., Bolstad, P. V, Nelson, S., & Sun, G. (2020). Quantifying the role of State and private forest lands in providing surface drinking water supply for the Southern United States. General Technical Report GTR-SRS-248. <https://doi.org/10.2737/SRS-GTR-248>
  
