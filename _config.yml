@@ -41,14 +41,12 @@ instagram:
 github:             ln1267
 
 # personal
-location:           3041 East Cornwallis Road, Research Triangle Park, NC 27709 
-phone:              +1 1 919-549-4067; 
-                                
-email:                  LN1267@GMAIL.COM; 
-                        Ning.LIU@usda.gov
+location:           CSIRO - Black Mountain Site, Clunies Ross Street Acton ACT 2601
+phone:              +61 2 6218 3489
+email:              ning.liu@csiro.au
 
-# Gems
-gems:
+# Plugins
+plugins:
   - jekyll-mentions
   - jekyll-sitemap
   - jekyll-feed

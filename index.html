@@ -1,7 +1,7 @@
 ---
 layout: null
-title: Dr Liu's Website
-description: Every great website starts with a great homepage. The homepage tells your viewers what your site is all about and gives your viewers a place to come back to.
+title: Dr Ning Liu
+description: Research Scientist at Environment Unit at CSIRO, with expertise and experience in GIS, remote sensing, modelling, climate change, and carbon mitigation.
 sitemap:
     priority: 1.0
     lastmod: 2017-11-02
@@ -25,11 +25,11 @@ sitemap:
 		<!-- Wrapper -->
 			<div id="wrapper" class="fade-in">
 
-				<!-- Intro -->
-					<div id="intro">
-            <h1>{{site.title}}</h1>
-						<!--<h2>Post-Doctoral research fellow at Murdoch University</h2> -->
-						<p> <a href="https://twitter.com/NingLiu_MU">@NingLiu_MU</a> <br />
+					<!-- Intro -->
+						<div id="intro">
+            <h1>Dr Ning Liu</h1>
+						<p>Research Scientist at Environment Unit at CSIRO, with expertise and experience in geographic information systems (GIS), remote sensing, modelling, climate change, and carbon mitigation.<br />
+              <a href="https://twitter.com/NingLiu_MU">@NingLiu_MU</a>
 						</p>
 						<ul class="actions">
 							<li><a href="#header" class="button icon solo fa-arrow-down scrolly">Continue</a></li>
@@ -45,49 +45,44 @@ sitemap:
 					<nav id="nav">
 
             {% include nav.html %}
-
-						<ul class="icons">
-              <li><a href="https://twitter.com/{{site.twitter}}" class="icon fa-twitter" rel="nofollow"><span class="label">Twitter</span></a></li>
-              <li><a href="https://facebook.com/{{site.facebook}}" class="icon fa-facebook" rel="nofollow"><span class="label">Facebook</span></a></li>
-              <li><a href="https://instagram.com/{{site.instagram}}" class="icon fa-instagram" rel="nofollow"><span class="label">Instagram</span></a></li>
-              <li><a href="https://github.com/{{site.github}}" class="icon fa-github" rel="nofollow"><span class="label">GitHub</span></a></li>
-						</ul>
+						{% include social-icons.html class_name="icons" %}
 					</nav>
 				<!-- Main -->
 					<div id="main">
-						<!-- Featured Post -->
-							<article class="post featured">
-								<header class="major">
-									<h2><a href="#">Dr Ning Liu</a></h2>
-									<p>Post-Doctoral research fellow in Ecohydrology with expertise and experience in the geographic information system (GIS) & remote sensing, modelling, climate change and carbon mitigation.</p>
-<a href="#" class="image"><img src="https://static.wixstatic.com/media/5c3eeb_5c81a7d75d354c2fae37d50a5aec225d~mv2.png/v1/fill/w_184,h_250,al_c,usm_0.66_1.00_0.01/5c3eeb_5c81a7d75d354c2fae37d50a5aec225d~mv2.png"  alt="" /></a>
-								</header>
+							<!-- Featured Post -->
+								<article class="post featured">
+									<header class="major">
+										<h2><a href="#">Dr Ning Liu</a></h2>
+										<p>Research Scientist at Environment Unit at CSIRO, with expertise and experience in the geographic information system (GIS) & remote sensing, modelling, climate change, and carbon mitigation.</p>
+<a href="#" class="image"><img src="https://static.wixstatic.com/media/5c3eeb_5c81a7d75d354c2fae37d50a5aec225d~mv2.png/v1/fill/w_184,h_250,al_c,usm_0.66_1.00_0.01/5c3eeb_5c81a7d75d354c2fae37d50a5aec225d~mv2.png" alt="" /></a>
+									</header>
 <!--
 <div class="row">
 -->
-  <div class="column" width=50% align=left>
-					<h3>Research interests</h3>					
-					<p>   <li>GIS and remote sensing</li> 
-						<li>Ecohydrological modelling</li> 
-						<li>Agricultural science</li> 
-						<li>Climate change and global biogeochemical cycles</li> 
-						<li>Machine learning and big data computing</li> 
-</p>
-<p></p>
+  <div class="column" width="50%" align="left">
+					<h3>Research Interests</h3>
+          <ul>
+						<li>GIS and remote sensing</li>
+						<li>Environmental modelling</li>
+						<li>Climate change and carbon mitigation</li>
+						<li>Global biogeochemical cycles</li>
+						<li>Machine learning and big data computing</li>
+          </ul>
 
 </div>
 
-<div class="column" width=50% align =left>					
-						<h3>Research experience</h3>	
-<p>   
-	<li>2021--  Post Doctoral Research Fellow, Oak Ridge Institute for Science and Education, TN, USA</li> 
-	<li>2019-- 2020  Post-doctoral research fellow,         University of Minnesota,           United States</li> 
-	<li>2019--   Honorary Research fellow,         Murdoch University, Western Australia,           Australia</li> 
-	<li>2017--2018  Post-doctoral Research fellow,         Murdoch University, Western Australia,           Australia</li> 
-	<li>2014--2017 PhD, Environmental Science,         Murdoch University, Western Australia,           Australia</li> 
-	<li>2010--2013 MSc, Ecology,       Chinese Academy of Forestry, Beijing,            China</li> 
-	<li>2006--2010 BSc, Forestry,      Shandong Agriculture University, Tai'an,         China</li> 
-</p> 
+<div class="column" width="50%" align="left">
+						<h3>Research Experience</h3>
+<ul>
+	<li>Current  Research Scientist, Environment Unit, Commonwealth Scientific and Industrial Research Organisation (CSIRO), Australia</li>
+	<li>2021--  Post Doctoral Research Fellow, Oak Ridge Institute for Science and Education, TN, USA</li>
+	<li>2019--2020  Post-doctoral Research Fellow, University of Minnesota, United States</li>
+	<li>2019--  Honorary Research Fellow, Murdoch University, Western Australia, Australia</li>
+	<li>2017--2018  Post-doctoral Research Fellow, Murdoch University, Western Australia, Australia</li>
+	<li>2014--2017  PhD, Environmental Science, Murdoch University, Western Australia, Australia</li>
+	<li>2010--2013  MSc, Ecology, Chinese Academy of Forestry, Beijing, China</li>
+	<li>2006--2010  BSc, Forestry, Shandong Agriculture University, Tai'an, China</li>
+</ul>
 
 
 </div>
@@ -102,7 +97,7 @@ sitemap:
                 <ul class="actions">
                   <li><a href="{{ "/blog/" | absolute_url }}" class="button">My Blog</a></li>
                 </ul>
-		<p>{% include archive.html %}</>
+		<p>{% include archive.html %}</p>
 							</footer>
 
 					</div>

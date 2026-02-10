@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><?xml-stylesheet type="text/xml" href="https://ln1267.github.io/feed.xslt.xml"?><feed xmlns="http://www.w3.org/2005/Atom"><generator uri="http://jekyllrb.com" version="3.2.1">Jekyll</generator><link href="https://ln1267.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://ln1267.github.io/" rel="alternate" type="text/html" /><updated>2019-01-17T21:39:35-05:00</updated><id>https://ln1267.github.io/</id><title type="html">Ecohydrological research &lt;br /&gt; by Dr Ning Liu</title><subtitle>This is a personal website</subtitle><entry><title type="html">A collection of useful websites</title><link href="https://ln1267.github.io/blog/Useful-websites/" rel="alternate" type="text/html" title="A collection of useful websites" /><published>2018-04-01T00:00:00-04:00</published><updated>2018-04-01T00:00:00-04:00</updated><id>https://ln1267.github.io/blog/Useful-websites</id><content type="html" xml:base="https://ln1267.github.io/blog/Useful-websites/">&lt;h2 id=&quot;remote-sensing&quot;&gt;Remote sensing&lt;/h2&gt;
+<?xml version="1.0" encoding="utf-8"?><?xml-stylesheet type="text/xml" href="https://ln1267.github.io/feed.xslt.xml"?><feed xmlns="http://www.w3.org/2005/Atom"><generator uri="http://jekyllrb.com" version="3.6.3">Jekyll</generator><link href="https://ln1267.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://ln1267.github.io/" rel="alternate" type="text/html" /><updated>2026-02-10T11:02:14+11:00</updated><id>https://ln1267.github.io/</id><title type="html">Ecohydrological research &lt;br /&gt; by Dr Ning Liu</title><subtitle>This is a personal website</subtitle><entry><title type="html">A collection of useful websites</title><link href="https://ln1267.github.io/blog/Useful-websites/" rel="alternate" type="text/html" title="A collection of useful websites" /><published>2018-04-01T00:00:00+11:00</published><updated>2018-04-01T00:00:00+11:00</updated><id>https://ln1267.github.io/blog/Useful-websites</id><content type="html" xml:base="https://ln1267.github.io/blog/Useful-websites/">&lt;h2 id=&quot;remote-sensing&quot;&gt;Remote sensing&lt;/h2&gt;
 &lt;ol&gt;
   &lt;li&gt;MODIS dataset
     &lt;ul&gt;
@@ -244,7 +244,7 @@
   &lt;/li&gt;
   &lt;li&gt;&lt;a href=&quot;http://www.ncl.ucar.edu/Applications/hdf5.shtml&quot;&gt;NCL - Reading and writing HDF5&lt;/a&gt;&lt;/li&gt;
   &lt;li&gt;&lt;a href=&quot;https://www.cl.cam.ac.uk/teaching/1516/NLP/materials.html&quot;&gt;Natural Language Processing&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;</content><category term="Website" /><category term="Data" /><category term="Programming" /><category term="Research" /><summary type="html">This is a collection of useful websites both for research and programming</summary></entry><entry><title type="html">How to creat 3D maps using your phone</title><link href="https://ln1267.github.io/blog/Make-3D-of-a-cup-using-iphone/" rel="alternate" type="text/html" title="How to creat 3D maps using your phone" /><published>2018-03-31T00:00:00-04:00</published><updated>2018-03-31T00:00:00-04:00</updated><id>https://ln1267.github.io/blog/Make-3D-of-a-cup-using-iphone</id><content type="html" xml:base="https://ln1267.github.io/blog/Make-3D-of-a-cup-using-iphone/">&lt;h2 id=&quot;prerequisites&quot;&gt;Prerequisites&lt;/h2&gt;
+&lt;/ul&gt;</content><category term="Website" /><category term="Data" /><category term="Programming" /><category term="Research" /><summary type="html">This is a collection of useful websites both for research and programming</summary></entry><entry><title type="html">How to creat 3D maps using your phone</title><link href="https://ln1267.github.io/blog/Make-3D-of-a-cup-using-iphone/" rel="alternate" type="text/html" title="How to creat 3D maps using your phone" /><published>2018-03-31T00:00:00+11:00</published><updated>2018-03-31T00:00:00+11:00</updated><id>https://ln1267.github.io/blog/Make-3D-of-a-cup-using-iphone</id><content type="html" xml:base="https://ln1267.github.io/blog/Make-3D-of-a-cup-using-iphone/">&lt;h2 id=&quot;prerequisites&quot;&gt;Prerequisites&lt;/h2&gt;
 &lt;ul&gt;
   &lt;li&gt;A phone #  you definitely have at least one&lt;/li&gt;
   &lt;li&gt;A software which can process photos. I used Pix4D in this post (with a licence).&lt;/li&gt;
@@ -262,28 +262,25 @@
 &lt;h2 id=&quot;import-all-photos-to-pix4d-and-select-pix4d-3d-models&quot;&gt;Import all photos to Pix4D and select “Pix4D 3D models”&lt;/h2&gt;
 &lt;p&gt;&lt;img src=&quot;/images/posts/Cup_3d.png&quot; alt=&quot;A 3D model of a cup&quot; /&gt;&lt;/p&gt;
 
-&lt;p&gt;This 3D map is not very good but it captures most of the key features of the table and the cup.&lt;/p&gt;</content><category term="UAV" /><category term="Pix4D" /><category term="3D" /><summary type="html">This is an attempt about using iphone to take photos of an item and creat a 3D model of it using Pix4D</summary></entry><entry><title type="html">Anaconda and Jupyter Notebook</title><link href="https://ln1267.github.io/blog/Install-python/" rel="alternate" type="text/html" title="Anaconda and Jupyter Notebook" /><published>2018-03-30T00:00:00-04:00</published><updated>2018-03-30T00:00:00-04:00</updated><id>https://ln1267.github.io/blog/Install-python</id><content type="html" xml:base="https://ln1267.github.io/blog/Install-python/">&lt;h2 id=&quot;install-and-configure-anaconda&quot;&gt;Install and Configure Anaconda&lt;/h2&gt;
+&lt;p&gt;This 3D map is not very good but it captures most of the key features of the table and the cup.&lt;/p&gt;</content><category term="UAV" /><category term="Pix4D" /><category term="3D" /><summary type="html">This is an attempt about using iphone to take photos of an item and creat a 3D model of it using Pix4D</summary></entry><entry><title type="html">Anaconda and Jupyter Notebook</title><link href="https://ln1267.github.io/blog/Install-python/" rel="alternate" type="text/html" title="Anaconda and Jupyter Notebook" /><published>2018-03-30T00:00:00+11:00</published><updated>2018-03-30T00:00:00+11:00</updated><id>https://ln1267.github.io/blog/Install-python</id><content type="html" xml:base="https://ln1267.github.io/blog/Install-python/">&lt;h2 id=&quot;install-and-configure-anaconda&quot;&gt;Install and Configure Anaconda&lt;/h2&gt;
 
 &lt;h3 id=&quot;install-anaconda&quot;&gt;Install Anaconda&lt;/h3&gt;
 &lt;ul&gt;
   &lt;li&gt;Anaconda can be downloaded from &lt;a href=&quot;https://www.continuum.io/downloads#_unix&quot;&gt;Anaconda’s website&lt;/a&gt;. It has both &lt;a href=&quot;http://repo.continuum.io/archive/Anaconda3-4.0.0-Linux-x86_64.sh&quot;&gt;Linux&lt;/a&gt; and &lt;a href=&quot;http://repo.continuum.io/archive/Anaconda3-4.0.0-Windows-x86_64.exe&quot;&gt;Windows versions&lt;/a&gt;&lt;/li&gt;
   &lt;li&gt;install Anaconda
-    &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;bash *.sh
-&lt;/code&gt;&lt;/pre&gt;
-    &lt;/div&gt;
+    &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;bash *.sh
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
   &lt;/li&gt;
   &lt;li&gt;After installation, set the default python3 version by adding the following code to &lt;strong&gt;&lt;em&gt;“.bashrc”&lt;/em&gt;&lt;/strong&gt;. Then restart the connection. The default &lt;strong&gt;&lt;em&gt;“.bashrc”&lt;/em&gt;&lt;/strong&gt; will be changed for Anaconda
-    &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;# added by Anaconda3 4.0.0 installer
+    &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;# added by Anaconda3 4.0.0 installer
 export PATH=&quot;/home/ubuntu/anaconda3/bin:$PATH&quot;
 
-&lt;/code&gt;&lt;/pre&gt;
-    &lt;/div&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
   &lt;/li&gt;
   &lt;li&gt;install modules
-    &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;conda list # check installed modules
+    &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;conda list # check installed modules
 conda install netCDF4
-&lt;/code&gt;&lt;/pre&gt;
-    &lt;/div&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
   &lt;/li&gt;
   &lt;li&gt;
     &lt;p&gt;update&lt;br /&gt;
@@ -303,7 +300,7 @@ conda install netCDF4
 
 &lt;h2 id=&quot;jupyter-notebook&quot;&gt;Jupyter Notebook&lt;/h2&gt;
 &lt;h3 id=&quot;start-jupyter-notebook&quot;&gt;start Jupyter Notebook&lt;/h3&gt;
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;# general start 
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;# general start 
 jupyter notebook
 
 # in background
@@ -314,27 +311,24 @@ jupyter notebook list
 
 # close jupyter notebook
 kill $(pgrep jupyter)
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;h3 id=&quot;add-extensions-to-jupyter-notebook&quot;&gt;add extensions to Jupyter Notebook&lt;/h3&gt;
 &lt;p&gt;Jupyter &lt;a href=&quot;https://github.com/ipython-contrib/jupyter_contrib_nbextensions/&quot;&gt;&lt;strong&gt;nbextensions&lt;/strong&gt;&lt;/a&gt;&lt;/p&gt;
-&lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# install the nbextensions&lt;/span&gt;
+&lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# install the nbextensions&lt;/span&gt;
 pip install jupyter_contrib_nbextensions
 &lt;span class=&quot;c&quot;&gt;# install js&lt;/span&gt;
-jupyter contrib nbextension install --user
+jupyter contrib nbextension install &lt;span class=&quot;nt&quot;&gt;--user&lt;/span&gt;
 &lt;span class=&quot;c&quot;&gt;# enable nbextensions&lt;/span&gt;
 jupyter nbextension &lt;span class=&quot;nb&quot;&gt;enable &lt;/span&gt;codefolding/main
 
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;h3 id=&quot;nbconvert-for-converting-ipython-to-pdf&quot;&gt;&lt;strong&gt;&lt;em&gt;nbconvert&lt;/em&gt;&lt;/strong&gt; for converting “ipython” to “pdf”&lt;/h3&gt;
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;sudo apt-get install pandoc
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;sudo apt-get install pandoc
 git clone https://github.com/jupyter/nbconvert.git
 cd nbconvert
 pip install -e .
 # test nbconvert
 pip install nbconvert[test]
 py.test --pyargs nbconvert
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;</content><category term="Python" /><category term="Programming" /><category term="Jupyter" /><summary type="html">This is a guide for installing Ananconda and Jupyter Notebook</summary></entry></feed>
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;</content><category term="Python" /><category term="Programming" /><category term="Jupyter" /><summary type="html">This is a guide for installing Ananconda and Jupyter Notebook</summary></entry></feed>

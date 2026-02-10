@@ -1,6 +1,11 @@
+{% assign primary_email = site.email | default: "" | split: ";" | first | strip %}
+{% assign phone_display = site.phone | default: "" | strip %}
+{% assign phone_href = phone_display | remove: " " | remove: ";" %}
+
 <footer id="footer">
   <section>
-    <form method="POST" action="https://formspree.io/{{site.email}}">
+    {% if primary_email != "" %}
+    <form method="POST" action="https://formspree.io/{{ primary_email | uri_escape }}">
       <div class="field">
         <label for="name">Name</label>
         <input type="text" name="name" id="name" />
@@ -17,28 +22,24 @@
         <li><input type="submit" value="Send Message" /></li>
       </ul>
     </form>
+    {% endif %}
   </section>
   <section class="split contact">
     <section class="alt">
-      <h3>Location</h3>
+      <h3>Address</h3>
       <p>{{site.location}}</p>
     </section>
     <section>
       <h3>Phone</h3>
-      <p><a href="tel:{{site.phone}}">{{site.phone}}</a></p>
+      <p><a href="tel:{{ phone_href }}">{{ phone_display }}</a></p>
     </section>
     <section>
       <h3>Email</h3>
-      <p><a href="mailto:{{site.email}}">{{site.email}}</a></p>
+      <p><a href="mailto:{{ primary_email }}">{{ primary_email }}</a></p>
     </section>
     <section>
       <h3>Social</h3>
-      <ul class="icons alt">
-        <li><a href="https://twitter.com/{{site.twitter}}" class="icon fa-twitter" rel="nofollow"><span class="label">Twitter</span></a></li>
-        <li><a href="https://facebook.com/{{site.facebook}}" class="icon fa-facebook" rel="nofollow"><span class="label">Facebook</span></a></li>
-        <li><a href="https://instagram.com/{{site.instagram}}" class="icon fa-instagram" rel="nofollow"><span class="label">Instagram</span></a></li>
-        <li><a href="https://github.com/{{site.github}}" class="icon fa-github" rel="nofollow"><span class="label">GitHub</span></a></li>
-      </ul>
+      {% include social-icons.html class_name="icons alt" %}
     </section>
   </section>
 </footer>

@@ -1,0 +1,36 @@
+{% assign icon_class = include.class_name | default: "icons" %}
+{% assign twitter_value = site.twitter | default: "" | strip %}
+{% assign facebook_value = site.facebook | default: "" | strip %}
+{% assign instagram_value = site.instagram | default: "" | strip %}
+{% assign github_value = site.github | default: "" | strip %}
+
+<ul class="{{ icon_class }}">
+  {% if twitter_value != "" %}
+    {% assign twitter_url = twitter_value %}
+    {% unless twitter_value contains "://" %}
+      {% assign twitter_url = "https://twitter.com/" | append: twitter_value %}
+    {% endunless %}
+    <li><a href="{{ twitter_url }}" class="icon fa-twitter" rel="nofollow"><span class="label">Twitter</span></a></li>
+  {% endif %}
+  {% if facebook_value != "" %}
+    {% assign facebook_url = facebook_value %}
+    {% unless facebook_value contains "://" %}
+      {% assign facebook_url = "https://facebook.com/" | append: facebook_value %}
+    {% endunless %}
+    <li><a href="{{ facebook_url }}" class="icon fa-facebook" rel="nofollow"><span class="label">Facebook</span></a></li>
+  {% endif %}
+  {% if instagram_value != "" %}
+    {% assign instagram_url = instagram_value %}
+    {% unless instagram_value contains "://" %}
+      {% assign instagram_url = "https://instagram.com/" | append: instagram_value %}
+    {% endunless %}
+    <li><a href="{{ instagram_url }}" class="icon fa-instagram" rel="nofollow"><span class="label">Instagram</span></a></li>
+  {% endif %}
+  {% if github_value != "" %}
+    {% assign github_url = github_value %}
+    {% unless github_value contains "://" %}
+      {% assign github_url = "https://github.com/" | append: github_value %}
+    {% endunless %}
+    <li><a href="{{ github_url }}" class="icon fa-github" rel="nofollow"><span class="label">GitHub</span></a></li>
+  {% endif %}
+</ul>
